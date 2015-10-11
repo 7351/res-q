@@ -73,6 +73,5 @@ public class FtcOpModeRegister implements OpModeRegister {
         manager.register("ColorOp", ColorOp.class);
         manager.register("AutonomousTest", AutonomousTest.class);
 
-
     }
 }

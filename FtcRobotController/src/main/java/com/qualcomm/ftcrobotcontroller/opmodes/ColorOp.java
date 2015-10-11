@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import android.graphics.Color;
+
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -53,7 +55,7 @@ public class ColorOp extends OpMode {
 	public void init() {
 
 		color = hardwareMap.colorSensor.get("color");
-	    color.enableLed(false);
+	    color.enableLed(true);
     }
 
 	/*
@@ -64,25 +66,18 @@ public class ColorOp extends OpMode {
 	@Override
 	public void loop() {
 
-        if (color.argb() == android.graphics.Color.BLUE) {
-            DbgLog.msg("Status: Blue");
-            telemetry.addData("color1", "blue");
-        }
-        if (color.argb() == android.graphics.Color.RED) {
-            DbgLog.msg("Status: Red");
-            telemetry.addData("color1", "red");
-        }
-        if (color.argb() == android.graphics.Color.GRAY) {
-            DbgLog.msg("Status: No tape detected");
-            telemetry.addData("color1", "not detecting color");
-        }
-        if (color.argb() == android.graphics.Color.WHITE) {
-            DbgLog.msg("Status: Can't detect actual color of beacon");
-            telemetry.addData("color1", "not detecting color");
-        }
+        StringBuilder tmp = new StringBuilder(10);
+        tmp.append("#");
+        tmp.append(color.red());
+        tmp.append(color.green());
+        tmp.append(color.blue());
+        String hashColor = tmp.toString();
 
+        DbgLog.msg(hashColor);
 
-        telemetry.addData("color2", color.blue() + ", " + color.red() + ", " + color.green());
+        Color.parseColor(hashColor);
+
+        telemetry.addData("color2", color.red() + ", " + color.blue() + ", " + color.alpha());
 
 
 	}
