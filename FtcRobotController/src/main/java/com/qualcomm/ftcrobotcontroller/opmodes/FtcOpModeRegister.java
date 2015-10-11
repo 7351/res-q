@@ -66,6 +66,12 @@ public class FtcOpModeRegister implements OpModeRegister {
 	 * Some testing op modes
 	 */
         manager.register("IrSeeker", IrSeeker.class);
+        manager.register("TouchSensorOp", TouchSensorOp.class);
+        manager.register("OpticalDistance", ProximityOp.class);
+        manager.register("UltrasonicOp", UltrasonicOp.class);
+        manager.register("EncoderTest", EncoderTest.class);
+        manager.register("ColorOp", ColorOp.class);
+        manager.register("AutonomousTest", AutonomousTest.class);
 
 
     }

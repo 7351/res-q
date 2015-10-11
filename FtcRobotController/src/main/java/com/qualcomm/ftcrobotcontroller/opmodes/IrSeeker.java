@@ -31,11 +31,19 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.ftccommon.DbgLog;
-public class IrSeeker extends BasicFunctions {
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.IrSeekerSensor;
+
+public class IrSeeker extends OpMode {
+
+    // Declare IR Seeker
+    IrSeekerSensor irSeeker;
 
   @Override
   public void init() {
-    super.init();
+
+
+      irSeeker = hardwareMap.irSeekerSensor.get("irseeker");
   }
 
   @Override
