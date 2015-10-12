@@ -1,5 +1,8 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+
 public class BasicFunctions extends HardwareAccess {
 
     /*
@@ -10,16 +13,17 @@ public class BasicFunctions extends HardwareAccess {
     /*
     Setting drive power for both motors with one command. Run with setDrivePower() function
      */
-    public void setDrivePower(double power1, double power2) {
+    public void setDrivePower(Double power1, Double power2) {
         motorLeft.setPower(power1);
         motorRight.setPower(power2);
+
     }
 
     /*
     Stop all drive motor power in one simple command
      */
     public void stopDriveMotors(){
-        setDrivePower(0, 0);
+        setDrivePower(0.0, 0.0);
     }
 
     /*
@@ -47,6 +51,11 @@ public class BasicFunctions extends HardwareAccess {
         }
 
         return dScale;
+    }
+
+    public void resetEncoders(DcMotor motor1, DcMotor motor2) {
+        motor1.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+        motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
     }
 
     @Override

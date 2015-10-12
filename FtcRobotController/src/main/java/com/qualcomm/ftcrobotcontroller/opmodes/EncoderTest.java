@@ -1,52 +1,45 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 
-public class EncoderTest extends OpMode {
+public class EncoderTest extends BasicFunctions {
     DcMotor motorleft;
     DcMotor motorright;
 
     final static double WHEELPOWER = 0.20;
 
     final static int ENCODER_CPR = 1440;
-    final static double GEAR_RATIO = 2;
+    final static int GEAR_RATIO = 2;
     final static int WHEEL_DIAMETER = 4;
-    final static int DISTANCE = 6;
+    final static int DISTANCE = 20;
 
-    final static  double CIRCUMFRERENCE = Math.PI * WHEEL_DIAMETER;
+    final static double CIRCUMFRERENCE = Math.PI * WHEEL_DIAMETER;
     final static double ROATATIONS = DISTANCE/CIRCUMFRERENCE;
-    final static double COUNTS = ENCODER_CPR * ROATATIONS * GEAR_RATIO;
+    final static double COUNTS = ENCODER_CPR * ROATATIONS;
+    final static double FINAL_ROTATION = COUNTS/GEAR_RATIO;
 
     @Override
     public void init() {
-        motorleft = hardwareMap.dcMotor.get("motorleft");
-        motorright = hardwareMap.dcMotor.get("motorright");
-
-        motorleft.setDirection(DcMotor.Direction.REVERSE);
-
-        motorleft.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorright.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+        resetEncoders(motorleft, motorright);
     }
 
     @Override
     public void start() {
-        motorleft.setTargetPosition((int) COUNTS);
-        motorright.setTargetPosition((int) COUNTS);
+        motorleft.setTargetPosition((int) FINAL_ROTATION);
+        motorright.setTargetPosition((int) FINAL_ROTATION);
 
         motorleft.setChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
         motorright.setChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
-        motorleft.setPower(WHEELPOWER);
-        motorright.setPower(WHEELPOWER);
+        setDrivePower(WHEELPOWER, WHEELPOWER);
     }
 
 
 
     @Override
     public void loop() {
-        telemetry.addData("Motor Target", COUNTS);
+        telemetry.addData("Motor Target", FINAL_ROTATION);
         telemetry.addData("Left Position", motorleft.getCurrentPosition());
         telemetry.addData("Right Position", motorright.getCurrentPosition());
     }

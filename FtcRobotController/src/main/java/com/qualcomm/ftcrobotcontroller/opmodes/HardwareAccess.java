@@ -17,8 +17,8 @@ abstract public class HardwareAccess extends OpMode {
 
     public void init() {
 
-        motorLeft = hardwareMap.dcMotor.get("motor_1");
-        motorRight = hardwareMap.dcMotor.get("motor_2");
+        motorLeft = hardwareMap.dcMotor.get("motorleft");
+        motorRight = hardwareMap.dcMotor.get("motorright");
         motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
 
