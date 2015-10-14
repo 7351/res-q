@@ -58,6 +58,11 @@ public class BasicFunctions extends HardwareAccess {
         motor2.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
     }
 
+    public void runToPosition(DcMotor motor1, DcMotor motor2){
+        motor1.setChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        motor2.setChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
+    }
+
     @Override
     public void init() {
         super.init();
