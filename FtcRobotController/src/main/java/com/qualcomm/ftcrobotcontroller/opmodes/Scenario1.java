@@ -39,6 +39,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 
+import java.lang.reflect.Array;
+
 /**
  * EmptyOp Mode
  * <p>
@@ -51,10 +53,18 @@ public class Scenario1 extends OpMode {
 
     ColorSensor color;
 
+    final static int TOLERANCE = 4;
+
     int stage = 0;
 
     final static int GEAR_RATIO = 2;
     final static int WHEEL_DIAMETER = 4;
+
+    int[][] distanceArray = {{
+    /* 0 | Left */        -24, -3, 23, 2, 48
+    }, {
+    /* 1 | Right */        -24, 3, 23, -2, 48
+    }};//                   0   1   2  3   4
 
     double calcEncoderValue(double inches) {
         return (1440 * (inches/(Math.PI * WHEEL_DIAMETER)))/GEAR_RATIO;
@@ -70,16 +80,33 @@ public class Scenario1 extends OpMode {
         motorright.setPower(power);
     }
 
-    /* public boolean isWithinTolerance (double distance) {
-        if ((motorleft.getCurrentPosition() <= distance+2)) {
-
+    // Tolerance up to 0.035 of an inch calculated by 2=(1440*(x/(3.14*4)))/2
+    public boolean isWithinTolerance (double distanceLeft, double distanceRight) {
+        boolean lefttolerance = false;
+        boolean righttolerance = false;
+        if ((motorleft.getCurrentPosition() <= distanceLeft + TOLERANCE) && (motorleft.getCurrentPosition() >= distanceLeft - TOLERANCE)) {
+            lefttolerance = true;
+        } if ((motorright.getCurrentPosition() <= distanceRight + TOLERANCE) && (motorright.getCurrentPosition() >= distanceRight - TOLERANCE)) {
+            righttolerance = true;
+        } if (lefttolerance && righttolerance) {
+            return true;
+        } else {
+            return false;
         }
-    } */
+    }
+
+    public String telementryTargetEnc(int arrayNumber) {
+        return calcEncFromArray(0, arrayNumber) + ", " + calcEncFromArray(1, arrayNumber);
+    }
+
+    public double calcEncFromArray(int a, int b) {
+        return calcEncoderValue(distanceArray[a][b]);
+    }
 
 
 	/*
 	 * Code to run when the op mode is initialized goes here
-	 * 
+	 *
 	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
 	 */
 	@Override
@@ -97,7 +124,7 @@ public class Scenario1 extends OpMode {
 
 	/*
 	 * This method will be called repeatedly in a loop
-	 * 
+	 *
 	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
 	 */
 	@Override
@@ -117,20 +144,132 @@ public class Scenario1 extends OpMode {
                 DbgLog.msg("Could not find out color");
             }
             stage++;
+
         } if (stage == 2) {
+            // Reset Encoders
             setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+
+            // Set encoders to run to a certain position
             setDriveChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
-            motorleft.setTargetPosition((int) calcEncoderValue(12));
-            motorleft.setTargetPosition((int) calcEncoderValue(12));
 
+            // Set target positon by using calcEncoderValue
+            motorleft.setTargetPosition((int) calcEncFromArray(0, 0));
+            motorright.setTargetPosition((int) calcEncFromArray(1, 0));
+
+            // Set motor power
             setDrivePower(0.2);
             stage++;
-        } /*if (stage == 3) {
-            if (motorleft.getCurrentPosition() == calcEncoderValue(12))
-        }*/
 
-        telemetry.addData("stage", stage);
+
+        } if (stage == 3) {
+            if (isWithinTolerance(calcEncFromArray(0, 0), calcEncFromArray(1, 0))) {
+                setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+                stage++;
+            }
+            telemetry.addData("enc target", telementryTargetEnc(0));
+
+
+        } if (stage == 4) {
+            // Reset Encoders
+            setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+
+            // Set encoders to run to a certain position
+            setDriveChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
+
+            // Set target positon by using calcEncoderValue
+            motorleft.setTargetPosition((int) calcEncFromArray(0, 1));
+            motorright.setTargetPosition((int) calcEncFromArray(1, 1));
+
+            // Set motor power
+            setDrivePower(0.2);
+            stage++;
+
+
+        } if (stage == 5) {
+            if (isWithinTolerance(calcEncFromArray(0, 1), calcEncFromArray(1, 1))) {
+                setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+                stage++;
+            }
+            telemetry.addData("enc target", telementryTargetEnc(1));
+
+        } if (stage == 6) {
+            // Reset Encoders
+            setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+
+            // Set encoders to run to a certain position
+            setDriveChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
+
+            // Set target positon by using calcEncoderValue
+            motorleft.setTargetPosition((int) calcEncFromArray(0, 2));
+            motorright.setTargetPosition((int) calcEncFromArray(1, 2));
+
+            // Set motor power
+            setDrivePower(0.2);
+            stage++;
+
+
+        } if (stage == 7) {
+            if (isWithinTolerance(calcEncFromArray(0, 2), calcEncFromArray(1, 2))) {
+                setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+                stage++;
+            }
+            telemetry.addData("enc target", telementryTargetEnc(2));
+
+
+        } if (stage == 7) {
+            // Reset Encoders
+            setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+
+            // Set encoders to run to a certain position
+            setDriveChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
+
+            // Set target positon by using calcEncoderValue
+            motorleft.setTargetPosition((int) calcEncFromArray(0, 3));
+            motorright.setTargetPosition((int) calcEncFromArray(1, 3));
+
+            // Set motor power
+            setDrivePower(0.2);
+            stage++;
+
+
+        } if (stage == 8) {
+            if (isWithinTolerance(calcEncFromArray(0, 3), calcEncFromArray(1, 3))) {
+                setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+                stage++;
+            }
+            telemetry.addData("enc target", telementryTargetEnc(3));
+
+
+        } if (stage == 9) {
+            // Reset Encoders
+            setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+
+            // Set encoders to run to a certain position
+            setDriveChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
+
+            // Set target positon by using calcEncoderValue
+            motorleft.setTargetPosition((int) calcEncFromArray(0, 4));
+            motorright.setTargetPosition((int) calcEncFromArray(1, 4));
+
+            // Set motor power
+            setDrivePower(0.2);
+            stage++;
+
+
+        } if (stage == 10) {
+            if (isWithinTolerance(calcEncFromArray(0,4), calcEncFromArray(1, 4))) {
+                setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+                stage++;
+            }
+            telemetry.addData("enc target", telementryTargetEnc(4));
+        }
+
+    telemetry.addData("stage", stage);
 
 
 	}
