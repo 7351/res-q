@@ -40,12 +40,6 @@ public class EmptyOp extends BasicFunctions {
 
     // Specifying motors has been moved to HardwareAccess.class
 
-	/**
-	 * Constructor
-	 */
-	public EmptyOp() {
-
-	}
 
 	/*
 	 * Code to run when the op mode is initialized goes here

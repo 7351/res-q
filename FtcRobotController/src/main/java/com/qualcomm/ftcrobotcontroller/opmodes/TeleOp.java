@@ -104,7 +104,7 @@ public class TeleOp extends BasicFunctions {
 		left =  (float)scaleInput(left * scalePower);
 
 		// write the values to the motors
-        setDrivePower(left, right);
+        setDrivePower((double)left, (double)right);
 
 		/*
 		 * Send telemetry data back to driver station. Note that if we are using
