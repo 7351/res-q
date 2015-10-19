@@ -31,17 +31,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import android.graphics.Color;
+
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 
 /**
  * EmptyOp Mode
  * <p>
  * Enables control of the robot via the gamepad
  */
-public class ColorOp extends OpMode {
+public class Scenario1 extends OpMode {
+
+    DcMotor motorleft;
+    DcMotor motorright;
 
     ColorSensor color;
+
+    int stage = 0;
+
+    final static int GEAR_RATIO = 2;
+    final static int WHEEL_DIAMETER = 4;
+
+    double calcEncoderValue(double inches) {
+        return (1440 * (inches/(Math.PI * WHEEL_DIAMETER)))/GEAR_RATIO;
+    }
+
+    public void setDriveChannelMode (DcMotorController.RunMode mode) {
+        motorleft.setChannelMode(mode);
+        motorright.setChannelMode(mode);
+    }
+
+    public void setDrivePower (double power) {
+        motorleft.setPower(power);
+        motorright.setPower(power);
+    }
+
+    /* public boolean isWithinTolerance (double distance) {
+        if ((motorleft.getCurrentPosition() <= distance+2)) {
+
+        }
+    } */
+
 
 	/*
 	 * Code to run when the op mode is initialized goes here
@@ -51,9 +85,15 @@ public class ColorOp extends OpMode {
 	@Override
 	public void init() {
 
-		color = hardwareMap.colorSensor.get("color");
-	    color.enableLed(true);
-    }
+        motorleft = hardwareMap.dcMotor.get("motorleft");
+        motorright = hardwareMap.dcMotor.get("motorright");
+        motorleft.setDirection(DcMotor.Direction.REVERSE);
+
+        color = hardwareMap.colorSensor.get("color");
+
+        color.enableLed(false);
+
+	}
 
 	/*
 	 * This method will be called repeatedly in a loop
@@ -63,8 +103,34 @@ public class ColorOp extends OpMode {
 	@Override
 	public void loop() {
 
+        if (stage == 0) {
+            // Emptying the climbers code goes into here
+            stage++;
+        } if (stage == 1) {
+            // Scanning for color and pushing button goes here
+            int currentcolor = color.argb();
+            if (currentcolor == Color.RED){
+                // Code for having robot push red button
+            } if (currentcolor == Color.BLUE) {
+                // Code for having robot push blue button
+            } else {
+                DbgLog.msg("Could not find out color");
+            }
+            stage++;
+        } if (stage == 2) {
+            setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+            setDriveChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
 
-        telemetry.addData("color2", String.valueOf(color.argb()));
+            motorleft.setTargetPosition((int) calcEncoderValue(12));
+            motorleft.setTargetPosition((int) calcEncoderValue(12));
+
+            setDrivePower(0.2);
+            stage++;
+        } /*if (stage == 3) {
+            if (motorleft.getCurrentPosition() == calcEncoderValue(12))
+        }*/
+
+        telemetry.addData("stage", stage);
 
 
 	}
