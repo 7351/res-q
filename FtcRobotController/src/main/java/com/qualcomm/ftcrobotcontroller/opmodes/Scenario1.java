@@ -219,7 +219,7 @@ public class Scenario1 extends OpMode {
             telemetry.addData("enc target", telementryTargetEnc(2));
 
 
-        } if (stage == 7) {
+        } if (stage == 8) {
             // Reset Encoders
             setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
 
@@ -236,7 +236,7 @@ public class Scenario1 extends OpMode {
             stage++;
 
 
-        } if (stage == 8) {
+        } if (stage == 9) {
             if (isWithinTolerance(calcEncFromArray(0, 3), calcEncFromArray(1, 3))) {
                 setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
                 stage++;
@@ -244,7 +244,7 @@ public class Scenario1 extends OpMode {
             telemetry.addData("enc target", telementryTargetEnc(3));
 
 
-        } if (stage == 9) {
+        } if (stage == 10) {
             // Reset Encoders
             setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
 
@@ -261,7 +261,7 @@ public class Scenario1 extends OpMode {
             stage++;
 
 
-        } if (stage == 10) {
+        } if (stage == 11) {
             if (isWithinTolerance(calcEncFromArray(0,4), calcEncFromArray(1, 4))) {
                 setDriveChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
                 stage++;
