@@ -71,7 +71,7 @@ public class FtcOpModeRegister implements OpModeRegister {
         manager.register("UltrasonicOp", UltrasonicOp.class);
         manager.register("EncoderTest", EncoderTest.class);
         manager.register("ColorOp", ColorOp.class);
-        manager.register("Scenario1", Scenario1.class);
-
+        manager.register("R|Scenario1", RedScenario1.class);
+        manager.register("B|Scenario1", BlueScenario1.class);
     }
 }

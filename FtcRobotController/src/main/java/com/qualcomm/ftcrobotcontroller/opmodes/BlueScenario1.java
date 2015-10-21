@@ -39,14 +39,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 
-import java.lang.reflect.Array;
-
-/**
- * EmptyOp Mode
- * <p>
- * Enables control of the robot via the gamepad
- */
-public class Scenario1 extends OpMode {
+public class BlueScenario1 extends OpMode {
 
     DcMotor motorleft;
     DcMotor motorright;
@@ -59,12 +52,13 @@ public class Scenario1 extends OpMode {
 
     final static int GEAR_RATIO = 2;
     final static int WHEEL_DIAMETER = 4;
+    final static double WHEELPOWER = 0.15;
 
     int[][] distanceArray = {{
-    /* 0 | Left */        -24, -3, 23, 2, 48
+    /* 0 | Left */        -24, 2, 23, -1, 48
     }, {
-    /* 1 | Right */        -24, 3, 23, -2, 48
-    }};//                   0   1   2  3   4
+    /* 1 | Right */        -24, -2, 23, 1, 48
+    }};//                  0    1    2  3  4
 
     double calcEncoderValue(double inches) {
         return (1440 * (inches/(Math.PI * WHEEL_DIAMETER)))/GEAR_RATIO;
@@ -88,9 +82,8 @@ public class Scenario1 extends OpMode {
             lefttolerance = true;
         } if ((motorright.getCurrentPosition() <= distanceRight + TOLERANCE) && (motorright.getCurrentPosition() >= distanceRight - TOLERANCE)) {
             righttolerance = true;
-        } if (lefttolerance && righttolerance) {
-            return true;
-        } else {
+        } if (lefttolerance && righttolerance) return true;
+        else {
             return false;
         }
     }
@@ -104,13 +97,13 @@ public class Scenario1 extends OpMode {
     }
 
 
-	/*
-	 * Code to run when the op mode is initialized goes here
-	 *
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
-	 */
-	@Override
-	public void init() {
+    /*
+     * Code to run when the op mode is initialized goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
+     */
+    @Override
+    public void init() {
 
         motorleft = hardwareMap.dcMotor.get("motorleft");
         motorright = hardwareMap.dcMotor.get("motorright");
@@ -120,21 +113,22 @@ public class Scenario1 extends OpMode {
 
         color.enableLed(false);
 
-	}
+    }
 
-	/*
-	 * This method will be called repeatedly in a loop
-	 *
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
-	 */
-	@Override
-	public void loop() {
+    /*
+     * This method will be called repeatedly in a loop
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
+     */
+    @Override
+    public void loop() {
 
         if (stage == 0) {
             // Emptying the climbers code goes into here
             stage++;
         } if (stage == 1) {
             // Scanning for color and pushing button goes here
+            /*
             int currentcolor = color.argb();
             if (currentcolor == Color.RED){
                 // Code for having robot push red button
@@ -143,6 +137,7 @@ public class Scenario1 extends OpMode {
             } else {
                 DbgLog.msg("Could not find out color");
             }
+            */
             stage++;
 
         } if (stage == 2) {
@@ -158,7 +153,7 @@ public class Scenario1 extends OpMode {
             motorright.setTargetPosition((int) calcEncFromArray(1, 0));
 
             // Set motor power
-            setDrivePower(0.2);
+            setDrivePower(WHEELPOWER);
             stage++;
 
 
@@ -183,7 +178,7 @@ public class Scenario1 extends OpMode {
             motorright.setTargetPosition((int) calcEncFromArray(1, 1));
 
             // Set motor power
-            setDrivePower(0.2);
+            setDrivePower(WHEELPOWER);
             stage++;
 
 
@@ -207,7 +202,7 @@ public class Scenario1 extends OpMode {
             motorright.setTargetPosition((int) calcEncFromArray(1, 2));
 
             // Set motor power
-            setDrivePower(0.2);
+            setDrivePower(WHEELPOWER);
             stage++;
 
 
@@ -232,7 +227,7 @@ public class Scenario1 extends OpMode {
             motorright.setTargetPosition((int) calcEncFromArray(1, 3));
 
             // Set motor power
-            setDrivePower(0.2);
+            setDrivePower(WHEELPOWER);
             stage++;
 
 
@@ -257,7 +252,7 @@ public class Scenario1 extends OpMode {
             motorright.setTargetPosition((int) calcEncFromArray(1, 4));
 
             // Set motor power
-            setDrivePower(0.2);
+            setDrivePower(WHEELPOWER);
             stage++;
 
 
@@ -269,20 +264,20 @@ public class Scenario1 extends OpMode {
             telemetry.addData("enc target", telementryTargetEnc(4));
         }
 
-    telemetry.addData("stage", stage);
+        telemetry.addData("stage", stage);
 
 
-	}
+    }
 
-	/*
-	 * Code to run when the op mode is first disabled goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
-	 */
-	@Override
-	public void stop() {
+    /*
+     * Code to run when the op mode is first disabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     */
+    @Override
+    public void stop() {
 
-	}
+    }
 
-	// Scaling input has been moved to BasicFunctions
+    // Scaling input has been moved to BasicFunctions
 }
