@@ -52,7 +52,7 @@ public class ColorOp extends OpMode {
 	public void init() {
 
 		color = hardwareMap.colorSensor.get("color");
-	    color.enableLed(true);
+	    color.enableLed(false);
     }
 
 	/*
