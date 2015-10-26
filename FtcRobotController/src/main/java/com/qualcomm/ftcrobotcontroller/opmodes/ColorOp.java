@@ -33,6 +33,9 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * EmptyOp Mode
@@ -43,16 +46,31 @@ public class ColorOp extends OpMode {
 
     ColorSensor color;
 
-	/*
-	 * Code to run when the op mode is initialized goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
-	 */
+	Servo servo;
+
+	double getDecimalFromAngle (int angle) {
+        return (angle * 0.5)/180;
+    }
+
+
+
+    /*
+     * Code to run when the op mode is initialized goes here
+     * 
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
+     */
 	@Override
 	public void init() {
 
 		color = hardwareMap.colorSensor.get("color");
+
+		servo = hardwareMap.servo.get("servo");
 	    color.enableLed(false);
+
+    }
+
+    @Override
+    public void start() {
     }
 
 	/*
@@ -63,8 +81,16 @@ public class ColorOp extends OpMode {
 	@Override
 	public void loop() {
 
+		if (color.red() > color.blue()) {
+			servo.setPosition(getDecimalFromAngle(150));
+		} if (color.blue() > color.red()) {
+			servo.setPosition(0);
+		}
 
-        telemetry.addData("color2", String.valueOf(color.argb()));
+
+        telemetry.addData("color", String.valueOf(color.argb()));
+
+        telemetry.addData("servoPos", String.valueOf((servo.getPosition()*180)/0.5));
 
 
 	}
@@ -79,5 +105,7 @@ public class ColorOp extends OpMode {
 
 	}
 
-	// Scaling input has been moved to BasicFunctions
+    
+
+    // Scaling input has been moved to BasicFunctions
 }
