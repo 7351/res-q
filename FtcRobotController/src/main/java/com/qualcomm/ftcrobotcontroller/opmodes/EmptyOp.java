@@ -31,14 +31,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 /**
  * EmptyOp Mode
  * <p>
  * Enables control of the robot via the gamepad
  */
-public class EmptyOp extends BasicFunctions {
-
-    // Specifying motors has been moved to HardwareAccess.class
+public class EmptyOp extends OpMode {
 
 
 	/*
@@ -49,7 +49,6 @@ public class EmptyOp extends BasicFunctions {
 	@Override
 	public void init() {
 
-		super.init();
 	}
 
 	/*
@@ -73,5 +72,4 @@ public class EmptyOp extends BasicFunctions {
 
 	}
 
-	// Scaling input has been moved to BasicFunctions
 }
