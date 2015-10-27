@@ -31,11 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * EmptyOp Mode
@@ -47,6 +46,8 @@ public class ColorOp extends OpMode {
     ColorSensor color;
 
 	Servo servo;
+
+    private final boolean redMode = false;
 
 	double getDecimalFromAngle (int angle) {
         return (angle * 0.5)/180;
@@ -67,10 +68,13 @@ public class ColorOp extends OpMode {
 		servo = hardwareMap.servo.get("servo");
 	    color.enableLed(false);
 
+        servo.setPosition(getDecimalFromAngle(90));
+
     }
 
     @Override
     public void start() {
+
     }
 
 	/*
@@ -81,11 +85,23 @@ public class ColorOp extends OpMode {
 	@Override
 	public void loop() {
 
-		if (color.red() > color.blue()) {
-			servo.setPosition(getDecimalFromAngle(150));
-		} if (color.blue() > color.red()) {
-			servo.setPosition(0);
-		}
+		if (redMode) {
+            if (color.red() > color.blue()) {
+                DbgLog.msg("Red");
+                servo.setPosition(getDecimalFromAngle(140));
+            } if (color.red() < color.blue()) {
+                DbgLog.msg("Blue");
+                servo.setPosition(getDecimalFromAngle(0));
+            }
+        } if (!redMode) {
+            if (color.red() > color.blue()) {
+                DbgLog.msg("Red");
+                servo.setPosition(getDecimalFromAngle(0));
+            } if (color.red() < color.blue()) {
+                DbgLog.msg("Blue");
+                servo.setPosition(getDecimalFromAngle(140));
+            }
+        }
 
 
         telemetry.addData("color", String.valueOf(color.argb()));

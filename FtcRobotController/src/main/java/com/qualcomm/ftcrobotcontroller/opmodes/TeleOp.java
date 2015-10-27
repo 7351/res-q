@@ -51,7 +51,6 @@ public class TeleOp extends BasicFunctions {
 	public TeleOp() {
 
 	}
-
 	/*
 	 * Code to run when the op mode is initialized goes here
 	 * 

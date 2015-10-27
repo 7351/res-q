@@ -31,9 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -42,14 +40,12 @@ public class ServoTest extends OpMode {
 
     Servo servo;
 
-	ColorSensor color;
-
     private ElapsedTime servotime = new ElapsedTime();
     private double servoPosition;
 
     //tweak these values for desired speed
     private double servoDelta = 0.01;
-    private double servoDelayTime = 0.008;
+    private double servoDelayTime = 0.0035;
 
     double getDecimalFromAngle (int angle) {
         return (angle * 0.5)/180;
@@ -66,9 +62,7 @@ public class ServoTest extends OpMode {
 
         servo = hardwareMap.servo.get("servo");
 
-        color = hardwareMap.colorSensor.get("color");
-
-        servo.setPosition(getDecimalFromAngle(55));
+        servo.setPosition(getDecimalFromAngle(0));
 
 	}
 
@@ -86,7 +80,7 @@ public class ServoTest extends OpMode {
 	public void loop() {
 
         if( servotime.time() > servoDelayTime ) {
-            servo.setPosition(Range.clip( servoPosition += servoDelta, 0, getDecimalFromAngle(110)));
+            servo.setPosition(Range.clip( servoPosition += servoDelta, 0, getDecimalFromAngle(150)));
             servotime.reset();
         }
 
