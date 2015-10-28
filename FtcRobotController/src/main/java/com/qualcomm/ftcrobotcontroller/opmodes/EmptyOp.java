@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, 2015 Qualcomm Technologies Inc
+/* Copyright (c) 2014 Qualcomm Technologies Inc
 
 All rights reserved.
 
@@ -31,41 +31,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
- * Register Op Modes
+ * EmptyOp Mode
+ * <p>
+ * Template program for making new OpModes
  */
-public class FtcOpModeRegister implements OpModeRegister {
+public class EmptyOp extends OpMode {
 
-    /**
-     * The Op Mode Manager will call this method when it wants a list of all
-     * available op modes. Add your op mode to the list to enable it.
-     *
-     * @param manager op mode manager
-     */
-    public void register(OpModeManager manager) {
 
     /*
-     * register your op modes here.
-     * The first parameter is the name of the op mode
-     * The second parameter is the op mode class property
+     * Code to run when the op mode is initialized goes here
      *
-     * If two or more op modes are registered with the same name, the app will display an error.
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
      */
+    @Override
+    public void init() {
 
-        // Removed Qualcomm's code, view on the github provided by them.
+    }
 
-	/*
-     * The TeleOp op mode
-	 */
-        manager.register("TeleOp", TeleOp.class);
-	
-	/*
-	 * Some testing op modes
-	 */
+    /*
+     * This method will be called repeatedly in a loop
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
+     */
+    @Override
+    public void loop() {
 
 
     }
+
+    /*
+     * Code to run when the op mode is first disabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     */
+    @Override
+    public void stop() {
+
+    }
+
 }
