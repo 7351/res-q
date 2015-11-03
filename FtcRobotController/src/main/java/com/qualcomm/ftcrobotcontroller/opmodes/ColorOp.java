@@ -37,9 +37,9 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /**
- * EmptyOp Mode
+ * ColorOp mode
  * <p>
- * Enables control of the robot via the gamepad
+ * Testing op mode that relates to color
  */
 public class ColorOp extends OpMode {
 
@@ -49,9 +49,7 @@ public class ColorOp extends OpMode {
 
     private final boolean redMode = false;
 
-	double getDecimalFromAngle (int angle) {
-        return (angle * 0.5)/180;
-    }
+	double getDecimalFromAngle (int angle) { return angle / 180; }
 
 
 
@@ -68,7 +66,7 @@ public class ColorOp extends OpMode {
 		servo = hardwareMap.servo.get("servo");
 	    color.enableLed(false);
 
-        servo.setPosition(getDecimalFromAngle(90));
+        servo.setPosition(getDecimalFromAngle(45));
 
     }
 
@@ -88,7 +86,7 @@ public class ColorOp extends OpMode {
 		if (redMode) {
             if (color.red() > color.blue()) {
                 DbgLog.msg("Red");
-                servo.setPosition(getDecimalFromAngle(140));
+                servo.setPosition(getDecimalFromAngle(75));
             } if (color.red() < color.blue()) {
                 DbgLog.msg("Blue");
                 servo.setPosition(getDecimalFromAngle(0));
@@ -99,14 +97,14 @@ public class ColorOp extends OpMode {
                 servo.setPosition(getDecimalFromAngle(0));
             } if (color.red() < color.blue()) {
                 DbgLog.msg("Blue");
-                servo.setPosition(getDecimalFromAngle(140));
+                servo.setPosition(getDecimalFromAngle(75));
             }
         }
 
 
         telemetry.addData("color", String.valueOf(color.argb()));
 
-        telemetry.addData("servoPos", String.valueOf((servo.getPosition()*180)/0.5));
+        telemetry.addData("servoPos", String.valueOf(servo.getPosition()*180));
 
 
 	}

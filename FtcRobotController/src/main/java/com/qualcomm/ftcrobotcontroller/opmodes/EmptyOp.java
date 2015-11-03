@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 /**
  * EmptyOp Mode
  * <p>
- * Enables control of the robot via the gamepad
+ * template for OpMode
  */
 public class EmptyOp extends OpMode {
 

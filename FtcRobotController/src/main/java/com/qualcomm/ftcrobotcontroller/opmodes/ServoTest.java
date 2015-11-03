@@ -48,7 +48,7 @@ public class ServoTest extends OpMode {
     private double servoDelayTime = 0.0035;
 
     double getDecimalFromAngle (int angle) {
-        return (angle * 0.5)/180;
+        return angle / 180;
     }
 
 
@@ -80,7 +80,7 @@ public class ServoTest extends OpMode {
 	public void loop() {
 
         if( servotime.time() > servoDelayTime ) {
-            servo.setPosition(Range.clip( servoPosition += servoDelta, 0, getDecimalFromAngle(150)));
+            servo.setPosition(Range.clip( servoPosition += servoDelta, 0, getDecimalFromAngle(110)));
             servotime.reset();
         }
 
@@ -96,6 +96,8 @@ public class ServoTest extends OpMode {
 	 */
 	@Override
 	public void stop() {
+
+        servo.setPosition(0);
 
 	}
 
