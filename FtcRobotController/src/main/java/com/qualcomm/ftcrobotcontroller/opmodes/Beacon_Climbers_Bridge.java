@@ -34,56 +34,52 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * Beacon_Climbers_Bridge
+ * Beacon_Climbers_Bridge autonomous
  * <p>
- * Dumps climbers into beacon while pushing the correct button for color
+ * Autonomous mode to dump climbers into bucket and hit the beacon with colorSensor
  */
 public class Beacon_Climbers_Bridge extends OpMode {
 
-    // Initialize ColorSensor, Servos, and Motors
+    // Define objects
+
     ColorSensor colorSensor;
 
-    Servo colorChooserServo;
+    Servo colorServo;
+
     Servo climbersServo;
 
-    DcMotor driveMotorLeft;
-    DcMotor driveMotorRight;
+    // Variables for controlling speed on the climbersServo
 
-    // ElapsedTime variable used for the slow speed on Climbers servo
     private ElapsedTime servotime = new ElapsedTime();
     private double servoPosition;
 
-    // Change these variables for speed on the Climbers motor
+    //tweak these values for desired speed
     private double servoDelta = 0.01;
     private double servoDelayTime = 0.0035;
 
-    // Alliance specific code is in this program
-    // If you are on the Red Alliance change to true
-    // If you are on the Blue Alliance change to false
+
     private final boolean redMode = true;
 
-    // TODO duplicated stable code for both alliance, but for now just stick with Red Alliance
+    // Function return a decimal from the inputed angle
+    double getDecimalFromAngle (int angle) { return angle / 180; }
 
-    // Convert degrees of the servo (out of 180) to decimal
-    double getDecimalFromAngle (int angle) {
-        return Range.clip((angle * 0.5)/180, 0, 1);
-    }
 
-    // What color is the colorSensor detecting, Red or Blue?
-    public String colorSensorROB() {
+    // Determines what color the robot is seeing in string form
+    String colorROB () {
+        String returnValue;
         if (colorSensor.red() > colorSensor.blue()) {
-            return "Red";
+            returnValue = "Red";
         } if (colorSensor.blue() > colorSensor.red()) {
-            return "Blue";
+            returnValue = "Blue";
         } else {
-            return "Unknown";
+            returnValue = "Unknown";
         }
+        return returnValue;
     }
 
 
@@ -96,36 +92,23 @@ public class Beacon_Climbers_Bridge extends OpMode {
     @Override
     public void init() {
 
+        // Get variables from hardwaremap
+
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
 
-        colorChooserServo = hardwareMap.servo.get("colorServo");
+        colorServo = hardwareMap.servo.get("colorServo");
+        climbersServo = hardwareMap.servo.get("climbersServo");
         colorSensor.enableLed(false);
 
-        climbersServo = hardwareMap.servo.get("climbersServo");
+        // Set servo positions
+        climbersServo.setPosition(0);
 
-        driveMotorLeft = hardwareMap.dcMotor.get("driveLeft");
-        driveMotorRight = hardwareMap.dcMotor.get("driveRight");
-        driveMotorLeft.setDirection(DcMotor.Direction.REVERSE);
-
-        climbersServo.setPosition(getDecimalFromAngle(0));
-        colorChooserServo.setPosition(getDecimalFromAngle(65));
+        colorServo.setPosition(getDecimalFromAngle(45));
 
     }
 
-    /*
-     * This code will be ran when the start button is hit
-     *
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
-     */
     @Override
     public void start() {
-
-        // Slowly set the servo to 130 degrees
-        if( servotime.time() > servoDelayTime ) {
-            climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0, getDecimalFromAngle(130)));
-            servotime.reset();
-        }
-
 
     }
 
@@ -137,51 +120,44 @@ public class Beacon_Climbers_Bridge extends OpMode {
     @Override
     public void loop() {
 
-        // Code for red alliance
+        // Set climber servo with modified speed
+
+        if( servotime.time() > servoDelayTime ) {
+            climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0, getDecimalFromAngle(110)));
+            servotime.reset();
+        }
+
+        // Angle statements
         if (redMode) {
-            // If Red is detected, set servo to 150
-            if (colorSensor.red() > colorSensor.blue()) {
-                DbgLog.msg("Red");
-                colorChooserServo.setPosition(getDecimalFromAngle(150));
+            if (colorROB() == "Red") {
+                DbgLog.msg(colorROB());
+                colorServo.setPosition(getDecimalFromAngle(75));
+            } if (colorROB() == "Blue") {
+                DbgLog.msg(colorROB());
+                colorServo.setPosition(getDecimalFromAngle(0));
             }
-            // If Blue is detected, set servo to 0
-            if (colorSensor.red() < colorSensor.blue()) {
-                DbgLog.msg("Blue");
-                colorChooserServo.setPosition(getDecimalFromAngle(0));
+        } if (!redMode) {
+            if (colorROB() == "Red") {
+                DbgLog.msg(colorROB());
+                colorServo.setPosition(getDecimalFromAngle(0));
             }
-            // If Green is detected, reset servo to median
-            if ((colorSensor.green() > colorSensor.blue()) && (colorSensor.green() > colorSensor.red())) {
-                DbgLog.msg("Blue");
-                colorChooserServo.setPosition(getDecimalFromAngle(60));
-            }
-        }
-
-        // Code for blue alliance
-        if (!redMode) {
-            // If Red is detected, set servo to 0
-            if (colorSensor.red() > colorSensor.blue()) {
-                DbgLog.msg("Red");
-                colorChooserServo.setPosition(getDecimalFromAngle(0));
-            }
-            // If Blue is detected, set servo to 150
-            if (colorSensor.red() < colorSensor.blue()) {
-                DbgLog.msg("Blue");
-                colorChooserServo.setPosition(getDecimalFromAngle(150));
-            }
-            // If Green is detected, reset servo to median
-            if ((colorSensor.green() > colorSensor.blue()) && (colorSensor.green() > colorSensor.red())) {
-                DbgLog.msg("Green");
-                colorChooserServo.setPosition(getDecimalFromAngle(60));
+            if (colorROB() == "Blue") {
+                DbgLog.msg(colorROB());
+                colorServo.setPosition(getDecimalFromAngle(75));
             }
         }
 
-        // Code for driving to the bridge will be added here when the Gyro sensor arrives
+        // Default position if no color is detected
+        if (colorROB() == "Unknown") {
+            colorServo.setPosition(getDecimalFromAngle(45));
+        }
 
-        // Telemetry the detected color in string form
-        telemetry.addData("detected color", colorSensorROB());
 
-        // Give the color servo position back in angele form
-        telemetry.addData("color servo pos", String.valueOf((colorChooserServo.getPosition()*180)/0.5));
+
+        // Telementry return data
+        telemetry.addData("color", colorROB());
+
+        telemetry.addData("servoPos", String.valueOf(colorServo.getPosition()*180));
 
 
     }
