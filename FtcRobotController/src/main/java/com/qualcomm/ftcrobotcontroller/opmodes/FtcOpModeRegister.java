@@ -61,6 +61,7 @@ public class FtcOpModeRegister implements OpModeRegister {
      * The TeleOp op mode
 	 */
         manager.register("TeleOp", TeleOp.class);
+        manager.register("BCB", Beacon_Climbers_Bridge.class);
 	
 	/*
 	 * Some testing op modes

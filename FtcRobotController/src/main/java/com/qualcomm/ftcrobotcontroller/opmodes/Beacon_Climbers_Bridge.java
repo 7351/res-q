@@ -54,32 +54,24 @@ public class Beacon_Climbers_Bridge extends OpMode {
     Servo climbersServo;
 
     // Variables for controlling speed on the climbersServo
-
     private ElapsedTime servotime = new ElapsedTime();
     private double servoPosition;
 
     //tweak these values for desired speed
     private double servoDelta = 0.01;
-    private double servoDelayTime = 0.0035;
-
+    private double servoDelayTime = 0.0037;
 
     private final boolean redMode = true;
 
-    // Function return a decimal from the inputed angle
-    double getDecimalFromAngle (int angle) { return angle / 180; }
-
-
     // Determines what color the robot is seeing in string form
     String colorROB () {
-        String returnValue;
+        String returnString = "Unknown";
         if (colorSensor.red() > colorSensor.blue()) {
-            returnValue = "Red";
+            returnString = "Red";
         } if (colorSensor.blue() > colorSensor.red()) {
-            returnValue = "Blue";
-        } else {
-            returnValue = "Unknown";
+            returnString = "Blue";
         }
-        return returnValue;
+        return returnString;
     }
 
 
@@ -103,12 +95,13 @@ public class Beacon_Climbers_Bridge extends OpMode {
         // Set servo positions
         climbersServo.setPosition(0);
 
-        colorServo.setPosition(getDecimalFromAngle(45));
+        colorServo.setPosition(0.4);
 
     }
 
     @Override
     public void start() {
+
 
     }
 
@@ -119,37 +112,39 @@ public class Beacon_Climbers_Bridge extends OpMode {
      */
     @Override
     public void loop() {
-
+        /*
         // Set climber servo with modified speed
 
+        */
         if( servotime.time() > servoDelayTime ) {
-            climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0, getDecimalFromAngle(110)));
+            climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0, 0.9));
             servotime.reset();
         }
 
+
         // Angle statements
         if (redMode) {
-            if (colorROB() == "Red") {
+            if (colorSensor.red() > colorSensor.blue()) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(75));
-            } if (colorROB() == "Blue") {
+                colorServo.setPosition(0.85);
+            } if (colorSensor.red() < colorSensor.blue()) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(0));
+                colorServo.setPosition(0);
             }
         } if (!redMode) {
-            if (colorROB() == "Red") {
+            if (colorSensor.red() > colorSensor.blue()) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(0));
+                colorServo.setPosition(0);
             }
-            if (colorROB() == "Blue") {
+            if (colorSensor.red() < colorSensor.blue()) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(75));
+                colorServo.setPosition(0.85);
             }
         }
 
         // Default position if no color is detected
-        if (colorROB() == "Unknown") {
-            colorServo.setPosition(getDecimalFromAngle(45));
+        if (colorROB().equals("Unknown")) {
+            colorServo.setPosition(0.4);
         }
 
 
@@ -158,6 +153,7 @@ public class Beacon_Climbers_Bridge extends OpMode {
         telemetry.addData("color", colorROB());
 
         telemetry.addData("servoPos", String.valueOf(colorServo.getPosition()*180));
+        telemetry.addData("time", String.valueOf(servotime));
 
 
     }
