@@ -31,11 +31,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * GyroTest
@@ -52,6 +51,12 @@ public class GyroTest extends OpMode {
     boolean goalReached = false;
 
     public final int TOLERANCE = 2;
+
+    double calcEncoderValue(double inches) {
+        return (1440 * (inches/(Math.PI * 4)))/2;
+    }
+
+    public int stage = 0;
 
 
 	/*
@@ -88,21 +93,36 @@ public class GyroTest extends OpMode {
 	 */
 	@Override
 	public void loop() {
-        if (!gyro.isCalibrating()) {
-            if ((gyro.getHeading() <= 90 + TOLERANCE) && (gyro.getHeading() >= 90 - TOLERANCE)) {
-                goalReached = true;
+        if (stage == 0) {
+            if (!gyro.isCalibrating()) {
+                if ((gyro.getHeading() <= 45 + TOLERANCE) && (gyro.getHeading() >= 45 - TOLERANCE)) {
+                    goalReached = true;
+                    stage++;
+                }
+                if (goalReached) {
+                    motorleft.setPower(0);
+                    motorright.setPower(0);
+                }
+                if (!goalReached) {
+                    motorleft.setPower(0.175);
+                    motorright.setPower(-0.175);
+                }
             }
-            if (goalReached) {
-                motorleft.setPower(0);
-                motorright.setPower(0);
-            }
-            if (!goalReached) {
-                motorleft.setPower(0.175);
-                motorright.setPower(-0.175);
-            }
+        } if (stage == 1) {
+            motorleft.setTargetPosition(motorleft.getCurrentPosition() + (int) calcEncoderValue(48));
+            motorright.setTargetPosition(motorright.getCurrentPosition() + (int) calcEncoderValue(48));
+
+            motorleft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+            motorright.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+
+            motorleft.setPower(0.2);
+            motorright.setPower(0.2);
+
+            stage++;
         }
 
-        telemetry.addData("gyro", "X:" + gyro.rawX()/100 + " Y:" + gyro.rawY()/100 + " Z:" + gyro.rawZ()/100);
+
+        telemetry.addData("enc ps", String.valueOf(motorleft.getCurrentPosition()) + ", " + String.valueOf(motorright.getCurrentPosition()));
         telemetry.addData("gyroHead", String.valueOf(gyro.getHeading()));
 
 
