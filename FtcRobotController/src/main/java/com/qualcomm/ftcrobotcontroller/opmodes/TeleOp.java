@@ -31,6 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -38,19 +41,21 @@ import com.qualcomm.robotcore.util.Range;
  * <p>
  * Enables control of the robot via the gamepad
  */
-public class TeleOp extends BasicFunctions {
+public class TeleOp extends OpMode {
 
-    // Specifying motors has been moved to HardwareAccess.class
 
     // Initial scaling power
     double scalePower = 0.65;
 
-	/**
-	 * Constructor
-	 */
-	public TeleOp() {
+    // Declare left motor
+    DcMotor motorLeft1;
+    DcMotor motorLeft2;
+    // Declare right motor
+    DcMotor motorRight1;
+    DcMotor motorRight2;
 
-	}
+    GyroSensor gyro;
+
 	/*
 	 * Code to run when the op mode is initialized goes here
 	 * 
@@ -59,8 +64,18 @@ public class TeleOp extends BasicFunctions {
 	@Override
 	public void init() {
 
-		super.init();
-	}
+        motorLeft1 = hardwareMap.dcMotor.get("motorleft1");
+        motorLeft2 = hardwareMap.dcMotor.get("motorleft2");
+        motorRight1 = hardwareMap.dcMotor.get("motorright1");
+        motorRight2 = hardwareMap.dcMotor.get("motorright2");
+        motorLeft1.setDirection(DcMotor.Direction.REVERSE);
+        motorLeft2.setDirection(DcMotor.Direction.REVERSE);
+
+        gyro = hardwareMap.gyroSensor.get("gyro");
+
+        gyro.calibrate();
+
+    }
 
 	/*
 	 * This method will be called repeatedly in a loop
@@ -73,9 +88,9 @@ public class TeleOp extends BasicFunctions {
         float leftTrigger = gamepad1.left_trigger;
 
         if (leftTrigger != 0) {
-            scalePower = 0.35;
+            scalePower = 0.75;
         } if (leftTrigger == 0) {
-            scalePower = 0.65;
+            scalePower = 1;
         }
 
 		/*
@@ -89,7 +104,7 @@ public class TeleOp extends BasicFunctions {
 		// direction: right_stick_x ranges from -1 to 1, where -1 is full left
 		// and 1 is full right
 		float throttle = -gamepad1.right_stick_y;
-		float direction = gamepad1.right_stick_x;
+		float direction = -gamepad1.right_stick_x;
 		float right = throttle - direction;
 		float left = throttle + direction;
 
@@ -103,7 +118,7 @@ public class TeleOp extends BasicFunctions {
 		left =  (float)scaleInput(left * scalePower);
 
 		// write the values to the motors
-        setDrivePower((double)left, (double)right);
+        setDrivePower((double) left, (double) right);
 
 		/*
 		 * Send telemetry data back to driver station. Note that if we are using
@@ -111,9 +126,9 @@ public class TeleOp extends BasicFunctions {
 		 * will return a null value. The legacy NXT-compatible motor controllers
 		 * are currently write only.
 		 */
-		telemetry.addData("Text", "*** Robot Data***");
 		telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
 		telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+        telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
 
 	}
 
@@ -127,5 +142,45 @@ public class TeleOp extends BasicFunctions {
 
 	}
 
-	// Scaling input has been moved to BasicFunctions
+    public void setDrivePower(Double power1, Double power2) {
+        motorLeft1.setPower(power1);
+        motorLeft2.setPower(power1);
+        motorRight1.setPower(power2);
+        motorRight2.setPower(power2);
+
+    }
+
+    /*
+    Stop all drive motor power in one simple command
+     */
+    public void stopDriveMotors(){
+        setDrivePower(0.0, 0.0);
+    }
+
+    /*
+     * This method scales the joystick input so for low joystick values, the
+	 * scaled value is less than linear.  This is to make it easier to drive
+	 * the robot more precisely at slower speeds.
+	 */
+    double scaleInput(double dVal) {
+        double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
+                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
+
+        // get the corresponding index for the scaleInput array.
+        int index = (int) (dVal * 16.0);
+        if (index < 0) {
+            index = -index;
+        } else if (index > 16) {
+            index = 16;
+        }
+
+        double dScale = 0.0;
+        if (dVal < 0) {
+            dScale = -scaleArray[index];
+        } else {
+            dScale = scaleArray[index];
+        }
+
+        return dScale;
+    }
 }

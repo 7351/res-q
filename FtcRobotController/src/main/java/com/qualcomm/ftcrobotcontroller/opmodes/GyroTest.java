@@ -33,7 +33,6 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 
 /**
@@ -45,18 +44,28 @@ public class GyroTest extends OpMode {
 
 	GyroSensor gyro;
 
-    DcMotor motorleft;
-    DcMotor motorright;
+    DcMotor motorleft1;
+    DcMotor motorleft2;
+    DcMotor motorright1;
+    DcMotor motorright2;
 
     boolean goalReached = false;
 
-    public final int TOLERANCE = 2;
+    public final int TOLERANCE = 10;
 
     double calcEncoderValue(double inches) {
         return (1440 * (inches/(Math.PI * 4)))/2;
     }
 
     public int stage = 0;
+
+    public boolean isGyroInTolerance(int degree) {
+        boolean returnValue = false;
+        if ((gyro.getHeading() <= degree + TOLERANCE) && (gyro.getHeading() >= degree - TOLERANCE)) {
+            returnValue = true;
+        }
+        return returnValue;
+    }
 
 
 	/*
@@ -69,9 +78,12 @@ public class GyroTest extends OpMode {
 
         gyro = hardwareMap.gyroSensor.get("gyro");
 
-        motorleft = hardwareMap.dcMotor.get("motorleft");
-        motorright = hardwareMap.dcMotor.get("motorright");
-        motorleft.setDirection(DcMotor.Direction.REVERSE);
+        motorleft1 = hardwareMap.dcMotor.get("motorleft1");
+        motorleft2 = hardwareMap.dcMotor.get("motorleft2");
+        motorright1 = hardwareMap.dcMotor.get("motorright1");
+        motorright2 = hardwareMap.dcMotor.get("motorright2");
+        motorleft1.setDirection(DcMotor.Direction.REVERSE);
+        motorleft2.setDirection(DcMotor.Direction.REVERSE);
         gyro.calibrate();
 
 	}
@@ -93,36 +105,26 @@ public class GyroTest extends OpMode {
 	 */
 	@Override
 	public void loop() {
-        if (stage == 0) {
             if (!gyro.isCalibrating()) {
-                if ((gyro.getHeading() <= 45 + TOLERANCE) && (gyro.getHeading() >= 45 - TOLERANCE)) {
+                if (isGyroInTolerance(90)) {
                     goalReached = true;
                     stage++;
                 }
                 if (goalReached) {
-                    motorleft.setPower(0);
-                    motorright.setPower(0);
+                    driveLeft(0);
+                    driveRight(0);
                 }
                 if (!goalReached) {
-                    motorleft.setPower(0.175);
-                    motorright.setPower(-0.175);
+                    driveLeft(-0.75);
+                    driveRight(0.75);
                 }
             }
-        } if (stage == 1) {
-            motorleft.setTargetPosition(motorleft.getCurrentPosition() + (int) calcEncoderValue(48));
-            motorright.setTargetPosition(motorright.getCurrentPosition() + (int) calcEncoderValue(48));
-
-            motorleft.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-            motorright.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
-
-            motorleft.setPower(0.2);
-            motorright.setPower(0.2);
-
-            stage++;
-        }
 
 
-        telemetry.addData("enc ps", String.valueOf(motorleft.getCurrentPosition()) + ", " + String.valueOf(motorright.getCurrentPosition()));
+
+
+
+        telemetry.addData("enc ps", String.valueOf(motorleft2.getCurrentPosition()) + ", " + String.valueOf(motorright2.getCurrentPosition()));
         telemetry.addData("gyroHead", String.valueOf(gyro.getHeading()));
 
 
@@ -137,5 +139,15 @@ public class GyroTest extends OpMode {
 	public void stop() {
 
 	}
+
+    public void driveLeft (double power) {
+        motorleft1.setPower(power);
+        motorleft2.setPower(power);
+    }
+
+    public void driveRight (double power) {
+        motorright1.setPower(power);
+        motorright2.setPower(power);
+    }
 
 }
