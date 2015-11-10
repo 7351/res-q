@@ -33,6 +33,8 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -42,37 +44,64 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class TeleOp extends OpMode {
 
-    DcMotor driveMotorLeft;
-	DcMotor driveMotorRight;
 
     // Initial scaling power
     double scalePower = 0.65;
 
+    // Declare left motor
+    DcMotor motorLeft1;
+    DcMotor motorLeft2;
+    // Declare right motor
+    DcMotor motorRight1;
+    DcMotor motorRight2;
 
-	/*
-	 * Code to run when the op mode is initialized goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
-	 */
-	@Override
-	public void init() {
+    GyroSensor gyro;
 
-	}
+    Servo climbersServo;
 
-	/*
-	 * This method will be called repeatedly in a loop
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
-	 */
-	@Override
-	public void loop() {
+    Servo ziplinerServo;
+
+    /*
+     * Code to run when the op mode is initialized goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
+     */
+    @Override
+    public void init() {
+
+        motorLeft1 = hardwareMap.dcMotor.get("motorleft1");
+        motorLeft2 = hardwareMap.dcMotor.get("motorleft2");
+        motorRight1 = hardwareMap.dcMotor.get("motorright1");
+        motorRight2 = hardwareMap.dcMotor.get("motorright2");
+        motorLeft1.setDirection(DcMotor.Direction.REVERSE);
+        motorLeft2.setDirection(DcMotor.Direction.REVERSE);
+
+        gyro = hardwareMap.gyroSensor.get("gyro");
+
+        climbersServo = hardwareMap.servo.get("climbersServo");
+
+        gyro.calibrate();
+
+        climbersServo.setPosition(0);
+
+        ziplinerServo = hardwareMap.servo.get("ziplinersServo");
+
+    }
+
+    /*
+     * This method will be called repeatedly in a loop
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
+     */
+    @Override
+    public void loop() {
 
         float leftTrigger = gamepad1.left_trigger;
 
         if (leftTrigger != 0) {
-            scalePower = 0.35;
+            scalePower = 0.75;
         } if (leftTrigger == 0) {
-            scalePower = 0.65;
+            scalePower = 1;
         }
 
 		/*
@@ -81,26 +110,26 @@ public class TeleOp extends OpMode {
 		 * Gamepad 1 controls the motors via the right stick
 		 */
 
-		// throttle: right_stick_y ranges from -1 to 1, where -1 is full up, and
-		// 1 is full down
-		// direction: right_stick_x ranges from -1 to 1, where -1 is full left
-		// and 1 is full right
-		float throttle = -gamepad1.right_stick_y;
-		float direction = gamepad1.right_stick_x;
-		float right = throttle - direction;
-		float left = throttle + direction;
+        // throttle: right_stick_y ranges from -1 to 1, where -1 is full up, and
+        // 1 is full down
+        // direction: right_stick_x ranges from -1 to 1, where -1 is full left
+        // and 1 is full right
+        float throttle = gamepad1.right_stick_y;
+        float direction = -gamepad1.right_stick_x;
+        float right = throttle - direction;
+        float left = throttle + direction;
 
-		// clip the right/left values so that the values never exceed +/- 1
-		right = Range.clip(right, -1, 1);
-		left = Range.clip(left, -1, 1);
+        // clip the right/left values so that the values never exceed +/- 1
+        right = Range.clip(right, -1, 1);
+        left = Range.clip(left, -1, 1);
 
-		// scale the joystick value to make it easier to control
-		// the robot more precisely at slower speeds.
-		right = (float)scaleInput(right * scalePower);
-		left =  (float)scaleInput(left * scalePower);
+        // scale the joystick value to make it easier to control
+        // the robot more precisely at slower speeds.
+        right = (float)scaleInput(right * scalePower);
+        left =  (float)scaleInput(left * scalePower);
 
-		// write the values to the motors
-        setDrivePower(left, right);
+        // write the values to the motors
+        setDrivePower((double) left, (double) right);
 
 		/*
 		 * Send telemetry data back to driver station. Note that if we are using
@@ -108,22 +137,50 @@ public class TeleOp extends OpMode {
 		 * will return a null value. The legacy NXT-compatible motor controllers
 		 * are currently write only.
 		 */
-		telemetry.addData("Text", "*** Robot Data***");
-		telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
-		telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+        telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
+        telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+        telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
 
-	}
+        boolean buttonXPressed = gamepad1.dpad_left;
 
-	/*
-	 * Code to run when the op mode is first disabled goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+        if (buttonXPressed) {
+            ziplinerServo.setPosition(0.05);
+        } if (!buttonXPressed) {
+            ziplinerServo.setPosition(1);
+        }
+
+    }
+
+    /*
+     * Code to run when the op mode is first disabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     */
+    @Override
+    public void stop() {
+
+    }
+
+    public void setDrivePower(Double power1, Double power2) {
+        motorLeft1.setPower(power1);
+        motorLeft2.setPower(power1);
+        motorRight1.setPower(power2);
+        motorRight2.setPower(power2);
+
+    }
+
+    /*
+    Stop all drive motor power in one simple command
+     */
+    public void stopDriveMotors(){
+        setDrivePower(0.0, 0.0);
+    }
+
+    /*
+     * This method scales the joystick input so for low joystick values, the
+	 * scaled value is less than linear.  This is to make it easier to drive
+	 * the robot more precisely at slower speeds.
 	 */
-	@Override
-	public void stop() {
-
-	}
-
     double scaleInput(double dVal) {
         double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
                 0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
@@ -144,11 +201,5 @@ public class TeleOp extends OpMode {
         }
 
         return dScale;
-    }
-
-    public void setDrivePower(float powerleft, float powerright) {
-        driveMotorLeft.setPower(powerleft);
-        driveMotorRight.setPower(powerright);
-
     }
 }

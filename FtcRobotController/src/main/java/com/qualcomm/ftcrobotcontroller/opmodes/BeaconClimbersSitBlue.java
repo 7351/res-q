@@ -39,11 +39,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * Beacon_Climbers_Bridge autonomous
+ * BeaconClimbersSitRed autonomous
  * <p>
  * Autonomous mode to dump climbers into bucket and hit the beacon with colorSensor
  */
-public class Beacon_Climbers_Bridge extends OpMode {
+public class BeaconClimbersSitBlue extends OpMode {
 
     // Define objects
 
@@ -59,9 +59,11 @@ public class Beacon_Climbers_Bridge extends OpMode {
 
     //tweak these values for desired speed
     private double servoDelta = 0.01;
-    private double servoDelayTime = 0.0037;
+    private double servoDelayTime = 0.003;
 
-    private final boolean redMode = true;
+    private final boolean redMode = false;
+
+    Servo ziplinersServo;
 
     // Determines what color the robot is seeing in string form
     String colorROB () {
@@ -78,7 +80,7 @@ public class Beacon_Climbers_Bridge extends OpMode {
 
     /*
      * Code to run when the op mode is initialized goes here
-     * 
+     *
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
      */
     @Override
@@ -97,6 +99,8 @@ public class Beacon_Climbers_Bridge extends OpMode {
 
         colorServo.setPosition(0.4);
 
+        ziplinersServo = hardwareMap.servo.get("ziplinersServo");
+
     }
 
     @Override
@@ -112,6 +116,9 @@ public class Beacon_Climbers_Bridge extends OpMode {
      */
     @Override
     public void loop() {
+
+        ziplinersServo.setPosition(1);
+
         /*
         // Set climber servo with modified speed
 
@@ -168,7 +175,4 @@ public class Beacon_Climbers_Bridge extends OpMode {
 
     }
 
-
-
-    // Scaling input has been moved to BasicFunctions
 }
