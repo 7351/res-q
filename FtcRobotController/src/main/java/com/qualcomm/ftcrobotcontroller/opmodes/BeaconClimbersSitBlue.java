@@ -34,6 +34,8 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -47,15 +49,27 @@ public class BeaconClimbersSitBlue extends OpMode {
 
     // Define objects
 
-    ColorSensor colorSensor;
+    ColorSensor colorSensorBeacon;
+
+    ColorSensor lineColorSensor;
 
     Servo colorServo;
 
     Servo climbersServo;
 
+    // Declare left motor
+    DcMotor motorLeft1;
+    DcMotor motorLeft2;
+    // Declare right motor
+    DcMotor motorRight1;
+    DcMotor motorRight2;
+
+    GyroSensor gyro;
+
     // Variables for controlling speed on the climbersServo
     private ElapsedTime servotime = new ElapsedTime();
     private double servoPosition;
+    private ElapsedTime startTime = new ElapsedTime();
 
     //tweak these values for desired speed
     private double servoDelta = 0.01;
@@ -65,15 +79,27 @@ public class BeaconClimbersSitBlue extends OpMode {
 
     Servo ziplinersServo;
 
+    int stage = 0;
+
     // Determines what color the robot is seeing in string form
     String colorROB () {
         String returnString = "Unknown";
-        if (colorSensor.red() > colorSensor.blue()) {
+        if (colorSensorBeacon.red() > colorSensorBeacon.blue()) {
             returnString = "Red";
-        } if (colorSensor.blue() > colorSensor.red()) {
+        } if (colorSensorBeacon.blue() > colorSensorBeacon.red()) {
             returnString = "Blue";
         }
         return returnString;
+    }
+
+    boolean whiteLineReached = false;
+
+    public boolean ifOverWhite() {
+        boolean returnValue = false;
+        if ((lineColorSensor.red() >= 5) && (lineColorSensor.green() >= 5) && (lineColorSensor.blue() >= 5)) {
+            returnValue = true;
+        }
+        return returnValue;
     }
 
 
@@ -88,11 +114,23 @@ public class BeaconClimbersSitBlue extends OpMode {
 
         // Get variables from hardwaremap
 
-        colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        motorLeft1 = hardwareMap.dcMotor.get("motorleft1");
+        motorLeft2 = hardwareMap.dcMotor.get("motorleft2");
+        motorRight1 = hardwareMap.dcMotor.get("motorright1");
+        motorRight2 = hardwareMap.dcMotor.get("motorright2");
+        motorLeft1.setDirection(DcMotor.Direction.REVERSE);
+        motorLeft2.setDirection(DcMotor.Direction.REVERSE);
+
+        colorSensorBeacon = hardwareMap.colorSensor.get("colorSensorBeacon");
+
+        lineColorSensor = hardwareMap.colorSensor.get("lineColorSensor");
+
+        gyro = hardwareMap.gyroSensor.get("gyro");
+        gyro.calibrate();
 
         colorServo = hardwareMap.servo.get("colorServo");
         climbersServo = hardwareMap.servo.get("climbersServo");
-        colorSensor.enableLed(false);
+        colorSensorBeacon.enableLed(false);
 
         // Set servo positions
         climbersServo.setPosition(0);
@@ -105,6 +143,7 @@ public class BeaconClimbersSitBlue extends OpMode {
 
     @Override
     public void start() {
+        startTime.reset();
 
 
     }
@@ -116,48 +155,69 @@ public class BeaconClimbersSitBlue extends OpMode {
      */
     @Override
     public void loop() {
+        if (stage == 0 ) {
+            while (!whiteLineReached) {
+                driveLeft(-0.65);
+                driveRight(-0.65);
+            }
+            if (ifOverWhite()) {
+                whiteLineReached = true;
+                driveLeft(0);
+                driveRight(0);
+                stage++;
+                gyro.calibrate();
+            }
+        } if (stage == 1) {
+
+        }
 
         ziplinersServo.setPosition(1);
-
-        /*
+        if (startTime.time() <= 3) {
+            /*
         // Set climber servo with modified speed
 
         */
-        if( servotime.time() > servoDelayTime ) {
-            climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0, 0.9));
-            servotime.reset();
-        }
+            if( servotime.time() > servoDelayTime ) {
+                climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0, 0.9));
+                servotime.reset();
+            }
 
 
-        // Angle statements
-        if (redMode) {
-            if (colorSensor.red() > colorSensor.blue()) {
-                DbgLog.msg(colorROB());
-                colorServo.setPosition(0.85);
-            } if (colorSensor.red() < colorSensor.blue()) {
-                DbgLog.msg(colorROB());
-                colorServo.setPosition(0);
+            // Angle statements
+            if (redMode) {
+                if (colorSensorBeacon.red() > colorSensorBeacon.blue()) {
+                    DbgLog.msg(colorROB());
+                    colorServo.setPosition(0.85);
+                } if (colorSensorBeacon.red() < colorSensorBeacon.blue()) {
+                    DbgLog.msg(colorROB());
+                    colorServo.setPosition(0);
+                }
+            } if (!redMode) {
+                if (colorSensorBeacon.red() > colorSensorBeacon.blue()) {
+                    DbgLog.msg(colorROB());
+                    colorServo.setPosition(0);
+                }
+                if (colorSensorBeacon.red() < colorSensorBeacon.blue()) {
+                    DbgLog.msg(colorROB());
+                    colorServo.setPosition(0.85);
+                }
             }
-        } if (!redMode) {
-            if (colorSensor.red() > colorSensor.blue()) {
-                DbgLog.msg(colorROB());
-                colorServo.setPosition(0);
-            }
-            if (colorSensor.red() < colorSensor.blue()) {
-                DbgLog.msg(colorROB());
-                colorServo.setPosition(0.85);
-            }
-        }
 
-        // Default position if no color is detected
-        if (colorROB().equals("Unknown")) {
+            // Default position if no color is detected
+            if (colorROB().equals("Unknown")) {
+                colorServo.setPosition(0.4);
+            }
+        } else {
             colorServo.setPosition(0.4);
+            climbersServo.setPosition(0);
         }
+
+
 
 
 
         // Telementry return data
-        telemetry.addData("color", colorROB());
+        telemetry.addData("White?", String.valueOf(ifOverWhite()));
 
         telemetry.addData("servoPos", String.valueOf(colorServo.getPosition()*180));
         telemetry.addData("time", String.valueOf(servotime));
@@ -173,6 +233,15 @@ public class BeaconClimbersSitBlue extends OpMode {
     @Override
     public void stop() {
 
+    }
+
+    public void driveLeft(double powerLeft) {
+        motorLeft1.setPower(powerLeft);
+        motorLeft2.setPower(powerLeft);
+    }
+    public void driveRight(double powerRight) {
+        motorRight1.setPower(powerRight);
+        motorRight2.setPower(powerRight);
     }
 
 }

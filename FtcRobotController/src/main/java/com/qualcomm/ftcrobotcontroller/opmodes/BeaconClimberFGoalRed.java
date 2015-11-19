@@ -43,7 +43,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * BeaconClimbersSitRed autonomous
  * <p>
- * Autonomous mode to dump climbers into bucket and hit the beacon with colorSensor
+ * Autonomous mode to dump climbers into bucket and hit the beacon with colorSensor, then move to floor goal
  */
 public class BeaconClimberFGoalRed extends OpMode {
 
@@ -191,44 +191,33 @@ public class BeaconClimberFGoalRed extends OpMode {
             if (runTime.time() >= 3.5) {
                 stage++;
             }
+
+            telemetry.addData("color", colorROB());
+            telemetry.addData("servoPos", String.valueOf(colorServo.getPosition() * 180));
         }
         if (stage == 1) {
             climbersServo.setPosition(0);
             if (!redMode) {
                 if (!gyro.isCalibrating()) {
-                    if (isGyroInTolerance(90)) {
-                        stage++;
-                        runTime.reset();
+                    double motor_output = ((90 - gyro.getHeading()) / 180.0) + ((90 - gyro.getHeading()) > 0 ? .35 : 0);
+                    driveLeft(-motor_output);
+                    driveRight(motor_output);
+                    if (isGyroInTolerance(1)) {
                         driveLeft(0);
                         driveRight(0);
-                    }
-                    if (!isGyroInTolerance(90)) {
-                        if ((90 - gyro.getHeading()) > 25) {
-                            driveLeft(-0.8);
-                            driveRight(0.8);
-                        } else {
-                            driveLeft(-0.6);
-                            driveRight(0.6);
-                        }
+                        stage++;
                     }
                 }
             }
             if (redMode) {
                 if (!gyro.isCalibrating()) {
-                    if (isGyroInTolerance(270)) {
-                        stage++;
-                        runTime.reset();
+                    double motor_output = ((270 - gyro.getHeading()) / 180.0) + ((270 - gyro.getHeading()) > 0 ? .35 : 0);
+                    driveLeft(motor_output);
+                    driveRight(-motor_output);
+                    if (isGyroInTolerance(1)) {
                         driveLeft(0);
                         driveRight(0);
-                    }
-                    if (!isGyroInTolerance(270)) {
-                        if ((90 - gyro.getHeading()) > 25) {
-                            driveLeft(0.8);
-                            driveRight(-0.8);
-                        } else {
-                            driveLeft(0.6);
-                            driveRight(-0.6);
-                        }
+                        stage++;
                     }
                 }
             }
@@ -237,7 +226,8 @@ public class BeaconClimberFGoalRed extends OpMode {
             if (runTime.time() < 1) {
                 driveLeft(0.75);
                 driveRight(0.75);
-            } if (runTime.time() >= 1) {
+            }
+            if (runTime.time() >= 1) {
                 driveLeft(0);
                 driveRight(0);
             }
@@ -248,8 +238,6 @@ public class BeaconClimberFGoalRed extends OpMode {
 
 
         // Telementry return data
-        telemetry.addData("color", colorROB());
-        telemetry.addData("servoPos", String.valueOf(colorServo.getPosition() * 180));
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("heading", gyro.getHeading());
 

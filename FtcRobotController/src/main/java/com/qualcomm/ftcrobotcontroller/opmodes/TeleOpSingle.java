@@ -38,11 +38,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * TeleOp Mode
+ * TeleOpDouble Mode
  * <p>
  * Enables control of the robot via the gamepad
  */
-public class TeleOp extends OpMode {
+public class TeleOpSingle extends OpMode {
 
 
     // Initial scaling power
@@ -60,6 +60,11 @@ public class TeleOp extends OpMode {
     Servo climbersServo;
 
     Servo ziplinerServo;
+
+    Servo boxServo;
+
+    DcMotor intakeMotor;
+    DcMotor liftMotor;
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -86,27 +91,72 @@ public class TeleOp extends OpMode {
 
         ziplinerServo = hardwareMap.servo.get("ziplinersServo");
 
+        boxServo = hardwareMap.servo.get("boxServo");
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        liftMotor = hardwareMap.dcMotor.get("liftMotor");
+        boxServo.setPosition(1);
+
+        liftMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        ziplinerServo.setPosition(1);
+
+    }
+
+    @Override
+    public void start() {
+        climbersServo.setPosition(0.25);
+
     }
 
     /*
-     * This method will be called repeatedly in a loop
-     *
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
-     */
+         * This method will be called repeatedly in a loop
+         *
+         * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
+         */
     @Override
     public void loop() {
 
-        float leftTrigger = gamepad1.left_trigger;
 
-        if (leftTrigger != 0) {
-            scalePower = 0.75;
-        } if (leftTrigger == 0) {
-            scalePower = 1;
+        float leftTriger = gamepad1.left_trigger;
+        float rightTrigger = gamepad1.right_trigger;
+        float leftYStick = gamepad1.left_stick_y;
+        boolean buttonXPressed = gamepad1.dpad_left;
+        boolean leftBumper = gamepad1.left_bumper;
+
+
+        liftMotor.setPower(scaleInput(leftYStick));
+        if (scaleInput(leftYStick) <= 0) {
+            liftMotor.setPower(scaleInput(leftYStick));
+        } else {
+            liftMotor.setPower(scaleInput(leftYStick * 0.25));
         }
 
+        if (rightTrigger != 0) {
+            intakeMotor.setPower(1);
+        } if (rightTrigger == 0) {
+            intakeMotor.setPower(0);
+        }
+
+        if (leftTriger != 0) {
+            intakeMotor.setPower(-1);
+        } if (leftTriger == 0) {
+            intakeMotor.setPower(0);
+        }
+
+        if (buttonXPressed) {
+            ziplinerServo.setPosition(0.05);
+        } if (!buttonXPressed) {
+            ziplinerServo.setPosition(1);
+        }
+
+        if (leftBumper) {
+            scalePower = 0.75;
+        } if (!leftBumper) {
+            scalePower = 1;
+        }
 		/*
 		 * Gamepad 1
-		 * 
+		 *
 		 * Gamepad 1 controls the motors via the right stick
 		 */
 
@@ -141,13 +191,7 @@ public class TeleOp extends OpMode {
         telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
 
-        boolean buttonXPressed = gamepad1.dpad_left;
 
-        if (buttonXPressed) {
-            ziplinerServo.setPosition(0.05);
-        } if (!buttonXPressed) {
-            ziplinerServo.setPosition(1);
-        }
 
     }
 

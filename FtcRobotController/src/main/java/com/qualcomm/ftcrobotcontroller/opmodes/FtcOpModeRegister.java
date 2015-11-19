@@ -58,14 +58,21 @@ public class FtcOpModeRegister implements OpModeRegister {
         // Removed Qualcomm's code, view on the github provided by them.
 
 	/*
-     * The TeleOp op mode
+     * The TeleOpDouble op mode
 	 */
-        manager.register("TeleOp", TeleOp.class);
-        manager.register("BCSRed", BeaconClimbersSitRed.class);
-        manager.register("BCSBlue", BeaconClimbersSitBlue.class);
-        manager.register("BCFGRed", BeaconClimberFGoalRed.class);
-        manager.register("BCFGBlue", BeaconClimbersSitBlue.class);
-	
+        manager.register("TeleOpDouble", TeleOpDouble.class);
+        // manager.register("TeleOpSingle", TeleOpDouble.class);
+        // manager.register("BCSBlue", BeaconClimbersSitBlue.class);
+        // manager.register("BCFGRed", BeaconClimberFGoalRed.class);
+        // manager.register("BCFGBlue", BeaconClimbersSitBlue.class);
+        manager.register("Empty", EmptyOp.class);
+        // manager.register("ColorTest", ColorTest.class);
+        manager.register("DriveForwardShortFast", DriveForwardShortFast.class);
+        manager.register("DriveForwardShortSlow", DriveForwardShortSlow.class);
+        manager.register("DriveForwardLongFast", DriveForwardLongFast.class);
+        manager.register("DriveForwardLongSlow", DriveForwardLongSlow.class);
+        manager.register("DriveToBeacon", DriveToBeacon.class);
+
 	/*
 	 * Some testing op modes
 	 */
