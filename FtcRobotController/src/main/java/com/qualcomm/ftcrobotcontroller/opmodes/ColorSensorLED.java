@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, 2015 Qualcomm Technologies Inc
+/* Copyright (c) 2014 Qualcomm Technologies Inc
 
 All rights reserved.
 
@@ -31,49 +31,60 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
-/**
- * Register Op Modes
- */
-public class FtcOpModeRegister implements OpModeRegister {
+public class ColorSensorLED extends OpMode {
 
-    /**
-     * The Op Mode Manager will call this method when it wants a list of all
-     * available op modes. Add your op mode to the list to enable it.
-     *
-     * @param manager op mode manager
-     */
-    public void register(OpModeManager manager) {
+    ColorSensor color;
+
+
 
     /*
-     * register your op modes here.
-     * The first parameter is the name of the op mode
-     * The second parameter is the op mode class property
-     *
-     * If two or more op modes are registered with the same name, the app will display an error.
+     * Code to run when the op mode is initialized goes here
+     * 
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
      */
+    @Override
+    public void init() {
 
-        // Removed Qualcomm's code, view on the github provided by them.
+        color = hardwareMap.colorSensor.get("lineColorSensor");
+        color.setI2cAddress(0x3c);
+        color.enableLed(false);
 
-	/*
-     * The TeleOp op mode
-	 */
-        manager.register("TeleOp", TeleOp.class);
-	
-	/*
-	 * Some testing op modes
-	 */
-        manager.register("IrSeeker", IrSeeker.class);
-        manager.register("TouchSensorOp", TouchSensorOp.class);
-        manager.register("OpticalDistance", ProximityOp.class);
-        manager.register("UltrasonicOp", UltrasonicOp.class);
-        manager.register("LineFollow", LineFollow.class);
-        manager.register("EncoderTest", EncoderTest.class);
-        manager.register("ColorOp", ColorOp.class);
-        manager.register("ServoTest", ServoTest.class);
-        manager.register("GyroTest", GyroTest.class);
-        manager.register("ColorSensorLED", ColorSensorLED.class);
+
     }
+
+    @Override
+    public void start() {
+
+        color.enableLed(true);
+
+    }
+
+    /*
+     * This method will be called repeatedly in a loop
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
+     */
+    @Override
+    public void loop() {
+
+
+
+        telemetry.addData("color", String.valueOf(color.argb()));
+
+
+    }
+
+    /*
+     * Code to run when the op mode is first disabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     */
+    @Override
+    public void stop() {
+
+    }
+
 }
