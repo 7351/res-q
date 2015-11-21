@@ -66,13 +66,11 @@ public class FtcOpModeRegister implements OpModeRegister {
         // manager.register("BCFGRed", BeaconClimberFGoalRed.class);
         // manager.register("BCFGBlue", BeaconClimbersSitBlue.class);
         manager.register("Empty", EmptyOp.class);
-        // manager.register("ColorTest", ColorTest.class);
         manager.register("DriveForwardShortFast", DriveForwardShortFast.class);
         manager.register("DriveForwardShortSlow", DriveForwardShortSlow.class);
         manager.register("DriveForwardLongFast", DriveForwardLongFast.class);
         manager.register("DriveForwardLongSlow", DriveForwardLongSlow.class);
-        manager.register("DriveToBeacon", DriveToBeacon.class);
-
+        manager.register("ColorSensorLED", ColorSensorLED.class);
 	/*
 	 * Some testing op modes
 	 */

@@ -125,7 +125,7 @@ public class TeleOpDouble extends OpMode {
 
         ziplinerServo.setPosition(1);
 
-        lineColorSensor.enableLed(true);
+        lineColorSensor.enableLed(false);
 
     }
 
@@ -133,6 +133,8 @@ public class TeleOpDouble extends OpMode {
     public void start() {
 
         servotime.reset();
+
+        lineColorSensor.enableLed(true);
 
     }
 
@@ -143,6 +145,10 @@ public class TeleOpDouble extends OpMode {
          */
     @Override
     public void loop() {
+
+        if ((lineColorSensor.red() >= 5) && (lineColorSensor.green() >= 5) && (lineColorSensor.blue() >= 5)) {
+            telemetry.addData("White", "true");
+        }
         if (dpadUpPressed) {
             if (servotime.time() > servoDelayTime) {
                 climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0.3, 0.9));

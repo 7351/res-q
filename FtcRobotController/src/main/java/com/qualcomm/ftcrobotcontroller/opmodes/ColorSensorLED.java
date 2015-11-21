@@ -31,34 +31,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
-/**
- * ColorTest Mode
- * <p>
- * Template program for making new OpModes
- */
-public class ColorTest extends OpMode {
+public class ColorSensorLED extends OpMode {
 
     ColorSensor color;
 
 
+
     /*
      * Code to run when the op mode is initialized goes here
-     *
+     * 
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
      */
     @Override
     public void init() {
+
         color = hardwareMap.colorSensor.get("lineColorSensor");
+        color.setI2cAddress(0x3c);
+        color.enableLed(false);
+
 
     }
 
+    @Override
     public void start() {
 
-        DbgLog.msg(color.getConnectionInfo());
+        color.enableLed(true);
 
     }
 
@@ -70,7 +70,10 @@ public class ColorTest extends OpMode {
     @Override
     public void loop() {
 
-        color.enableLed(true);
+
+
+        telemetry.addData("color", String.valueOf(color.argb()));
+
 
     }
 
