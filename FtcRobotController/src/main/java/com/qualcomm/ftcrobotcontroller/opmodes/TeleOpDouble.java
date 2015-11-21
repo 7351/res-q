@@ -31,7 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -44,18 +43,11 @@ import com.qualcomm.robotcore.util.Range;
  * <p>
  * Enables control of the robot via the gamepad
  */
-public class TeleOpDouble extends OpMode {
+public class TeleOpDouble extends DriveTrainLayer {
 
 
     // Initial scaling power
     double scalePower = 0.65;
-
-    // Declare left motor
-    DcMotor motorLeft1;
-    DcMotor motorLeft2;
-    // Declare right motor
-    DcMotor motorRight1;
-    DcMotor motorRight2;
 
     GyroSensor gyro;
 
@@ -96,13 +88,6 @@ public class TeleOpDouble extends OpMode {
      */
     @Override
     public void init() {
-
-        motorLeft1 = hardwareMap.dcMotor.get("motorleft1");
-        motorLeft2 = hardwareMap.dcMotor.get("motorleft2");
-        motorRight1 = hardwareMap.dcMotor.get("motorright1");
-        motorRight2 = hardwareMap.dcMotor.get("motorright2");
-        motorLeft1.setDirection(DcMotor.Direction.REVERSE);
-        motorLeft2.setDirection(DcMotor.Direction.REVERSE);
 
         gyro = hardwareMap.gyroSensor.get("gyro");
 
@@ -224,8 +209,8 @@ public class TeleOpDouble extends OpMode {
         // 1 is full down
         // direction: right_stick_x ranges from -1 to 1, where -1 is full left
         // and 1 is full right
-        float throttle = gamepad1.right_stick_y;
-        float direction = -gamepad1.right_stick_x;
+        float throttle = -gamepad1.right_stick_y;
+        float direction = gamepad1.right_stick_x;
         float right = throttle - direction;
         float left = throttle + direction;
 
@@ -239,7 +224,8 @@ public class TeleOpDouble extends OpMode {
         left =  (float)scaleInput(left * scalePower);
 
         // write the values to the motors
-        setDrivePower((double) left, (double) right);
+        driveLeft(left);
+        driveRight(right);
 
 		/*
 		 * Send telemetry data back to driver station. Note that if we are using
@@ -265,22 +251,6 @@ public class TeleOpDouble extends OpMode {
     public void stop() {
 
     }
-
-    public void setDrivePower(Double power1, Double power2) {
-        motorLeft1.setPower(power1);
-        motorLeft2.setPower(power1);
-        motorRight1.setPower(power2);
-        motorRight2.setPower(power2);
-
-    }
-
-    /*
-    Stop all drive motor power in one simple command
-     */
-    public void stopDriveMotors(){
-        setDrivePower(0.0, 0.0);
-    }
-
     /*
      * This method scales the joystick input so for low joystick values, the
 	 * scaled value is less than linear.  This is to make it easier to drive
