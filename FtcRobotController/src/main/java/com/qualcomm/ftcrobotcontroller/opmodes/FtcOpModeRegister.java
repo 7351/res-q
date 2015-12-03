@@ -45,6 +45,7 @@ public class FtcOpModeRegister implements OpModeRegister {
      *
      * @param manager op mode manager
      */
+
     public void register(OpModeManager manager) {
 
     /*
@@ -60,16 +61,17 @@ public class FtcOpModeRegister implements OpModeRegister {
 	/*
      * The TeleOpDouble op mode
 	 */
+
         manager.register("TeleOpDouble", TeleOpDouble.class);
         // manager.register("TeleOpSingle", TeleOpDouble.class);
         // manager.register("BCSBlue", BeaconClimbersSitBlue.class);
         // manager.register("BCFGRed", BeaconClimberFGoalRed.class);
         // manager.register("BCFGBlue", BeaconClimbersSitBlue.class);
         manager.register("Empty", EmptyOp.class);
-        manager.register("DriveForwardShortFast", DriveForwardShortFast.class);
-        manager.register("DriveForwardShortSlow", DriveForwardShortSlow.class);
-        manager.register("DriveForwardLongFast", DriveForwardLongFast.class);
-        manager.register("DriveForwardLongSlow", DriveForwardLongSlow.class);
+        manager.register("DriveToBeacon", DriveToBeacon.class);
+        manager.register("GyroTest", GyroTest.class);
+        manager.register("TeleOpTank", TeleOpDouble.class);
+
 	/*
 	 * Some testing op modes
 	 */

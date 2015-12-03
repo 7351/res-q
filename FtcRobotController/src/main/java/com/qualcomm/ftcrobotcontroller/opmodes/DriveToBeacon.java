@@ -1,33 +1,3 @@
-/* Copyright (c) 2014 Qualcomm Technologies Inc
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted (subject to the limitations in the disclaimer below) provided that
-the following conditions are met:
-
-Redistributions of source code must retain the above copyright notice, this list
-of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright notice, this
-list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-Neither the name of Qualcomm Technologies Inc nor the names of its contributors
-may be used to endorse or promote products derived from this software without
-specific prior written permission.
-
-NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
-LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 /*    if (stage == 0) {
             if (!gyro.isCalibrating()) {
                 double target_angle_degrees = 135;
@@ -52,6 +22,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -68,7 +39,7 @@ public class DriveToBeacon extends DriveTrainLayer {
 
     int stage = 0;
 
-    final static int TOLERANCE = 2 ;
+    final static int TOLERANCE = 0;
 
     public boolean isGyroInTolerance(int degree) {
         boolean returnValue = false;
@@ -97,6 +68,8 @@ public class DriveToBeacon extends DriveTrainLayer {
 
     boolean goalReached[] = {false, false};
 
+    DcMotor intakeMotor;
+
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -113,6 +86,8 @@ public class DriveToBeacon extends DriveTrainLayer {
         gyro = hardwareMap.gyroSensor.get("gyro");
         lineColorSensor.enableLed(false);
         gyro.calibrate();
+
+        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
 
     }
 
@@ -142,7 +117,7 @@ public class DriveToBeacon extends DriveTrainLayer {
             if (!gyro.isCalibrating()) {
                 driveLeft(0.6);
                 driveRight(0.6);
-                if (manipTime.time() >= 0.5) {
+                if (manipTime.time() >= 0.3) {
                     driveLeft(0);
                     driveRight(0);
                     stage++;
@@ -157,7 +132,16 @@ public class DriveToBeacon extends DriveTrainLayer {
         }
         if (stage == 3) {
             if (!gyro.isCalibrating()) {
-                if (isGyroInTolerance(308)) {
+                double target_angle_degrees = 311;
+                double error_degrees = target_angle_degrees - gyro.getHeading();
+                if ( error_degrees > 20) {
+                    driveLeft(-0.45);
+                    driveRight(0.45);
+                } else {
+                    driveLeft(-0.3);
+                    driveRight(0.3);
+                }
+                if (isGyroInTolerance((int) target_angle_degrees)) {
                     goalReached[0] = true;
                     stage++;
                 }
@@ -165,10 +149,6 @@ public class DriveToBeacon extends DriveTrainLayer {
                     driveLeft(0);
                     driveRight(0);
                     waitTime.reset();
-                }
-                if (!goalReached[0]) {
-                    driveLeft(-0.5);
-                    driveRight(0.5);
                 }
             }
 
@@ -210,8 +190,9 @@ public class DriveToBeacon extends DriveTrainLayer {
         }
         if (stage == 7) {
             if (!aboveWhiteLine()) {
-                driveLeft(-0.4);
-                driveRight(-0.4);
+                driveLeft(-0.3);
+                driveRight(-0.3);
+                waitTime.reset();
             } if (aboveWhiteLine()) {
                 driveLeft(0);
                 driveRight(0);
@@ -220,8 +201,13 @@ public class DriveToBeacon extends DriveTrainLayer {
             }
         }
         if (stage == 8) {
+            if (waitTime.time() >= 1) {
+                stage++;
+            }
+        }
+        if (stage == 9) {
             if (!gyro.isCalibrating()) {
-                if (isGyroInTolerance(90)) {
+                /* if (isGyroInTolerance(90)) {
                     goalReached[1] = true;
                     stage++;
                 }
@@ -233,6 +219,24 @@ public class DriveToBeacon extends DriveTrainLayer {
                 if (!goalReached[1]) {
                     driveLeft(0.55);
                     driveRight(-0.55);
+                } */
+                double target_angle_degrees2 = 90;
+                double error_degrees = target_angle_degrees2 - gyro.getHeading();
+                if ( error_degrees > 10) {
+                    driveLeft(0.60);
+                    driveRight(-0.60);
+                } else {
+                    driveLeft(0.5);
+                    driveRight(-0.45);
+                }
+                if (isGyroInTolerance((int) target_angle_degrees2)) {
+                    goalReached[1] = true;
+                    stage++;
+                }
+                if (goalReached[1]) {
+                    driveLeft(0);
+                    driveRight(0);
+                    waitTime.reset();
                 }
             }
 
@@ -242,6 +246,8 @@ public class DriveToBeacon extends DriveTrainLayer {
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
 
+
+        intakeMotor.setPower(1);
 
     }
 

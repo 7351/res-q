@@ -46,9 +46,6 @@ import com.qualcomm.robotcore.util.Range;
 public class TeleOpDouble extends DriveTrainLayer {
 
 
-    // Initial scaling power
-    double scalePower = 0.65;
-
     GyroSensor gyro;
 
     ColorSensor lineColorSensor;
@@ -60,7 +57,9 @@ public class TeleOpDouble extends DriveTrainLayer {
     Servo boxServo;
 
     DcMotor intakeMotor;
-    DcMotor liftMotor;
+    //DcMotor liftMotor;
+
+    DcMotor pistonMotor;
 
     // Variables for controlling speed on the climbersServo
     private ElapsedTime servotime = new ElapsedTime();
@@ -89,6 +88,8 @@ public class TeleOpDouble extends DriveTrainLayer {
     @Override
     public void init() {
 
+        super.init();
+
         gyro = hardwareMap.gyroSensor.get("gyro");
 
         climbersServo = hardwareMap.servo.get("climbersServo");
@@ -103,10 +104,12 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         boxServo = hardwareMap.servo.get("boxServo");
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-        liftMotor = hardwareMap.dcMotor.get("liftMotor");
+        //liftMotor = hardwareMap.dcMotor.get("liftMotor");
         boxServo.setPosition(1);
 
-        liftMotor.setDirection(DcMotor.Direction.REVERSE);
+        pistonMotor = hardwareMap.dcMotor.get("pistonMotor");
+
+        //liftMotor.setDirection(DcMotor.Direction.REVERSE);
 
         ziplinerServo.setPosition(1);
 
@@ -131,9 +134,11 @@ public class TeleOpDouble extends DriveTrainLayer {
     @Override
     public void loop() {
 
-        if ((lineColorSensor.red() >= 5) && (lineColorSensor.green() >= 5) && (lineColorSensor.blue() >= 5)) {
-            telemetry.addData("White", "true");
-        }
+        /*
+         * Gamepad 2
+         *
+         * Controls for gamepad 2
+         */
         if (dpadUpPressed) {
             if (servotime.time() > servoDelayTime) {
                 climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0.3, 0.9));
@@ -147,12 +152,15 @@ public class TeleOpDouble extends DriveTrainLayer {
 
 
         float leftTrigger = gamepad2.left_trigger;
-        float leftYStick = gamepad2.left_stick_y;
+        float rightTrigger = gamepad2.right_trigger;
+        boolean leftBumper = gamepad2.left_bumper;
+        boolean rightBumper = gamepad2.left_bumper;
         boolean dpadLeft = gamepad2.dpad_left;
         boolean dpadUp = gamepad2.dpad_up;
         boolean dpadDown = gamepad2.dpad_down;
         boolean gamepad2Y = gamepad2.y;
         boolean gamepad2A = gamepad2.a;
+
 
         if (gamepad2Y) {
             boxServo.setPosition(1);
@@ -162,19 +170,34 @@ public class TeleOpDouble extends DriveTrainLayer {
             boxServo.setPosition(0.75);
         }
 
-        liftMotor.setPower(scaleInput(leftYStick));
+        /*liftMotor.setPower(scaleInput(leftYStick));
         if (scaleInput(leftYStick) <= 0) {
             liftMotor.setPower(scaleInput(leftYStick));
         } else {
             liftMotor.setPower(scaleInput(leftYStick * 0.25));
-        }
+        } */
 
 
-        if (leftTrigger != 0) {
+        if (leftTrigger > 0.75) {
             intakeMotor.setPower(1);
-        } if (leftTrigger == 0) {
+        } if (leftTrigger < 0.74 && leftTrigger > 0.1) {
             intakeMotor.setPower(0);
         }
+
+        if (rightTrigger > 0.75) {
+            intakeMotor.setPower(-1);
+        } if (rightTrigger < 0.74 && rightTrigger > 0.1) {
+            intakeMotor.setPower(0);
+        }
+
+        if (leftBumper) {
+            pistonMotor.setPower(1);
+        } if (rightBumper) {
+            pistonMotor.setPower(-1);
+        } if (leftBumper == false && rightBumper == false) {
+            pistonMotor.setPower(0);
+        }
+
 
         if (dpadLeft) {
             ziplinerServo.setPosition(1);
@@ -198,13 +221,8 @@ public class TeleOpDouble extends DriveTrainLayer {
 		 * 
 		 * Gamepad 1 controls the motors via the right stick
 		 */
-        boolean leftBumper = gamepad1.left_bumper;
 
-        if (leftBumper) {
-            scalePower = 0.75;
-        } if (!leftBumper) {
-            scalePower = 1;
-        }
+
         // throttle: right_stick_y ranges from -1 to 1, where -1 is full up, and
         // 1 is full down
         // direction: right_stick_x ranges from -1 to 1, where -1 is full left
@@ -220,8 +238,8 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         // scale the joystick value to make it easier to control
         // the robot more precisely at slower speeds.
-        right = (float)scaleInput(right * scalePower);
-        left =  (float)scaleInput(left * scalePower);
+        right = (float)scaleInput(right);
+        left =  (float)scaleInput(left);
 
         // write the values to the motors
         driveLeft(left);
@@ -235,9 +253,8 @@ public class TeleOpDouble extends DriveTrainLayer {
 		 */
         telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
         telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+        telemetry.addData("leftTrigger", String.valueOf(leftTrigger));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
-        //telemetry.addData("color", currentColor());
-        //DbgLog.msg(String.valueOf(lineColorSensor.red()) + ", " + String.valueOf(lineColorSensor.green()) + ", " + String.valueOf(lineColorSensor.blue()));
 
 
     }
