@@ -65,8 +65,6 @@ public class DriveTrainLayer extends OpMode {
         motorLeft2 = hardwareMap.dcMotor.get("motorleft2");
         motorRight1 = hardwareMap.dcMotor.get("motorright1");
         motorRight2 = hardwareMap.dcMotor.get("motorright2");
-        motorRight1.setDirection(DcMotor.Direction.REVERSE);
-        motorRight2.setDirection(DcMotor.Direction.REVERSE);
 
 
     }

@@ -1,42 +1,12 @@
-/* Copyright (c) 2014 Qualcomm Technologies Inc
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted (subject to the limitations in the disclaimer below) provided that
-the following conditions are met:
-
-Redistributions of source code must retain the above copyright notice, this list
-of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright notice, this
-list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-Neither the name of Qualcomm Technologies Inc nor the names of its contributors
-may be used to endorse or promote products derived from this software without
-specific prior written permission.
-
-NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
-LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
-
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+/*
+ */
 
 /**
  * TeleOpDouble Mode
@@ -45,23 +15,24 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class TeleOpDouble extends DriveTrainLayer {
 
+    // Create objects for hardware
 
-    GyroSensor gyro;
+    DcMotor intakeMotor;
 
-    ColorSensor lineColorSensor;
+    DcMotor liftMotor;
 
+    Servo LeftRightServo;
+
+    Servo UpDownServo;
+
+    DcMotor pistonMotor;
+
+    /* Uncomment when accessories are added
     Servo climbersServo;
 
     Servo ziplinerServo;
 
-    Servo boxServo;
-
-    DcMotor intakeMotor;
-    //DcMotor liftMotor;
-
-    DcMotor pistonMotor;
-
-    // Variables for controlling speed on the climbersServo
+   // Variables for controlling speed on the climbersServo
     private ElapsedTime servotime = new ElapsedTime();
     private double servoPosition;
 
@@ -69,16 +40,17 @@ public class TeleOpDouble extends DriveTrainLayer {
     private double servoDelta = 0.01;
     private double servoDelayTime = 0.003;
 
-    public String currentColor() {
-        String returnValue = "Unknown";
-        if ((lineColorSensor.red() >= 5) && (lineColorSensor.green() >= 5) && (lineColorSensor.blue() >= 5)) {
-            returnValue = "White";
-        }
-        return returnValue;
-    }
+    private boolean climbersLifted = false;
+    private boolean DPadUpPressedLong = false;
+    */
 
-    public boolean dpadUpPressed = false;
-    public boolean dpadDownPressed = false;
+    boolean YButton = false;
+    boolean AButton = false;
+    boolean XButton = false;
+    boolean BButton = false;
+
+
+    ElapsedTime manipTime = new ElapsedTime();
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -90,39 +62,37 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         super.init();
 
-        gyro = hardwareMap.gyroSensor.get("gyro");
+        /*
+        Declare hardware devices from configuration files
+         */
 
-        climbersServo = hardwareMap.servo.get("climbersServo");
-
-        gyro.calibrate();
-
-        climbersServo.setPosition(0.3);
-
-        lineColorSensor = hardwareMap.colorSensor.get("lineColorSensor");
-
-        ziplinerServo = hardwareMap.servo.get("ziplinersServo");
-
-        boxServo = hardwareMap.servo.get("boxServo");
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-        //liftMotor = hardwareMap.dcMotor.get("liftMotor");
-        boxServo.setPosition(1);
+
+        liftMotor = hardwareMap.dcMotor.get("liftMotor");
+
+        LeftRightServo = hardwareMap.servo.get("LeftRightServo");
+
+        UpDownServo = hardwareMap.servo.get("UpDownServo");
 
         pistonMotor = hardwareMap.dcMotor.get("pistonMotor");
 
-        //liftMotor.setDirection(DcMotor.Direction.REVERSE);
-
+        /* Uncomment when accessories are added
+        climbersServo.setPosition(0.15);
         ziplinerServo.setPosition(1);
-
-        lineColorSensor.enableLed(false);
+        climbersServo = hardwareMap.servo.get("climbersServo");
+        ziplinerServo = hardwareMap.servo.get("ziplinersServo");
+        */
 
     }
 
     @Override
     public void start() {
-
+        /* Uncomment when accessories are added
         servotime.reset();
+        */
 
-        lineColorSensor.enableLed(true);
+        LeftRightServo.setPosition(0.45);
+        UpDownServo.setPosition(0.7);
 
     }
 
@@ -137,98 +107,264 @@ public class TeleOpDouble extends DriveTrainLayer {
         /*
          * Gamepad 2
          *
-         * Controls for gamepad 2
+         * Gamepad 2 Controls
+         *
          */
-        if (dpadUpPressed) {
-            if (servotime.time() > servoDelayTime) {
-                climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0.3, 0.9));
-                servotime.reset();
-            }
-        }
 
-        if (dpadDownPressed) {
-            climbersServo.setPosition(0.3);
-        }
+        // Variables for shorter code on the buttons
 
-
-        float leftTrigger = gamepad2.left_trigger;
-        float rightTrigger = gamepad2.right_trigger;
+        /*
+         * Intake Sections | Left - In, Right - Out
+         */
+        double leftTrigger = gamepad2.left_trigger;
         boolean leftBumper = gamepad2.left_bumper;
-        boolean rightBumper = gamepad2.left_bumper;
-        boolean dpadLeft = gamepad2.dpad_left;
-        boolean dpadUp = gamepad2.dpad_up;
-        boolean dpadDown = gamepad2.dpad_down;
-        boolean gamepad2Y = gamepad2.y;
-        boolean gamepad2A = gamepad2.a;
 
-
-        if (gamepad2Y) {
-            boxServo.setPosition(1);
-        } if (gamepad2A) {
-            boxServo.setPosition(0.45);
-        } if (gamepad2A == false && gamepad2Y == false) {
-            boxServo.setPosition(0.75);
-        }
-
-        /*liftMotor.setPower(scaleInput(leftYStick));
-        if (scaleInput(leftYStick) <= 0) {
-            liftMotor.setPower(scaleInput(leftYStick));
-        } else {
-            liftMotor.setPower(scaleInput(leftYStick * 0.25));
-        } */
-
-
-        if (leftTrigger > 0.75) {
-            intakeMotor.setPower(1);
-        } if (leftTrigger < 0.74 && leftTrigger > 0.1) {
-            intakeMotor.setPower(0);
-        }
-
-        if (rightTrigger > 0.75) {
+        if (leftTrigger > 0.1) {
             intakeMotor.setPower(-1);
-        } if (rightTrigger < 0.74 && rightTrigger > 0.1) {
-            intakeMotor.setPower(0);
         }
 
         if (leftBumper) {
-            pistonMotor.setPower(1);
-        } if (rightBumper) {
-            pistonMotor.setPower(-1);
-        } if (leftBumper == false && rightBumper == false) {
-            pistonMotor.setPower(0);
+            intakeMotor.setPower(1);
+        }
+        if (leftTrigger == 0 && !leftBumper) {
+            intakeMotor.setPower(0);
+        }
+
+        /*
+         * Lift motor | Y axis on the right joystick makes lift go up and down
+         */
+
+        float leftYStick = -gamepad2.left_stick_y;
+
+        // Power to decrease motor
+
+        double ScalingPower = 0.25;
+
+
+        if (leftYStick == 0) {
+            liftMotor.setPower(0);
+        } else {
+            if ((leftYStick > 0) && (leftYStick <= 1)) {
+                liftMotor.setPower(scaleInput(leftYStick));
+            }
+            if ((leftYStick < -0.01) && (leftYStick >= -1)) {
+                liftMotor.setPower(scaleInput(leftYStick * ScalingPower));
+            }
         }
 
 
-        if (dpadLeft) {
+        /*
+         * Collector Box
+         * Y - Move box up +
+         * A - Move box down -
+         * X - Move box Left +
+         * B - Move box Right -
+         *  down - Home for servo positions
+         */
+
+        boolean YButtonPressed = gamepad2.y;
+        boolean AButtonPressed = gamepad2.a;
+        boolean XButtonPressed = gamepad2.x;
+        boolean BButtonPressed = gamepad2.b;
+        float RightTriggerPressed = gamepad2.right_trigger;
+        boolean ManualMode = gamepad2.right_bumper;
+        float RightJoystick2 = -gamepad2.right_stick_y;
+        // TODO Figure out what button switches between manual mode
+
+        double[] homeValues = {
+                0.45, 0.6
+        }; //   LR    UD
+
+        double[] flatValues = {
+                0.45, 0.5
+        }; //   LR    UD
+        double tiltPosition = 0.7;
+        double dropPosition = 0.35; // .48 or //.5
+        double leftPosition = 0.69;
+        double rightPosition = 0.19;
+
+        // TODO bind correct buttons
+
+        if (RightTriggerPressed == 1) {
+            LeftRightServo.setPosition(flatValues[0]);
+            UpDownServo.setPosition(flatValues[1]);
+        }
+
+        if (RightJoystick2 == 1) {
+            UpDownServo.setPosition(tiltPosition);
+        }
+        if (RightJoystick2 == -1) {
+            UpDownServo.setPosition(dropPosition);
+        }
+
+
+        if (ManualMode) {
+            if (YButtonPressed) {
+                if (!YButton) {
+                    UpDownServo.setPosition(Range.clip(UpDownServo.getPosition() + 0.03, 0, 1));
+                    YButton = true;
+                }
+            } if (!YButtonPressed) {
+                YButton = false;
+            }
+
+            if (AButtonPressed) {
+                if (!AButton) {
+                    UpDownServo.setPosition(Range.clip(UpDownServo.getPosition() - 0.03, 0, 1));
+                    AButton = true;
+                }
+            } if (!AButtonPressed) {
+                AButton = false;
+            }
+
+            if (XButtonPressed) {
+                if (!XButton) {
+                    LeftRightServo.setPosition(Range.clip(LeftRightServo.getPosition() + 0.03, 0, 1));
+                    XButton = true;
+                }
+            } if (!XButtonPressed) {
+                XButton = false;
+            }
+
+            if (BButtonPressed) {
+                if (!BButton) {
+                    LeftRightServo.setPosition(Range.clip(LeftRightServo.getPosition() - 0.03, 0, 1));
+                    BButton = true;
+                }
+            } if (!BButtonPressed) {
+                BButton = false;
+            }
+        } else {
+
+            if (YButtonPressed) {
+                if (!YButton) {
+                    UpDownServo.setPosition(tiltPosition);
+                    LeftRightServo.setPosition(homeValues[0]);
+                    YButton = true;
+                }
+            } if (!YButtonPressed) {
+                YButton = false;
+            }
+
+            if (AButtonPressed) {
+                if (!AButton) {
+                    LeftRightServo.setPosition(homeValues[0]);
+                    UpDownServo.setPosition(homeValues[1]);
+                    AButton = true;
+                }
+            } if (!AButtonPressed) {
+                AButton = false;
+            }
+
+            if (XButtonPressed) {
+                if (!XButton) {
+                    LeftRightServo.setPosition(leftPosition);
+                    UpDownServo.setPosition(dropPosition);
+                    XButton = true;
+                }
+            } if (!XButtonPressed) {
+                XButton = false;
+            }
+
+            if (BButtonPressed) {
+                if (!BButton) {
+                    LeftRightServo.setPosition(rightPosition);
+                    UpDownServo.setPosition(dropPosition);
+                    BButton = true;
+                }
+            } if (!BButtonPressed) {
+                BButton = false;
+            }
+        }
+
+
+        telemetry.addData("LRServo", String.valueOf(LeftRightServo.getPosition()));
+        telemetry.addData("UDServo", String.valueOf(UpDownServo.getPosition()));
+
+
+
+
+        /*
+         * Accessories - Includes zipliners, and climbers servo
+         * D-Pad Up - Throw climbers into bucket
+         * D-Pad Down - Put climbers servo back down
+         * D-Pad Left - Throw out zip liners servo
+         * D-Pad Right - Put in zip liners servo
+         */
+
+        boolean DPadLeftPressed = gamepad2.dpad_left;
+        boolean DPadRightPressed = gamepad2.dpad_right;
+        boolean DPadUpPressed = gamepad2.dpad_up;
+        boolean DPadDownPressed = gamepad2.dpad_down;
+
+        /* Uncomment when accessories are added
+        if (DPadLeftPressed) {
             ziplinerServo.setPosition(1);
-        } if (!dpadLeft) {
+        }
+
+        if (DPadRightPressed) {
             ziplinerServo.setPosition(0);
         }
 
-        if (dpadUp) {
-            if (!dpadUpPressed) {
-                dpadUpPressed = true;
+
+        if (DPadUpPressedLong) {
+
+            if (!climbersLifted) {
+                if (servotime.time() > servoDelayTime) {
+                    climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0.15, 0.9));
+                    servotime.reset();
+                }
             }
 
-        } if (dpadDown) {
-            dpadUpPressed = true;
         }
 
+        if (DPadUpPressed)
+
+            if (DPadDownPressed) {
+                climbersServo.setPosition(0.3);
+            }
+        }
+
+        if (climbersServo.getPosition() == 0.9) {
+            climbersLifted = true;
+        }
+
+        */
+
+
+
+
+//-------------------------------------------------------------------------------------------------//
 
 
 		/*
 		 * Gamepad 1
 		 * 
-		 * Gamepad 1 controls the motors via the right stick
+		 * Gamepad 1 controls
+		 *
 		 */
 
+        /*
+         * Piston | Left Joystick moves piston up and down
+         */
+
+        float leftYStick2 = -gamepad1.left_stick_y;
+
+        pistonMotor.setPower(scaleInput(leftYStick2 * 0.25));
+
+
+
+        /*
+         * Driving code extracted from First Tech Challenge example code
+         * Right joystick - Drive
+         */
 
         // throttle: right_stick_y ranges from -1 to 1, where -1 is full up, and
         // 1 is full down
         // direction: right_stick_x ranges from -1 to 1, where -1 is full left
         // and 1 is full right
         float throttle = -gamepad1.right_stick_y;
-        float direction = gamepad1.right_stick_x;
+        float direction = -gamepad1.right_stick_x;
         float right = throttle - direction;
         float left = throttle + direction;
 
@@ -245,16 +381,9 @@ public class TeleOpDouble extends DriveTrainLayer {
         driveLeft(left);
         driveRight(right);
 
-		/*
-		 * Send telemetry data back to driver station. Note that if we are using
-		 * a legacy NXT-compatible motor controller, then the getPower() method
-		 * will return a null value. The legacy NXT-compatible motor controllers
-		 * are currently write only.
-		 */
         telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
         telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
-        telemetry.addData("leftTrigger", String.valueOf(leftTrigger));
-        telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
+
 
 
     }
