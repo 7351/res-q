@@ -49,6 +49,7 @@ public class TeleOpDouble extends DriveTrainLayer {
     boolean XButton = false;
     boolean BButton = false;
 
+    double scalePower = 1;
 
     ElapsedTime manipTime = new ElapsedTime();
 
@@ -138,7 +139,7 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         // Power to decrease motor
 
-        double ScalingPower = 0.25;
+        double ScalingPower = 0.3;
 
 
         if (leftYStick == 0) {
@@ -155,11 +156,14 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         /*
          * Collector Box
-         * Y - Move box up +
-         * A - Move box down -
-         * X - Move box Left +
-         * B - Move box Right -
-         *  down - Home for servo positions
+         * Y - Tilt
+         * A - Home
+         * X - Left Score
+         * B - Right Score
+         * Bumper - Manual Mode
+         * Trigger - Home Value
+         * Down on right Joystick - Drop for ground
+         * Up on right Joystick - Tilt
          */
 
         boolean YButtonPressed = gamepad2.y;
@@ -169,19 +173,33 @@ public class TeleOpDouble extends DriveTrainLayer {
         float RightTriggerPressed = gamepad2.right_trigger;
         boolean ManualMode = gamepad2.right_bumper;
         float RightJoystick2 = -gamepad2.right_stick_y;
-        // TODO Figure out what button switches between manual mode
+
+        /*
+        Values for servo positions
+         */
+
+        double centerLine = 0.45; // LR Value
 
         double[] homeValues = {
-                0.45, 0.6
+                centerLine, 0.737
         }; //   LR    UD
 
         double[] flatValues = {
-                0.45, 0.5
+                centerLine, 0.635
         }; //   LR    UD
-        double tiltPosition = 0.7;
-        double dropPosition = 0.35; // .48 or //.5
-        double leftPosition = 0.69;
-        double rightPosition = 0.19;
+        double[] tiltValues = {
+                centerLine, 0.855
+        }; //   LR    UD
+        double scorePositionRamp = 0.529; // UD Value
+        double dropPositionFloor = 0.67; // UD Value
+        double[] leftValues = {
+                0.67, scorePositionRamp
+        }; //   LR    UD
+        double[] rightValues = {
+                0.185, scorePositionRamp
+        }; //   LR    UD
+        double manualIncrement = 0.03; // How much the manual mode should increase or decrease the servo postion by
+        double servoDelayTime = 0.3; // Delay between dumping the positions on the field
 
         // TODO bind correct buttons
 
@@ -191,17 +209,18 @@ public class TeleOpDouble extends DriveTrainLayer {
         }
 
         if (RightJoystick2 == 1) {
-            UpDownServo.setPosition(tiltPosition);
+            LeftRightServo.setPosition(tiltValues[0]);
+            UpDownServo.setPosition(tiltValues[1]);
         }
         if (RightJoystick2 == -1) {
-            UpDownServo.setPosition(dropPosition);
+            UpDownServo.setPosition(dropPositionFloor);
         }
 
 
         if (ManualMode) {
             if (YButtonPressed) {
                 if (!YButton) {
-                    UpDownServo.setPosition(Range.clip(UpDownServo.getPosition() + 0.03, 0, 1));
+                    UpDownServo.setPosition(Range.clip(UpDownServo.getPosition() + manualIncrement, 0, 1));
                     YButton = true;
                 }
             } if (!YButtonPressed) {
@@ -210,7 +229,7 @@ public class TeleOpDouble extends DriveTrainLayer {
 
             if (AButtonPressed) {
                 if (!AButton) {
-                    UpDownServo.setPosition(Range.clip(UpDownServo.getPosition() - 0.03, 0, 1));
+                    UpDownServo.setPosition(Range.clip(UpDownServo.getPosition() - manualIncrement, 0, 1));
                     AButton = true;
                 }
             } if (!AButtonPressed) {
@@ -219,7 +238,7 @@ public class TeleOpDouble extends DriveTrainLayer {
 
             if (XButtonPressed) {
                 if (!XButton) {
-                    LeftRightServo.setPosition(Range.clip(LeftRightServo.getPosition() + 0.03, 0, 1));
+                    LeftRightServo.setPosition(Range.clip(LeftRightServo.getPosition() + manualIncrement, 0, 1));
                     XButton = true;
                 }
             } if (!XButtonPressed) {
@@ -228,7 +247,7 @@ public class TeleOpDouble extends DriveTrainLayer {
 
             if (BButtonPressed) {
                 if (!BButton) {
-                    LeftRightServo.setPosition(Range.clip(LeftRightServo.getPosition() - 0.03, 0, 1));
+                    LeftRightServo.setPosition(Range.clip(LeftRightServo.getPosition() - manualIncrement, 0, 1));
                     BButton = true;
                 }
             } if (!BButtonPressed) {
@@ -236,16 +255,18 @@ public class TeleOpDouble extends DriveTrainLayer {
             }
         } else {
 
+            // Tilt
             if (YButtonPressed) {
                 if (!YButton) {
-                    UpDownServo.setPosition(tiltPosition);
-                    LeftRightServo.setPosition(homeValues[0]);
+                    UpDownServo.setPosition(tiltValues[1]);
+                    LeftRightServo.setPosition(tiltValues[0]);
                     YButton = true;
                 }
             } if (!YButtonPressed) {
                 YButton = false;
             }
 
+            // Home
             if (AButtonPressed) {
                 if (!AButton) {
                     LeftRightServo.setPosition(homeValues[0]);
@@ -256,20 +277,31 @@ public class TeleOpDouble extends DriveTrainLayer {
                 AButton = false;
             }
 
+            /*
+            manipTime.reset();
+            if (manipTime.time() < servoDelayTime) {
+                LeftRightServo.setPosition(leftValues[0]);
+            } if (manipTime.time() >= servoDelayTime + .03) {
+                UpDownServo.setPosition(leftValues[1]);
+            }
+            */
+
+            // Left score
             if (XButtonPressed) {
                 if (!XButton) {
-                    LeftRightServo.setPosition(leftPosition);
-                    UpDownServo.setPosition(dropPosition);
+                    LeftRightServo.setPosition(leftValues[0]);
+                    UpDownServo.setPosition(leftValues[1]);
                     XButton = true;
                 }
             } if (!XButtonPressed) {
                 XButton = false;
             }
 
+            // Right score
             if (BButtonPressed) {
                 if (!BButton) {
-                    LeftRightServo.setPosition(rightPosition);
-                    UpDownServo.setPosition(dropPosition);
+                    LeftRightServo.setPosition(rightValues[0]);
+                    UpDownServo.setPosition(rightValues[1]);
                     BButton = true;
                 }
             } if (!BButtonPressed) {
@@ -350,14 +382,23 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         float leftYStick2 = -gamepad1.left_stick_y;
 
-        pistonMotor.setPower(scaleInput(leftYStick2 * 0.25));
+        pistonMotor.setPower(scaleInput(leftYStick2) * 0.8);
 
 
 
         /*
          * Driving code extracted from First Tech Challenge example code
          * Right joystick - Drive
+         * Left Trigger - Slow mode
          */
+
+        float leftTrigger1 = gamepad1.left_trigger;
+
+        if (leftTrigger1 == 1) {
+            scalePower = 0.7;
+        } else {
+            scalePower = 1;
+        }
 
         // throttle: right_stick_y ranges from -1 to 1, where -1 is full up, and
         // 1 is full down
@@ -374,8 +415,8 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         // scale the joystick value to make it easier to control
         // the robot more precisely at slower speeds.
-        right = (float)scaleInput(right);
-        left =  (float)scaleInput(left);
+        right = (float)scaleInput(right * scalePower);
+        left =  (float)scaleInput(left * scalePower);
 
         // write the values to the motors
         driveLeft(left);

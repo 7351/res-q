@@ -39,7 +39,7 @@ public class DriveToBeacon extends DriveTrainLayer {
 
     int stage = 0;
 
-    final static int TOLERANCE = 0;
+    final static int TOLERANCE = 1;
 
     public boolean isGyroInTolerance(int degree) {
         boolean returnValue = false;
@@ -135,11 +135,11 @@ public class DriveToBeacon extends DriveTrainLayer {
                 double target_angle_degrees = 311;
                 double error_degrees = target_angle_degrees - gyro.getHeading();
                 if ( error_degrees > 20) {
-                    driveLeft(-0.45);
-                    driveRight(0.45);
+                    driveLeft(0.75);
+                    driveRight(-0.75);
                 } else {
-                    driveLeft(-0.3);
-                    driveRight(0.3);
+                    driveLeft(0.5);
+                    driveRight(-0.5);
                 }
                 if (isGyroInTolerance((int) target_angle_degrees)) {
                     goalReached[0] = true;
@@ -172,8 +172,8 @@ public class DriveToBeacon extends DriveTrainLayer {
                 }
                 if (defaultPowerSet == true) {
                     if (manipTime.time() > 0.1) {
-                        leftPower -= 0.0095;
-                        rightPower -= 0.0095;
+                        leftPower -= 0.0055;
+                        rightPower -= 0.0055;
                         manipTime.reset();
                     }
                 }

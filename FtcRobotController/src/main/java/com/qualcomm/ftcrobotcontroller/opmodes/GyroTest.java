@@ -31,33 +31,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 
-/**
- * DriveForwardShortFast OpMode
- * <p>
- * Drive forward
- */
-public class DriveForwardLongSlow extends OpMode {
+public class GyroTest extends DriveTrainLayer {
 
-    DcMotor motorLeft1;
-    DcMotor motorLeft2;
-    DcMotor motorRight1;
-    DcMotor motorRight2;
-
-    ElapsedTime startTime = new ElapsedTime();
-
-    DcMotor intakeMotor;
-
-    Servo boxServo;
-
-    Servo climbersServo;
-
-    Servo ziplinersServo;
-
+    GyroSensor gyro;
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -66,29 +44,15 @@ public class DriveForwardLongSlow extends OpMode {
      */
     @Override
     public void init() {
+        super.init();
 
-        motorLeft1 = hardwareMap.dcMotor.get("motorleft1");
-        motorLeft2 = hardwareMap.dcMotor.get("motorleft2");
-        motorLeft1.setDirection(DcMotor.Direction.REVERSE);
-        motorLeft2.setDirection(DcMotor.Direction.REVERSE);
-        motorRight1 = hardwareMap.dcMotor.get("motorright1");
-        motorRight2 = hardwareMap.dcMotor.get("motorright2");
-
-        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-
-        boxServo = hardwareMap.servo.get("boxServo");
-
-        climbersServo = hardwareMap.servo.get("climbersServo");
-
-        ziplinersServo = hardwareMap.servo.get("ziplinersServo");
+        gyro = hardwareMap.gyroSensor.get("gyro");
 
     }
 
-    @Override
-    public void start() {
-        startTime.reset();
+    public void start(){
+        gyro.calibrate();
     }
-
 
     /*
      * This method will be called repeatedly in a loop
@@ -97,20 +61,10 @@ public class DriveForwardLongSlow extends OpMode {
      */
     @Override
     public void loop() {
-        intakeMotor.setPower(1);
-        if (startTime.time() <= 7.3) {
-            driveLeft(0.6);
-            driveRight(0.6);
-        } else {
-            driveLeft(0);
-            driveRight(0);
-        }
 
-        boxServo.setPosition(1);
+        telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
 
-        climbersServo.setPosition(0.3);
 
-        ziplinersServo.setPosition(1);
 
 
     }
@@ -123,16 +77,6 @@ public class DriveForwardLongSlow extends OpMode {
     @Override
     public void stop() {
 
-    }
-
-    public void driveLeft(double powerLeft) {
-        motorLeft1.setPower(powerLeft);
-        motorLeft2.setPower(powerLeft);
-    }
-
-    public void driveRight(double powerRight) {
-        motorRight1.setPower(powerRight);
-        motorRight2.setPower(powerRight);
     }
 
 }
