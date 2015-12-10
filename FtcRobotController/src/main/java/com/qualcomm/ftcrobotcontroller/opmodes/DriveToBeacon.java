@@ -57,6 +57,14 @@ public class DriveToBeacon extends DriveTrainLayer {
         return returnValue;
     }
 
+    public boolean aboveRedLine (){
+        boolean returnValue = false;
+        if ((lineColorSensor.red() > lineColorSensor.green() + 2) && (lineColorSensor.red() > lineColorSensor.blue() + 2)) {
+            returnValue = true;
+        }
+        return returnValue;
+    }
+
     ElapsedTime manipTime = new ElapsedTime();
 
     double leftPower = 0;
@@ -117,7 +125,7 @@ public class DriveToBeacon extends DriveTrainLayer {
             if (!gyro.isCalibrating()) {
                 driveLeft(0.6);
                 driveRight(0.6);
-                if (manipTime.time() >= 0.3) {
+                if (manipTime.time() >= 0.5) {
                     driveLeft(0);
                     driveRight(0);
                     stage++;
@@ -132,14 +140,14 @@ public class DriveToBeacon extends DriveTrainLayer {
         }
         if (stage == 3) {
             if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 311;
+                double target_angle_degrees = 307;
                 double error_degrees = target_angle_degrees - gyro.getHeading();
                 if ( error_degrees > 20) {
                     driveLeft(0.75);
                     driveRight(-0.75);
                 } else {
-                    driveLeft(0.5);
-                    driveRight(-0.5);
+                    driveLeft(0.52);
+                    driveRight(-0.52);
                 }
                 if (isGyroInTolerance((int) target_angle_degrees)) {
                     goalReached[0] = true;
@@ -159,20 +167,20 @@ public class DriveToBeacon extends DriveTrainLayer {
             }
         }
         if (stage == 5) {
-            if (aboveWhiteLine()) {
+            if (aboveRedLine()) {
                 leftPower = 0;
                 rightPower = 0;
                 stage++;
-            } if (!aboveWhiteLine()) {
+            } if (!aboveRedLine()) {
                 // Starting power -0.6
                 if (defaultPowerSet == false) {
-                    leftPower = 0.55;
-                    rightPower = 0.55;
+                    leftPower = 0.85;
+                    rightPower = 0.65;
                     defaultPowerSet = true;
                 }
                 if (defaultPowerSet == true) {
                     if (manipTime.time() > 0.1) {
-                        leftPower -= 0.0055;
+                        leftPower -= 0.0035;
                         rightPower -= 0.0055;
                         manipTime.reset();
                     }
@@ -183,6 +191,7 @@ public class DriveToBeacon extends DriveTrainLayer {
             driveLeft(leftPower);
             driveRight(rightPower);
         }
+        /*
         if (stage == 6) {
             if (manipTime.time() >= 1) {
                 stage++;
@@ -207,7 +216,7 @@ public class DriveToBeacon extends DriveTrainLayer {
         }
         if (stage == 9) {
             if (!gyro.isCalibrating()) {
-                /* if (isGyroInTolerance(90)) {
+                if (isGyroInTolerance(90)) {
                     goalReached[1] = true;
                     stage++;
                 }
@@ -219,7 +228,7 @@ public class DriveToBeacon extends DriveTrainLayer {
                 if (!goalReached[1]) {
                     driveLeft(0.55);
                     driveRight(-0.55);
-                } */
+                }
                 double target_angle_degrees2 = 90;
                 double error_degrees = target_angle_degrees2 - gyro.getHeading();
                 if ( error_degrees > 10) {
@@ -241,13 +250,20 @@ public class DriveToBeacon extends DriveTrainLayer {
             }
 
         }
+        */
 
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
+        telemetry.addData("color", String.valueOf(aboveRedLine()));
 
 
-        intakeMotor.setPower(1);
+
+        if (stage >= 1 && stage <= 5) {
+            intakeMotor.setPower(1);
+        } else {
+            intakeMotor.setPower(0);
+        }
 
     }
 

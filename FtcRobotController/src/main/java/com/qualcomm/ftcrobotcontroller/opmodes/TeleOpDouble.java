@@ -27,22 +27,17 @@ public class TeleOpDouble extends DriveTrainLayer {
 
     DcMotor pistonMotor;
 
-    /* Uncomment when accessories are added
     Servo climbersServo;
 
     Servo ziplinerServo;
 
-   // Variables for controlling speed on the climbersServo
+    // Variables for controlling speed on the climbersServo
     private ElapsedTime servotime = new ElapsedTime();
     private double servoPosition;
 
     //tweak these values for desired speed
     private double servoDelta = 0.01;
-    private double servoDelayTime = 0.003;
-
-    private boolean climbersLifted = false;
-    private boolean DPadUpPressedLong = false;
-    */
+    private double servoDelayTime2 = 0.0001;
 
     boolean YButton = false;
     boolean AButton = false;
@@ -52,6 +47,8 @@ public class TeleOpDouble extends DriveTrainLayer {
     double scalePower = 1;
 
     ElapsedTime manipTime = new ElapsedTime();
+
+    public boolean DPadUp = false;
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -77,23 +74,27 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         pistonMotor = hardwareMap.dcMotor.get("pistonMotor");
 
-        /* Uncomment when accessories are added
-        climbersServo.setPosition(0.15);
-        ziplinerServo.setPosition(1);
         climbersServo = hardwareMap.servo.get("climbersServo");
+        climbersServo.setDirection(Servo.Direction.REVERSE);
         ziplinerServo = hardwareMap.servo.get("ziplinersServo");
-        */
+        ziplinerServo.setDirection(Servo.Direction.REVERSE);
 
     }
 
     @Override
     public void start() {
-        /* Uncomment when accessories are added
+
         servotime.reset();
-        */
+
+        /*
+         * Set the default servo positions
+         */
 
         LeftRightServo.setPosition(0.45);
         UpDownServo.setPosition(0.7);
+
+        climbersServo.setPosition(0.15);
+        ziplinerServo.setPosition(0);
 
     }
 
@@ -198,7 +199,7 @@ public class TeleOpDouble extends DriveTrainLayer {
         double[] rightValues = {
                 0.185, scorePositionRamp
         }; //   LR    UD
-        double manualIncrement = 0.03; // How much the manual mode should increase or decrease the servo postion by
+        double manualIncrement = 0.015; // How much the manual mode should increase or decrease the servo postion by
         double servoDelayTime = 0.3; // Delay between dumping the positions on the field
 
         // TODO bind correct buttons
@@ -300,13 +301,25 @@ public class TeleOpDouble extends DriveTrainLayer {
             // Right score
             if (BButtonPressed) {
                 if (!BButton) {
-                    LeftRightServo.setPosition(rightValues[0]);
-                    UpDownServo.setPosition(rightValues[1]);
+                    manipTime.reset();
                     BButton = true;
                 }
             } if (!BButtonPressed) {
                 BButton = false;
             }
+        }
+
+        if (BButtonPressed) {
+
+            if (manipTime.time() <= 0.30) {
+                UpDownServo.setPosition(flatValues[1]);
+                LeftRightServo.setPosition(flatValues[0]);
+            } if (manipTime.time() > 0.31 && manipTime.time() <= 0.62) {
+                LeftRightServo.setPosition(rightValues[0]);
+            } if (manipTime.time() > 0.63) {
+                UpDownServo.setPosition(rightValues[1]);
+            }
+
         }
 
 
@@ -329,9 +342,10 @@ public class TeleOpDouble extends DriveTrainLayer {
         boolean DPadUpPressed = gamepad2.dpad_up;
         boolean DPadDownPressed = gamepad2.dpad_down;
 
-        /* Uncomment when accessories are added
+        double restingPosition = 0.15;
+
         if (DPadLeftPressed) {
-            ziplinerServo.setPosition(1);
+            ziplinerServo.setPosition(0.9);
         }
 
         if (DPadRightPressed) {
@@ -339,30 +353,30 @@ public class TeleOpDouble extends DriveTrainLayer {
         }
 
 
-        if (DPadUpPressedLong) {
-
-            if (!climbersLifted) {
-                if (servotime.time() > servoDelayTime) {
-                    climbersServo.setPosition(Range.clip(servoPosition += servoDelta, 0.15, 0.9));
-                    servotime.reset();
-                }
-            }
-
-        }
-
-        if (DPadUpPressed)
-
-            if (DPadDownPressed) {
-                climbersServo.setPosition(0.3);
+        if (DPadUp) {
+            if (servotime.time() > servoDelayTime2) {
+                climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 0.9));
+                servotime.reset();
             }
         }
 
-        if (climbersServo.getPosition() == 0.9) {
-            climbersLifted = true;
+        if (!DPadUpPressed) {
+            servotime.reset();
+            climbersServo.setPosition(restingPosition);
+            servoPosition = restingPosition;
         }
 
-        */
+        if (DPadUpPressed) {
+            if (!DPadUp) {
+                DPadUp = true;
+            }
 
+        }
+        if (!DPadUpPressed) {
+            if (DPadUp) {
+                DPadUp = false;
+            }
+        }
 
 
 
@@ -380,9 +394,9 @@ public class TeleOpDouble extends DriveTrainLayer {
          * Piston | Left Joystick moves piston up and down
          */
 
-        float leftYStick2 = -gamepad1.left_stick_y;
+    float leftYStick2 = -gamepad1.left_stick_y;
 
-        pistonMotor.setPower(scaleInput(leftYStick2) * 0.8);
+    pistonMotor.setPower(scaleInput(leftYStick2) * 0.8);
 
 
 
@@ -392,42 +406,44 @@ public class TeleOpDouble extends DriveTrainLayer {
          * Left Trigger - Slow mode
          */
 
-        float leftTrigger1 = gamepad1.left_trigger;
+    float leftTrigger1 = gamepad1.left_trigger;
 
-        if (leftTrigger1 == 1) {
-            scalePower = 0.7;
-        } else {
-            scalePower = 1;
-        }
-
-        // throttle: right_stick_y ranges from -1 to 1, where -1 is full up, and
-        // 1 is full down
-        // direction: right_stick_x ranges from -1 to 1, where -1 is full left
-        // and 1 is full right
-        float throttle = -gamepad1.right_stick_y;
-        float direction = -gamepad1.right_stick_x;
-        float right = throttle - direction;
-        float left = throttle + direction;
-
-        // clip the right/left values so that the values never exceed +/- 1
-        right = Range.clip(right, -1, 1);
-        left = Range.clip(left, -1, 1);
-
-        // scale the joystick value to make it easier to control
-        // the robot more precisely at slower speeds.
-        right = (float)scaleInput(right * scalePower);
-        left =  (float)scaleInput(left * scalePower);
-
-        // write the values to the motors
-        driveLeft(left);
-        driveRight(right);
-
-        telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
-        telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
-
-
-
+    if (leftTrigger1 == 1) {
+        scalePower = 0.7;
+    } else {
+        scalePower = 1;
     }
+
+    // throttle: right_stick_y ranges from -1 to 1, where -1 is full up, and
+    // 1 is full down
+    // direction: right_stick_x ranges from -1 to 1, where -1 is full left
+    // and 1 is full right
+    float throttle = -gamepad1.right_stick_y;
+    float direction = -gamepad1.right_stick_x;
+    float right = throttle - direction;
+    float left = throttle + direction;
+
+    // clip the right/left values so that the values never exceed +/- 1
+    right = Range.clip(right, -1, 1);
+    left = Range.clip(left, -1, 1);
+
+    // scale the joystick value to make it easier to control
+    // the robot more precisely at slower speeds.
+    right = (float)scaleInput(right * scalePower);
+    left =  (float)scaleInput(left * scalePower);
+
+    // write the values to the motors
+    driveLeft(left);
+    driveRight(right);
+
+    //telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
+    //telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+        telemetry.addData("climbers", String.valueOf(climbersServo.getPosition()));
+        telemetry.addData("servodelaytime", String.valueOf(servoDelayTime2));
+
+
+
+}
 
     /*
      * Code to run when the op mode is first disabled goes here
@@ -443,25 +459,10 @@ public class TeleOpDouble extends DriveTrainLayer {
 	 * scaled value is less than linear.  This is to make it easier to drive
 	 * the robot more precisely at slower speeds.
 	 */
-    double scaleInput(double dVal) {
-        double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
-                0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
-
+    double scaleInput(double dVal) {double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24, 0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
         // get the corresponding index for the scaleInput array.
-        int index = (int) (dVal * 16.0);
-        if (index < 0) {
-            index = -index;
-        } else if (index > 16) {
-            index = 16;
-        }
-
-        double dScale = 0.0;
-        if (dVal < 0) {
-            dScale = -scaleArray[index];
-        } else {
-            dScale = scaleArray[index];
-        }
-
+        int index = (int) (dVal * 16.0); if (index < 0) {index = -index;} else if (index > 16) {index = 16;}
+        double dScale = 0.0; if (dVal < 0) {dScale = -scaleArray[index];} else {dScale = scaleArray[index];}
         return dScale;
     }
 }

@@ -61,17 +61,12 @@ public class FtcOpModeRegister implements OpModeRegister {
 	/*
      * The TeleOpDouble op mode
 	 */
-
-        manager.register("TeleOpDouble", TeleOpDouble.class);
-        // manager.register("TeleOpSingle", TeleOpDouble.class);
-        // manager.register("BCSBlue", BeaconClimbersSitBlue.class);
-        // manager.register("BCFGRed", BeaconClimberFGoalRed.class);
-        // manager.register("BCFGBlue", BeaconClimbersSitBlue.class);
         manager.register("Empty", EmptyOp.class);
-        manager.register("DriveToBeacon", DriveToBeacon.class);
-        manager.register("GyroTest", GyroTest.class);
-        manager.register("TeleOpTank", TeleOpDouble.class);
-
+        manager.register("TeleOpDouble", TeleOpDouble.class);
+        //manager.register("GyroTest", GyroTest.class);
+        manager.register("DriveToBeaconR", DriveToFloorGoalRed.class);
+        manager.register("DriveToBeaconB", DriveToFloorGoalBlue.class);
+        // manager.register("DriveToBeacon", DriveToBeacon.class);
 	/*
 	 * Some testing op modes
 	 */

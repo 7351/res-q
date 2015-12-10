@@ -31,7 +31,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * <p>
  * Drive to the beacon
  */
-public class DriveToFloorGoalRed extends DriveTrainLayer {
+public class DriveToFloorGoalBlue extends DriveTrainLayer {
 
     ColorSensor lineColorSensor;
 
@@ -57,9 +57,9 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
         return returnValue;
     }
 
-    public boolean aboveRedLine (){
+    public boolean aboveBlueLine(){
         boolean returnValue = false;
-        if ((lineColorSensor.red() > lineColorSensor.green() + 2) && (lineColorSensor.red() > lineColorSensor.blue() + 2)) {
+        if ((lineColorSensor.blue() > lineColorSensor.red() + 1) && (lineColorSensor.blue() > lineColorSensor.green() + 1)) {
             returnValue = true;
         }
         return returnValue;
@@ -140,14 +140,14 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
         }
         if (stage == 3) {
             if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 307;
+                double target_angle_degrees = 50;
                 double error_degrees = target_angle_degrees - gyro.getHeading();
                 if ( error_degrees > 20) {
-                    driveLeft(0.75);
-                    driveRight(-0.75);
+                    driveLeft(-0.75);
+                    driveRight(0.75);
                 } else {
-                    driveLeft(0.52);
-                    driveRight(-0.52);
+                    driveLeft(-0.52);
+                    driveRight(0.52);
                 }
                 if (isGyroInTolerance((int) target_angle_degrees)) {
                     goalReached[0] = true;
@@ -167,11 +167,11 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
             }
         }
         if (stage == 5) {
-            if (aboveRedLine()) {
+            if (aboveBlueLine()) {
                 leftPower = 0;
                 rightPower = 0;
                 stage++;
-            } if (!aboveRedLine()) {
+            } if (!aboveBlueLine()) {
                 // Starting power -0.6
                 if (defaultPowerSet == false) {
                     leftPower = 0.85;
