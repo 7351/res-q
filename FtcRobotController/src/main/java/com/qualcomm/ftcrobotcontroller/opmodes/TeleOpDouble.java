@@ -2,6 +2,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -50,6 +51,8 @@ public class TeleOpDouble extends DriveTrainLayer {
 
     public boolean DPadUp = false;
 
+    UltrasonicSensor ultrasonic;
+
     /*
      * Code to run when the op mode is initialized goes here
      *
@@ -78,6 +81,8 @@ public class TeleOpDouble extends DriveTrainLayer {
         climbersServo.setDirection(Servo.Direction.REVERSE);
         ziplinerServo = hardwareMap.servo.get("ziplinersServo");
         ziplinerServo.setDirection(Servo.Direction.REVERSE);
+
+        ultrasonic = hardwareMap.ultrasonicSensor.get("ultrasonic");
 
     }
 
@@ -182,14 +187,14 @@ public class TeleOpDouble extends DriveTrainLayer {
         double centerLine = 0.45; // LR Value
 
         double[] homeValues = {
-                centerLine, 0.737
+                centerLine, 0.75
         }; //   LR    UD
 
         double[] flatValues = {
                 centerLine, 0.635
         }; //   LR    UD
         double[] tiltValues = {
-                centerLine, 0.855
+                centerLine, 0.89
         }; //   LR    UD
         double scorePositionRamp = 0.529; // UD Value
         double dropPositionFloor = 0.67; // UD Value
@@ -199,8 +204,8 @@ public class TeleOpDouble extends DriveTrainLayer {
         double[] rightValues = {
                 0.185, scorePositionRamp
         }; //   LR    UD
-        double manualIncrement = 0.015; // How much the manual mode should increase or decrease the servo postion by
-        double servoDelayTime = 0.3; // Delay between dumping the positions on the field
+        double manualIncrement = 0.03; // How much the manual mode should increase or decrease the servo postion by
+        double servoDelayTimeMultiplier = 0.7; // Delay between dumping the positions on the field
 
         // TODO bind correct buttons
 
@@ -290,12 +295,22 @@ public class TeleOpDouble extends DriveTrainLayer {
             // Left score
             if (XButtonPressed) {
                 if (!XButton) {
-                    LeftRightServo.setPosition(leftValues[0]);
-                    UpDownServo.setPosition(leftValues[1]);
+                    manipTime.reset();
                     XButton = true;
                 }
             } if (!XButtonPressed) {
                 XButton = false;
+            }
+            if (XButtonPressed) {
+                if (manipTime.time() <= servoDelayTimeMultiplier) {
+                    UpDownServo.setPosition(flatValues[1]);
+                    LeftRightServo.setPosition(flatValues[0]);
+                } if (manipTime.time() > servoDelayTimeMultiplier + 0.01 && manipTime.time() <= (servoDelayTimeMultiplier*2) + 0.02) {
+                    LeftRightServo.setPosition(leftValues[0]);
+                } if (manipTime.time() > (servoDelayTimeMultiplier*2) + 0.03) {
+                    UpDownServo.setPosition(leftValues[1]);
+                }
+
             }
 
             // Right score
@@ -307,20 +322,20 @@ public class TeleOpDouble extends DriveTrainLayer {
             } if (!BButtonPressed) {
                 BButton = false;
             }
-        }
+            if (BButtonPressed) {
+                if (manipTime.time() <= servoDelayTimeMultiplier) {
+                    UpDownServo.setPosition(flatValues[1]);
+                    LeftRightServo.setPosition(flatValues[0]);
+                } if (manipTime.time() > servoDelayTimeMultiplier + 0.01 && manipTime.time() <= (servoDelayTimeMultiplier*2) + 0.02) {
+                    LeftRightServo.setPosition(rightValues[0]);
+                } if (manipTime.time() > (servoDelayTimeMultiplier*2) + 0.03) {
+                    UpDownServo.setPosition(rightValues[1]);
+                }
 
-        if (BButtonPressed) {
-
-            if (manipTime.time() <= 0.30) {
-                UpDownServo.setPosition(flatValues[1]);
-                LeftRightServo.setPosition(flatValues[0]);
-            } if (manipTime.time() > 0.31 && manipTime.time() <= 0.62) {
-                LeftRightServo.setPosition(rightValues[0]);
-            } if (manipTime.time() > 0.63) {
-                UpDownServo.setPosition(rightValues[1]);
             }
-
         }
+
+
 
 
         telemetry.addData("LRServo", String.valueOf(LeftRightServo.getPosition()));
@@ -342,7 +357,7 @@ public class TeleOpDouble extends DriveTrainLayer {
         boolean DPadUpPressed = gamepad2.dpad_up;
         boolean DPadDownPressed = gamepad2.dpad_down;
 
-        double restingPosition = 0.15;
+        double restingPosition = 0.19;
 
         if (DPadLeftPressed) {
             ziplinerServo.setPosition(0.9);
@@ -436,10 +451,9 @@ public class TeleOpDouble extends DriveTrainLayer {
     driveLeft(left);
     driveRight(right);
 
-    //telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
-    //telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
-        telemetry.addData("climbers", String.valueOf(climbersServo.getPosition()));
-        telemetry.addData("servodelaytime", String.valueOf(servoDelayTime2));
+    telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
+    telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
+        telemetry.addData("ultrasonic", String.valueOf(ultrasonic.getUltrasonicLevel()));
 
 
 

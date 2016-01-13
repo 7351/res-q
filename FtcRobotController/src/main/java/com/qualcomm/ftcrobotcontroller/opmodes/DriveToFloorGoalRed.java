@@ -21,6 +21,7 @@
          */
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -39,7 +40,7 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
 
     int stage = 0;
 
-    final static int TOLERANCE = 1;
+    final static int TOLERANCE = 2;
 
     public boolean isGyroInTolerance(int degree) {
         boolean returnValue = false;
@@ -74,6 +75,8 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
 
     ElapsedTime waitTime = new ElapsedTime();
 
+    ElapsedTime startTime = new ElapsedTime();
+
     boolean goalReached[] = {false, false};
 
     DcMotor intakeMotor;
@@ -106,6 +109,8 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
         lineColorSensor.enableLed(true);
         gyro.calibrate();
         manipTime.reset();
+
+        startTime.reset();
     }
 
     /*
@@ -140,29 +145,35 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
         }
         if (stage == 3) {
             if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 307;
+                double target_angle_degrees = 317; // 307 + 10
+                // TODO Fix the gyro reaction motor issue thing
                 double error_degrees = target_angle_degrees - gyro.getHeading();
-                if ( error_degrees > 20) {
-                    driveLeft(0.75);
-                    driveRight(-0.75);
+                if ( error_degrees > 15) {
+                    driveLeft(0.8);
+                    driveRight(-0.8);
                 } else {
-                    driveLeft(0.52);
-                    driveRight(-0.52);
-                }
-                if (isGyroInTolerance((int) target_angle_degrees)) {
-                    goalReached[0] = true;
-                    stage++;
-                }
-                if (goalReached[0]) {
-                    driveLeft(0);
-                    driveRight(0);
-                    waitTime.reset();
+                    driveLeft(0.6);
+                    driveRight(-0.6);
+                } if (gyro.getHeading() <= target_angle_degrees + 2) {
+                    if (gyro.getHeading() >= target_angle_degrees - 2) {
+                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                        driveLeft(0);
+                        driveRight(0);
+                        stage++;
+                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                        waitTime.reset();
+                    }
+
                 }
             }
 
         }
         if (stage == 4) {
+            driveLeft(0);
+            driveRight(0);
+            DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
             if (waitTime.time() >= 1) {
+                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                 stage++;
             }
         }
@@ -255,6 +266,7 @@ public class DriveToFloorGoalRed extends DriveTrainLayer {
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
+        DbgLog.msg(String.valueOf(gyro.getHeading()) + ", " + startTime.time());
 
 
 

@@ -31,11 +31,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.hardware.GyroSensor;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 
-public class GyroTest extends DriveTrainLayer {
+import com.qualcomm.ftccommon.DbgLog;
+import com.qualcomm.ftcrobotcontroller.ApplicationContextProvider;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-    GyroSensor gyro;
+/**
+ * Autonomous mode
+ * <p>
+ * Our all in one autonomous program
+ */
+public class DASTest extends OpMode {
+    public final static String FILENAMEPREF = "preferences";
+    public final static String[] KEY_LIST = {
+            "redMode", // true = Red alliance; false = Blue alliance
+            "delay", // Time in seconds before match starts // int
+            "targetGoal", // Where should the robot head to? // brz or fg
+    };
+    public SharedPreferences getPreferences() {
+
+        SharedPreferences pref = null;
+        try {
+            Context con = ApplicationContextProvider.getContext().createPackageContext("tk.leoforney.dynamicchooser", 0);
+            pref = con.getSharedPreferences(FILENAMEPREF, Context.MODE_PRIVATE);
+        } catch (PackageManager.NameNotFoundException e) {
+            DbgLog.error(e.toString());
+        }
+        return pref;
+    }
+
+    boolean redMode = getPreferences().getBoolean(KEY_LIST[0], true);
+    int delay = getPreferences().getInt(KEY_LIST[1], 0);
+    String targetGoal = getPreferences().getString(KEY_LIST[2], "fg");
+
+    ElapsedTime delayTimer = new ElapsedTime();
+
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -44,14 +78,13 @@ public class GyroTest extends DriveTrainLayer {
      */
     @Override
     public void init() {
-        super.init();
 
-        gyro = hardwareMap.gyroSensor.get("gyro");
 
     }
 
-    public void start(){
-        gyro.calibrate();
+    @Override
+    public void start() {
+
     }
 
     /*
@@ -62,10 +95,9 @@ public class GyroTest extends DriveTrainLayer {
     @Override
     public void loop() {
 
-        telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
-
-
-
+        telemetry.addData("redmode", String.valueOf(redMode));
+        telemetry.addData("delay", String.valueOf(delay));
+        telemetry.addData("target", targetGoal);
 
     }
 
