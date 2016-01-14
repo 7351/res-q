@@ -44,7 +44,9 @@ public class Autonomous extends DriveTrainLayer {
             "redMode", // true = Red alliance; false = Blue alliance
             "delay", // Time in seconds before match starts // int
             "targetGoal", // Where should the robot head to? // brz or fg
+            "motorPower" // Percent of motor power for autonomous
     };
+
     public SharedPreferences getPreferences() {
 
         SharedPreferences pref = null;
@@ -60,27 +62,20 @@ public class Autonomous extends DriveTrainLayer {
     boolean redMode = getPreferences().getBoolean(KEY_LIST[0], true);
     int delay = getPreferences().getInt(KEY_LIST[1], 0);
     String targetGoal = getPreferences().getString(KEY_LIST[2], "fg");
+    double motorPower = (getPreferences().getInt(KEY_LIST[3], 100))/100;
 
 
     ColorSensor lineColorSensor;
 
     GyroSensor gyro;
 
-    int stage = 0;
+    int stage = -1;
 
     final static int TOLERANCE = 2;
 
-    public boolean isGyroInTolerance(int degree) {
+    public boolean aboveRedLine (){
         boolean returnValue = false;
-        if ((gyro.getHeading() <= degree + TOLERANCE) && (gyro.getHeading() >= degree - TOLERANCE)) {
-            returnValue = true;
-        }
-        return returnValue;
-    }
-
-    public boolean aboveWhiteLine (){
-        boolean returnValue = false;
-        if ((lineColorSensor.red() >= 5) && (lineColorSensor.green() >= 5) && (lineColorSensor.blue() >= 5)) {
+        if ((lineColorSensor.red() > lineColorSensor.green() + 2) && (lineColorSensor.red() > lineColorSensor.blue() + 2)) {
             returnValue = true;
         }
         return returnValue;
@@ -105,7 +100,7 @@ public class Autonomous extends DriveTrainLayer {
 
     ElapsedTime startTime = new ElapsedTime();
 
-    boolean goalReached[] = {false, false};
+    ElapsedTime MatchStartTimer = new ElapsedTime();
 
     DcMotor intakeMotor;
 
@@ -139,6 +134,8 @@ public class Autonomous extends DriveTrainLayer {
         manipTime.reset();
 
         startTime.reset();
+
+        MatchStartTimer.reset();
     }
 
     /*
@@ -148,148 +145,162 @@ public class Autonomous extends DriveTrainLayer {
      */
     @Override
     public void loop() {
-        if (stage == 0) {
-            if (!gyro.isCalibrating()) {
-                manipTime.reset();
+        if (stage == -1) {
+            if (MatchStartTimer.time() >= delay) {
                 stage++;
             }
         }
-        if (stage == 1) {
-            if (!gyro.isCalibrating()) {
-                driveLeft(0.6);
-                driveRight(0.6);
-                if (manipTime.time() >= 0.5) {
-                    driveLeft(0);
-                    driveRight(0);
+        if (targetGoal.equals("fg")) {
+            if (stage == 0) {
+                if (!gyro.isCalibrating()) {
+                    manipTime.reset();
                     stage++;
-                    waitTime.reset();
                 }
             }
-        }
-        if (stage == 2) {
-            if (waitTime.time() >= 1) {
-                stage++;
-            }
-        }
-        if (stage == 3) {
-            if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 45; // 307 + 10
-                // TODO Fix the gyro reaction motor issue thing
-                double error_degrees = target_angle_degrees - gyro.getHeading();
-                if ( error_degrees > 15) {
-                    driveLeft(-0.8);
-                    driveRight(0.8);
-                } else {
-                    driveLeft(-0.6);
+            if (stage == 1) {
+                if (!gyro.isCalibrating()) {
+                    driveLeft(0.6);
                     driveRight(0.6);
-                } if (gyro.getHeading() <= target_angle_degrees + 1) {
-                    if (gyro.getHeading() >= target_angle_degrees - TOLERANCE) {
-                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                    if (manipTime.time() >= 0.5) {
                         driveLeft(0);
                         driveRight(0);
                         stage++;
-                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                         waitTime.reset();
                     }
-
                 }
             }
-
-        }
-        if (stage == 4) {
-            driveLeft(0);
-            driveRight(0);
-            DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
-            if (waitTime.time() >= 1) {
-                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
-                stage++;
-            }
-        }
-        if (stage == 5) {
-            if (aboveBlueLine()) {
-                leftPower = 0;
-                rightPower = 0;
-                stage++;
-            } if (!aboveBlueLine()) {
-                // Starting power -0.6
-                if (defaultPowerSet == false) {
-                    leftPower = 0.65;
-                    rightPower = 0.80;
-                    defaultPowerSet = true;
+            if (stage == 2) {
+                if (waitTime.time() >= 1) {
+                    stage++;
                 }
-                if (defaultPowerSet == true) {
-                    if (manipTime.time() > 0.1) {
-                        leftPower -= 0.0065;
-                        rightPower -= 0.0065;
-                        manipTime.reset();
+            }
+            if (redMode) {
+                if (stage == 3) {
+                    if (!gyro.isCalibrating()) {
+                        double target_angle_degrees = 317; // 307 + 10
+                        // TODO Fix the gyro reaction motor issue thing
+                        double error_degrees = target_angle_degrees - gyro.getHeading();
+                        if ( error_degrees > 15) {
+                            driveLeft(0.8);
+                            driveRight(-0.8);
+                        } else {
+                            driveLeft(0.6);
+                            driveRight(-0.6);
+                        } if (gyro.getHeading() <= target_angle_degrees + 2) {
+                            if (gyro.getHeading() >= target_angle_degrees - 2) {
+                                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                                driveLeft(0);
+                                driveRight(0);
+                                stage++;
+                                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                                waitTime.reset();
+                            }
+
+                        }
                     }
+
                 }
+            }
+            if (!redMode) {
+                if (stage == 3) {
+                    if (!gyro.isCalibrating()) {
+                        double target_angle_degrees = 45; // 307 + 10
+                        // TODO Fix the gyro reaction motor issue thing
+                        double error_degrees = target_angle_degrees - gyro.getHeading();
+                        if ( error_degrees > 15) {
+                            driveLeft(-0.8);
+                            driveRight(0.8);
+                        } else {
+                            driveLeft(-0.6);
+                            driveRight(0.6);
+                        } if (gyro.getHeading() <= target_angle_degrees + 1) {
+                            if (gyro.getHeading() >= target_angle_degrees - TOLERANCE) {
+                                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                                driveLeft(0);
+                                driveRight(0);
+                                stage++;
+                                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                                waitTime.reset();
+                            }
 
+                        }
+                    }
+
+                }
             }
 
-            driveLeft(rightPower);
-            driveRight(leftPower);
-        }
-        /*
-        if (stage == 6) {
-            if (manipTime.time() >= 1) {
-                stage++;
-            }
-        }
-        if (stage == 7) {
-            if (!aboveWhiteLine()) {
-                driveLeft(-0.3);
-                driveRight(-0.3);
-                waitTime.reset();
-            } if (aboveWhiteLine()) {
+            if (stage == 4) {
                 driveLeft(0);
                 driveRight(0);
-                manipTime.reset();
-                stage++;
-            }
-        }
-        if (stage == 8) {
-            if (waitTime.time() >= 1) {
-                stage++;
-            }
-        }
-        if (stage == 9) {
-            if (!gyro.isCalibrating()) {
-                if (isGyroInTolerance(90)) {
-                    goalReached[1] = true;
+                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                if (waitTime.time() >= 1) {
+                    DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                     stage++;
                 }
-                if (goalReached[1]) {
-                    driveLeft(0);
-                    driveRight(0);
-                    waitTime.reset();
+            }
+            if (redMode) {
+                if (stage == 5) {
+                    if (aboveRedLine()) {
+                        leftPower = 0;
+                        rightPower = 0;
+                        stage++;
+                    } if (!aboveRedLine()) {
+                        // Starting power -0.6
+                        if (defaultPowerSet == false) {
+                            leftPower = 0.85 * motorPower;
+                            rightPower = 0.65 * motorPower;
+                            defaultPowerSet = true;
+                        }
+                        if (defaultPowerSet == true) {
+                            if (manipTime.time() > 0.1) {
+                                leftPower -= 0.0035 * motorPower;
+                                rightPower -= 0.0055 * motorPower;
+                                manipTime.reset();
+                            }
+                        }
+
+                    }
+
+                    driveLeft(leftPower);
+                    driveRight(rightPower);
                 }
-                if (!goalReached[1]) {
-                    driveLeft(0.55);
-                    driveRight(-0.55);
-                }
-                double target_angle_degrees2 = 90;
-                double error_degrees = target_angle_degrees2 - gyro.getHeading();
-                if ( error_degrees > 10) {
-                    driveLeft(0.60);
-                    driveRight(-0.60);
-                } else {
-                    driveLeft(0.5);
-                    driveRight(-0.45);
-                }
-                if (isGyroInTolerance((int) target_angle_degrees2)) {
-                    goalReached[1] = true;
-                    stage++;
-                }
-                if (goalReached[1]) {
-                    driveLeft(0);
-                    driveRight(0);
-                    waitTime.reset();
+            }
+            if (!redMode) {
+                if (stage == 5) {
+                    if (aboveBlueLine()) {
+                        leftPower = 0;
+                        rightPower = 0;
+                        stage++;
+                    } if (!aboveBlueLine()) {
+                        // Starting power -0.6
+                        if (defaultPowerSet == false) {
+                            leftPower = 0.65 * motorPower;
+                            rightPower = 0.80 * motorPower;
+                            defaultPowerSet = true;
+                        }
+                        if (defaultPowerSet == true) {
+                            if (manipTime.time() > 0.1) {
+                                leftPower -= 0.0065 * motorPower;
+                                rightPower -= 0.0065 * motorPower;
+                                manipTime.reset();
+                            }
+                        }
+
+                    }
+
+                    driveLeft(rightPower);
+                    driveRight(leftPower);
                 }
             }
 
+            if (stage >= 1 && stage <= 5) {
+                intakeMotor.setPower(1);
+            } else {
+                intakeMotor.setPower(0);
+            }
         }
-        */
+
+
 
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
@@ -298,11 +309,7 @@ public class Autonomous extends DriveTrainLayer {
 
 
 
-        if (stage >= 1 && stage <= 5) {
-            intakeMotor.setPower(1);
-        } else {
-            intakeMotor.setPower(0);
-        }
+
 
     }
 
