@@ -65,8 +65,8 @@ public class FtcOpModeRegister implements OpModeRegister {
         manager.register("TeleOpDouble", TeleOpDouble.class);
         manager.register("TeleOpDemoRobot", TeleOpDemoRobot.class);
         //manager.register("GyroTest", GyroTest.class);
-        manager.register("DriveToBeaconR", DriveToFloorGoalRed.class);
-        manager.register("DriveToBeaconB", DriveToFloorGoalBlue.class);
+        //manager.register("DriveToBeaconR", DriveToFloorGoalRed.class);
+        //manager.register("DriveToBeaconB", DriveToFloorGoalBlue.class);
         manager.register("Autonomous", Autonomous.class);
         // manager.register("DriveToBeacon", DriveToBeacon.class);
 	/*

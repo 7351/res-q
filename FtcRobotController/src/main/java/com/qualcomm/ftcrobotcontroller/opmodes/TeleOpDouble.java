@@ -2,7 +2,6 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -30,7 +29,9 @@ public class TeleOpDouble extends DriveTrainLayer {
 
     Servo climbersServo;
 
-    Servo ziplinerServo;
+    Servo leftAngelArm;
+
+    Servo rightAngelArm;
 
     // Variables for controlling speed on the climbersServo
     private ElapsedTime servotime = new ElapsedTime();
@@ -51,8 +52,6 @@ public class TeleOpDouble extends DriveTrainLayer {
 
     public boolean DPadUp = false;
 
-    UltrasonicSensor ultrasonic;
-
     /*
      * Code to run when the op mode is initialized goes here
      *
@@ -69,8 +68,6 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
 
-        liftMotor = hardwareMap.dcMotor.get("liftMotor");
-
         LeftRightServo = hardwareMap.servo.get("LeftRightServo");
 
         UpDownServo = hardwareMap.servo.get("UpDownServo");
@@ -79,10 +76,13 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         climbersServo = hardwareMap.servo.get("climbersServo");
         climbersServo.setDirection(Servo.Direction.REVERSE);
-        ziplinerServo = hardwareMap.servo.get("ziplinersServo");
-        ziplinerServo.setDirection(Servo.Direction.REVERSE);
 
-        ultrasonic = hardwareMap.ultrasonicSensor.get("ultrasonic");
+        leftAngelArm = hardwareMap.servo.get("leftAngelArm");
+        rightAngelArm = hardwareMap.servo.get("rightAngelArm");
+
+        liftMotor = hardwareMap.dcMotor.get("liftMotor");
+
+
 
     }
 
@@ -98,8 +98,10 @@ public class TeleOpDouble extends DriveTrainLayer {
         LeftRightServo.setPosition(0.45);
         UpDownServo.setPosition(0.7);
 
-        climbersServo.setPosition(0.15);
-        ziplinerServo.setPosition(0);
+        climbersServo.setPosition(0.19);
+
+        leftAngelArm.setPosition(0);
+        rightAngelArm.setPosition(0.75);
 
     }
 
@@ -145,8 +147,7 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         // Power to decrease motor
 
-        double ScalingPower = 0.3;
-
+        double ScalingPower = 1;
 
         if (leftYStick == 0) {
             liftMotor.setPower(0);
@@ -181,33 +182,33 @@ public class TeleOpDouble extends DriveTrainLayer {
         float RightJoystick2 = -gamepad2.right_stick_y;
 
         /*
-        Values for servo positions
+         CHANGEABLE: Values for servo positions
          */
 
-        double centerLine = 0.45; // LR Value
+            final double centerLine = 0.45; // LR Value
 
-        double[] homeValues = {
-                centerLine, 0.75
-        }; //   LR    UD
+            double[] homeValues = {
+                    centerLine, 0.75
+            }; //   LR    UD
 
-        double[] flatValues = {
-                centerLine, 0.635
-        }; //   LR    UD
-        double[] tiltValues = {
-                centerLine, 0.89
-        }; //   LR    UD
-        double scorePositionRamp = 0.529; // UD Value
-        double dropPositionFloor = 0.67; // UD Value
-        double[] leftValues = {
-                0.67, scorePositionRamp
-        }; //   LR    UD
-        double[] rightValues = {
-                0.185, scorePositionRamp
-        }; //   LR    UD
-        double manualIncrement = 0.03; // How much the manual mode should increase or decrease the servo postion by
-        double servoDelayTimeMultiplier = 0.7; // Delay between dumping the positions on the field
+            double[] flatValues = {
+                    centerLine, 0.635
+            }; //   LR    UD
+            double[] tiltValues = {
+                    centerLine, 0.89
+            }; //   LR    UD
+            double scorePositionRamp = 0.529; // UD Value
+            double dropPositionFloor = 0.67; // UD Value
+            double[] leftValues = {
+                    0.67, scorePositionRamp
+            }; //   LR    UD
+            double[] rightValues = {
+                    0.185, scorePositionRamp
+            }; //   LR    UD
+            double manualIncrement = 0.03; // How much the manual mode should increase or decrease the servo postion by
+            double servoDelayTimeMultiplier = 0.7; // Delay between dumping the positions on the field
 
-        // TODO bind correct buttons
+
 
         if (RightTriggerPressed == 1) {
             LeftRightServo.setPosition(flatValues[0]);
@@ -222,6 +223,9 @@ public class TeleOpDouble extends DriveTrainLayer {
             UpDownServo.setPosition(dropPositionFloor);
         }
 
+        /*
+         * Manual mode for scoring box
+         */
 
         if (ManualMode) {
             if (YButtonPressed) {
@@ -348,29 +352,50 @@ public class TeleOpDouble extends DriveTrainLayer {
          * Accessories - Includes zipliners, and climbers servo
          * D-Pad Up - Throw climbers into bucket
          * D-Pad Down - Put climbers servo back down
-         * D-Pad Left - Throw out zip liners servo
-         * D-Pad Right - Put in zip liners servo
+         * D-Pad Left - Put left zip liners servo out
+         * D-Pad Right - Put right zip liners servo out
          */
+
+        /*
+         * Left Servo Angel home servo position = 0
+         * Left Servo Angel score servo positon = 0.75
+         *
+         * Right Servo Angel home servo position = 0.75
+         * Right Servo Angel score servo position - 0
+         */
+        /*
+         * CHANGEABLE: Angel arms scoring positions
+         */
+
+            double leftAngelHome = 0;
+            double leftAngelScore = 0.75;
+            double rightAngelHome = 0.75;
+            double rightAngelScore = 0;
+            double restingPosition = 0.19;
 
         boolean DPadLeftPressed = gamepad2.dpad_left;
         boolean DPadRightPressed = gamepad2.dpad_right;
         boolean DPadUpPressed = gamepad2.dpad_up;
         boolean DPadDownPressed = gamepad2.dpad_down;
 
-        double restingPosition = 0.19;
+
 
         if (DPadLeftPressed) {
-            ziplinerServo.setPosition(0.9);
+            leftAngelArm.setPosition(leftAngelScore);
+        } else {
+            leftAngelArm.setPosition(leftAngelHome);
         }
 
         if (DPadRightPressed) {
-            ziplinerServo.setPosition(0);
+            rightAngelArm.setPosition(rightAngelScore);
+        } else {
+            rightAngelArm.setPosition(rightAngelHome);
         }
 
 
         if (DPadUp) {
             if (servotime.time() > servoDelayTime2) {
-                climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 0.9));
+                climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
                 servotime.reset();
             }
         }
@@ -404,15 +429,6 @@ public class TeleOpDouble extends DriveTrainLayer {
 		 * Gamepad 1 controls
 		 *
 		 */
-
-        /*
-         * Piston | Left Joystick moves piston up and down
-         */
-
-    float leftYStick2 = -gamepad1.left_stick_y;
-
-    pistonMotor.setPower(scaleInput(leftYStick2) * 0.8);
-
 
 
         /*
@@ -451,9 +467,7 @@ public class TeleOpDouble extends DriveTrainLayer {
     driveLeft(left);
     driveRight(right);
 
-    telemetry.addData("left tgt pwr", "left  pwr: " + String.format("%.2f", left));
-    telemetry.addData("right tgt pwr", "right pwr: " + String.format("%.2f", right));
-        telemetry.addData("ultrasonic", String.valueOf(ultrasonic.getUltrasonicLevel()));
+    telemetry.addData("drive power", "L: "  + String.valueOf(left) + ", R: " + String.valueOf(right));
 
 
 

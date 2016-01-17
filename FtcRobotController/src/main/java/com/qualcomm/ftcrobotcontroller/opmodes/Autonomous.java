@@ -1,24 +1,3 @@
-/*    if (stage == 0) {
-            if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 135;
-                double error_degrees = target_angle_degrees - gyro.getHeading();
-                if ( error_degrees > 25) {
-                    driveLeft(0.75);
-                    driveRight(-0.75);
-                } else {
-                    driveLeft(0.57);
-                    driveRight(-0.57);
-                } if (isGyroInTolerance((int) target_angle_degrees)) {
-                    driveLeft(0);
-                    driveRight(0);
-                    stage++;
-                }
-            } if (gyro.isCalibrating()) {
-                driveLeft(0);
-                driveRight(0);
-            }
-        }
-         */
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import android.content.Context;
@@ -245,24 +224,26 @@ public class Autonomous extends DriveTrainLayer {
                         rightPower = 0;
                         stage++;
                     } if (!aboveRedLine()) {
-                        // Starting power -0.6
+                        // Starting left power = 0.65
+                        // Starting right power = 0.85
+                        // Decrease by .1
                         if (defaultPowerSet == false) {
-                            leftPower = 0.85 * motorPower;
-                            rightPower = 0.65 * motorPower;
+                            rightPower = (0.65 - 0.1) + (0.1 * motorPower);
+                            leftPower = (0.85 - 0.1) + (0.1 * motorPower);
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
                             if (manipTime.time() > 0.1) {
-                                leftPower -= 0.0035 * motorPower;
-                                rightPower -= 0.0055 * motorPower;
+                                leftPower -= (0.0055 - 0.001) + (0.001 * motorPower);
+                                rightPower -= (0.0035 - 0.001) + (0.001 * motorPower);
                                 manipTime.reset();
                             }
                         }
 
                     }
 
-                    driveLeft(leftPower);
-                    driveRight(rightPower);
+                    driveLeft(rightPower);
+                    driveRight(leftPower);
                 }
             }
             if (!redMode) {
@@ -272,16 +253,17 @@ public class Autonomous extends DriveTrainLayer {
                         rightPower = 0;
                         stage++;
                     } if (!aboveBlueLine()) {
-                        // Starting power -0.6
+                        // Starting left power = 0.65
+                        // Starting right poewr = 0.8
                         if (defaultPowerSet == false) {
-                            leftPower = 0.65 * motorPower;
-                            rightPower = 0.80 * motorPower;
+                            leftPower = (0.65 - 0.1) + (0.1 * motorPower);
+                            rightPower = (0.8 - 0.1) + (0.1 * motorPower);
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
                             if (manipTime.time() > 0.1) {
-                                leftPower -= 0.0065 * motorPower;
-                                rightPower -= 0.0065 * motorPower;
+                                leftPower -= (0.0065 - 0.001) + (0.001 * motorPower);
+                                rightPower -= (0.0065 - 0.001) + (0.001 * motorPower);
                                 manipTime.reset();
                             }
                         }
