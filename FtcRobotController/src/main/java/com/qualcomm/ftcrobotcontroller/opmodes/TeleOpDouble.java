@@ -188,22 +188,22 @@ public class TeleOpDouble extends DriveTrainLayer {
             final double centerLine = 0.45; // LR Value
 
             double[] homeValues = {
-                    centerLine, 0.75
+                    centerLine, 0.66
             }; //   LR    UD
 
             double[] flatValues = {
-                    centerLine, 0.635
+                    centerLine, 0.568
             }; //   LR    UD
             double[] tiltValues = {
-                    centerLine, 0.89
+                    centerLine, 0.901
             }; //   LR    UD
-            double scorePositionRamp = 0.529; // UD Value
-            double dropPositionFloor = 0.67; // UD Value
+            double scorePositionRamp = 0.45; // UD Value
+            double dropPositionFloor = 0.65; // UD Value
             double[] leftValues = {
-                    0.67, scorePositionRamp
+                    0.665, scorePositionRamp
             }; //   LR    UD
             double[] rightValues = {
-                    0.185, scorePositionRamp
+                    0.09, scorePositionRamp
             }; //   LR    UD
             double manualIncrement = 0.03; // How much the manual mode should increase or decrease the servo postion by
             double servoDelayTimeMultiplier = 0.7; // Delay between dumping the positions on the field
