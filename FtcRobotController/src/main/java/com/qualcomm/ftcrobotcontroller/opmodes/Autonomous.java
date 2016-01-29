@@ -25,6 +25,26 @@ public class Autonomous extends DriveTrainLayer {
             "targetGoal", // Where should the robot head to? // brz or fg
             "motorPower" // Percent of motor power for autonomous
     };
+    final static int TOLERANCE = 2;
+    boolean redMode = getPreferences().getBoolean(KEY_LIST[0], true);
+    int delay = getPreferences().getInt(KEY_LIST[1], 0);
+    String targetGoal = getPreferences().getString(KEY_LIST[2], "fg");
+    double motorPower = (getPreferences().getInt(KEY_LIST[3], 100))/100;
+
+
+    ColorSensor lineColorSensor;
+
+    GyroSensor gyro;
+
+    int stage = -1;
+    ElapsedTime manipTime = new ElapsedTime();
+    double leftPower = 0;
+    double rightPower = 0;
+    boolean defaultPowerSet = false;
+    ElapsedTime waitTime = new ElapsedTime();
+    ElapsedTime startTime = new ElapsedTime();
+    ElapsedTime MatchStartTimer = new ElapsedTime();
+    DcMotor intakeMotor;
 
     public SharedPreferences getPreferences() {
 
@@ -37,20 +57,6 @@ public class Autonomous extends DriveTrainLayer {
         }
         return pref;
     }
-
-    boolean redMode = getPreferences().getBoolean(KEY_LIST[0], true);
-    int delay = getPreferences().getInt(KEY_LIST[1], 0);
-    String targetGoal = getPreferences().getString(KEY_LIST[2], "fg");
-    double motorPower = (getPreferences().getInt(KEY_LIST[3], 100))/100;
-
-
-    ColorSensor lineColorSensor;
-
-    GyroSensor gyro;
-
-    int stage = -1;
-
-    final static int TOLERANCE = 2;
 
     public boolean aboveRedLine (){
         boolean returnValue = false;
@@ -67,22 +73,6 @@ public class Autonomous extends DriveTrainLayer {
         }
         return returnValue;
     }
-
-    ElapsedTime manipTime = new ElapsedTime();
-
-    double leftPower = 0;
-    double rightPower = 0;
-
-    boolean defaultPowerSet = false;
-
-    ElapsedTime waitTime = new ElapsedTime();
-
-    ElapsedTime startTime = new ElapsedTime();
-
-    ElapsedTime MatchStartTimer = new ElapsedTime();
-
-    DcMotor intakeMotor;
-
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -160,11 +150,11 @@ public class Autonomous extends DriveTrainLayer {
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
-                            driveLeft(0.8);
-                            driveRight(-0.8);
+                            driveLeft(0.275);
+                            driveRight(-0.275);
                         } else {
-                            driveLeft(0.6);
-                            driveRight(-0.6);
+                            driveLeft(0.2);
+                            driveRight(-0.2);
                         } if (gyro.getHeading() <= target_angle_degrees + 2) {
                             if (gyro.getHeading() >= target_angle_degrees - 2) {
                                 DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
@@ -187,11 +177,11 @@ public class Autonomous extends DriveTrainLayer {
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
-                            driveLeft(-0.8);
-                            driveRight(0.8);
+                            driveLeft(-0.275);
+                            driveRight(0.275);
                         } else {
-                            driveLeft(-0.6);
-                            driveRight(0.6);
+                            driveLeft(-0.2);
+                            driveRight(0.2);
                         } if (gyro.getHeading() <= target_angle_degrees + 1) {
                             if (gyro.getHeading() >= target_angle_degrees - TOLERANCE) {
                                 DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
@@ -228,14 +218,14 @@ public class Autonomous extends DriveTrainLayer {
                         // Starting right power = 0.85
                         // Decrease by .1
                         if (defaultPowerSet == false) {
-                            rightPower = (0.65 - 0.1) + (0.1 * motorPower);
-                            leftPower = (0.85 - 0.1) + (0.1 * motorPower);
+                            rightPower = 0.35;
+                            leftPower = 0.35;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
                             if (manipTime.time() > 0.1) {
-                                leftPower -= (0.0055 - 0.001) + (0.001 * motorPower);
-                                rightPower -= (0.0035 - 0.001) + (0.001 * motorPower);
+                                leftPower -= 0.002;
+                                rightPower -= 0.002;
                                 manipTime.reset();
                             }
                         }
@@ -256,14 +246,14 @@ public class Autonomous extends DriveTrainLayer {
                         // Starting left power = 0.65
                         // Starting right poewr = 0.8
                         if (defaultPowerSet == false) {
-                            leftPower = (0.65 - 0.1) + (0.1 * motorPower);
-                            rightPower = (0.8 - 0.1) + (0.1 * motorPower);
+                            leftPower = 0.35;
+                            rightPower = 0.35;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
                             if (manipTime.time() > 0.1) {
-                                leftPower -= (0.0065 - 0.001) + (0.001 * motorPower);
-                                rightPower -= (0.0065 - 0.001) + (0.001 * motorPower);
+                                leftPower -= 0.002;
+                                rightPower -= 0.002;
                                 manipTime.reset();
                             }
                         }

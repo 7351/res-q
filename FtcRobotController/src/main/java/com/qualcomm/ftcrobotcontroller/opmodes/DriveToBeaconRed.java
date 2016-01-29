@@ -1,5 +1,27 @@
+/*    if (stage == 0) {
+            if (!gyro.isCalibrating()) {
+                double target_angle_degrees = 135;
+                double error_degrees = target_angle_degrees - gyro.getHeading();
+                if ( error_degrees > 25) {
+                    driveLeft(0.75);
+                    driveRight(-0.75);
+                } else {
+                    driveLeft(0.57);
+                    driveRight(-0.57);
+                } if (isGyroInTolerance((int) target_angle_degrees)) {
+                    driveLeft(0);
+                    driveRight(0);
+                    stage++;
+                }
+            } if (gyro.isCalibrating()) {
+                driveLeft(0);
+                driveRight(0);
+            }
+        }
+         */
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -8,17 +30,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * DriveToBeacon
  * <p>
- * Drive to the beacon
+ * Drive to the beacon red side
  */
-public class DriveToBeacon extends DriveTrainLayer {
+public class DriveToBeaconRed extends DriveTrainLayer {
 
+    final static int TOLERANCE = 2;
     ColorSensor lineColorSensor;
-
     GyroSensor gyro;
-
     int stage = 0;
-
-    final static int TOLERANCE = 1;
+    ElapsedTime manipTime = new ElapsedTime();
+    double leftPower = 0;
+    double rightPower = 0;
+    boolean defaultPowerSet = false;
+    ElapsedTime waitTime = new ElapsedTime();
+    ElapsedTime startTime = new ElapsedTime();
+    boolean goalReached[] = {false, false};
+    DcMotor intakeMotor;
 
     public boolean isGyroInTolerance(int degree) {
         boolean returnValue = false;
@@ -30,25 +57,19 @@ public class DriveToBeacon extends DriveTrainLayer {
 
     public boolean aboveWhiteLine (){
         boolean returnValue = false;
-        if ((lineColorSensor.red() >= 5) && (lineColorSensor.green() >= 5) && (lineColorSensor.blue() >= 5)) {
+        if ((lineColorSensor.red() >= 3) && (lineColorSensor.green() >= 3) && (lineColorSensor.blue() >= 3)) {
             returnValue = true;
         }
         return returnValue;
     }
 
-    ElapsedTime manipTime = new ElapsedTime();
-
-    double leftPower = 0;
-    double rightPower = 0;
-
-    boolean defaultPowerSet = false;
-
-    ElapsedTime waitTime = new ElapsedTime();
-
-    boolean goalReached[] = {false, false};
-
-    DcMotor intakeMotor;
-
+    public boolean aboveRedLine() {
+        boolean returnValue = false;
+        if ((lineColorSensor.red() > lineColorSensor.green() + 2) && (lineColorSensor.red() > lineColorSensor.blue() + 2)) {
+            returnValue = true;
+        }
+        return returnValue;
+    }
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -64,6 +85,7 @@ public class DriveToBeacon extends DriveTrainLayer {
 
         gyro = hardwareMap.gyroSensor.get("gyro");
         lineColorSensor.enableLed(false);
+        gyro.calibrate();
 
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
 
@@ -76,6 +98,8 @@ public class DriveToBeacon extends DriveTrainLayer {
         lineColorSensor.enableLed(true);
         gyro.calibrate();
         manipTime.reset();
+
+        startTime.reset();
     }
 
     /*
@@ -95,7 +119,7 @@ public class DriveToBeacon extends DriveTrainLayer {
             if (!gyro.isCalibrating()) {
                 driveLeft(0.6);
                 driveRight(0.6);
-                if (manipTime.time() >= 0.3) {
+                if (manipTime.time() >= 0.5) {
                     driveLeft(0);
                     driveRight(0);
                     stage++;
@@ -110,29 +134,36 @@ public class DriveToBeacon extends DriveTrainLayer {
         }
         if (stage == 3) {
             if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 311;
+                double target_angle_degrees = 309; // 307 + 10
+                // TODO Fix the gyro reaction motor issue thing
                 double error_degrees = target_angle_degrees - gyro.getHeading();
-                if ( error_degrees > 20) {
-                    driveLeft(0.75);
-                    driveRight(-0.75);
+                if (error_degrees > 30) {
+                    driveLeft(0.8);
+                    driveRight(-0.8);
                 } else {
-                    driveLeft(0.5);
-                    driveRight(-0.5);
+                    driveLeft(0.57);
+                    driveRight(-0.57);
                 }
-                if (isGyroInTolerance((int) target_angle_degrees)) {
-                    goalReached[0] = true;
-                    stage++;
-                }
-                if (goalReached[0]) {
-                    driveLeft(0);
-                    driveRight(0);
-                    waitTime.reset();
+                if (gyro.getHeading() <= target_angle_degrees + 2) {
+                    if (gyro.getHeading() >= target_angle_degrees - 2) {
+                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                        driveLeft(0);
+                        driveRight(0);
+                        stage++;
+                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+                        waitTime.reset();
+                    }
+
                 }
             }
 
         }
         if (stage == 4) {
+            driveLeft(0);
+            driveRight(0);
+            DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
             if (waitTime.time() >= 1) {
+                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                 stage++;
             }
         }
@@ -140,12 +171,12 @@ public class DriveToBeacon extends DriveTrainLayer {
             if (aboveWhiteLine()) {
                 leftPower = 0;
                 rightPower = 0;
-                stage++;
+                stage = 8;
             } if (!aboveWhiteLine()) {
                 // Starting power -0.6
                 if (defaultPowerSet == false) {
-                    leftPower = 0.55;
-                    rightPower = 0.55;
+                    leftPower = 0.7;
+                    rightPower = 0.7;
                     defaultPowerSet = true;
                 }
                 if (defaultPowerSet == true) {
@@ -158,9 +189,10 @@ public class DriveToBeacon extends DriveTrainLayer {
 
             }
 
-            driveLeft(leftPower);
-            driveRight(rightPower);
+            driveLeft(rightPower);
+            driveRight(leftPower);
         }
+
         if (stage == 6) {
             if (manipTime.time() >= 1) {
                 stage++;
@@ -185,27 +217,14 @@ public class DriveToBeacon extends DriveTrainLayer {
         }
         if (stage == 9) {
             if (!gyro.isCalibrating()) {
-                /* if (isGyroInTolerance(90)) {
-                    goalReached[1] = true;
-                    stage++;
-                }
-                if (goalReached[1]) {
-                    driveLeft(0);
-                    driveRight(0);
-                    waitTime.reset();
-                }
-                if (!goalReached[1]) {
-                    driveLeft(0.55);
-                    driveRight(-0.55);
-                } */
                 double target_angle_degrees2 = 90;
                 double error_degrees = target_angle_degrees2 - gyro.getHeading();
                 if ( error_degrees > 10) {
-                    driveLeft(0.60);
-                    driveRight(-0.60);
+                    driveLeft(-0.60);
+                    driveRight(0.60);
                 } else {
-                    driveLeft(0.5);
-                    driveRight(-0.45);
+                    driveLeft(-0.5);
+                    driveRight(0.5);
                 }
                 if (isGyroInTolerance((int) target_angle_degrees2)) {
                     goalReached[1] = true;
@@ -219,13 +238,27 @@ public class DriveToBeacon extends DriveTrainLayer {
             }
 
         }
+        if (stage == 10) {
+            if (waitTime.time() <= 0.3) {
+                driveLeft(-0.6);
+                driveRight(-0.8);
+            } else {
+                driveLeft(0);
+                driveRight(0);
+            }
+        }
 
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
+        DbgLog.msg(String.valueOf(gyro.getHeading()) + ", " + startTime.time());
 
 
-        intakeMotor.setPower(1);
+        if (stage >= 1 && stage <= 5) {
+            intakeMotor.setPower(1);
+        } else {
+            intakeMotor.setPower(0);
+        }
 
     }
 
