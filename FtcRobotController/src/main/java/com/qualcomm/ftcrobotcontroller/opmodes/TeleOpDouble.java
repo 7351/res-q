@@ -191,7 +191,7 @@ public class TeleOpDouble extends DriveTrainLayer {
                 0.74, scorePositionRamp
             }; //   LR    UD
         final double[] rightValues = {
-                    0.09, scorePositionRamp
+                0.07, scorePositionRamp
             }; //   LR    UD
         final double manualIncrement = 0.03; // How much the manual mode should increase or decrease the servo postion by
         final double servoDelayTimeMultiplier = 0.7; // Delay between dumping the positions on the field
