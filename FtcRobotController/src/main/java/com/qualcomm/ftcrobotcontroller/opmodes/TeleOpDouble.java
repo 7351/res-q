@@ -19,6 +19,7 @@ public class TeleOpDouble extends DriveTrainLayer {
     // Create objects for hardware
 
     public boolean DPadUp = false;
+    //DcMotor led;
     DcMotor intakeMotor;
     DcMotor liftMotor;
     Servo LeftRightServo;
@@ -78,6 +79,8 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         liftMotor = hardwareMap.dcMotor.get("liftMotor");
 
+        //led = hardwareMap.dcMotor.get("led");
+
         dim = hardwareMap.deviceInterfaceModule.get("Device Interface Module");
 
         dim.setLED(0, true);
@@ -115,6 +118,8 @@ public class TeleOpDouble extends DriveTrainLayer {
          */
     @Override
     public void loop() {
+
+        //led.setPower(100);
 
         /*
          * Gamepad 2
@@ -287,13 +292,10 @@ public class TeleOpDouble extends DriveTrainLayer {
                         leftScoreTime1.reset();
                     }
                 }
-                if (leftScore_LeftServo > leftValues[0] - 0.05) {
-                    UpDownServo.setPosition(leftValues[1]);
-                }
             }
 
             if (!XButtonPressed) {
-                leftScore_LeftServo = centerLine;
+                leftScore_LeftServo = homeValues[0];
             }
 
             if (BButtonPressed) {
@@ -306,19 +308,16 @@ public class TeleOpDouble extends DriveTrainLayer {
             if (BButtonPressed) {
                 if (rightScoreTime1.time() > 0.0001) {
 
-                    if (rightScore_LeftServo <= rightValues[0]) {
-                        rightScore_LeftServo = rightScore_LeftServo + 0.005;
+                    if (rightScore_LeftServo >= rightValues[0]) {
+                        rightScore_LeftServo = rightScore_LeftServo - 0.005;
                         LeftRightServo.setPosition(rightScore_LeftServo);
                         rightScoreTime1.reset();
                     }
                 }
-                if (leftScore_LeftServo < rightValues[0] + 0.05) {
-                    UpDownServo.setPosition(rightValues[1]);
-                }
             }
 
             if (!BButtonPressed) {
-                leftScore_LeftServo = centerLine;
+                rightScore_LeftServo = homeValues[0];
             }
 
             if (RightTriggerPressed == 1) {
@@ -331,8 +330,8 @@ public class TeleOpDouble extends DriveTrainLayer {
             if (RightTriggerPressed == 1) {
                 if (flatTime.time() > 0.0001) {
 
-                    if (flatScore_UpServo <= flatValues[0]) {
-                        flatScore_UpServo = flatScore_UpServo - 0.005;
+                    if (flatScore_UpServo >= flatValues[1]) {
+                        flatScore_UpServo = flatScore_UpServo - 0.003;
                         UpDownServo.setPosition(flatScore_UpServo);
                         flatTime.reset();
                     }
@@ -340,8 +339,7 @@ public class TeleOpDouble extends DriveTrainLayer {
             }
 
             if (RightTriggerPressed != 1) {
-                TriggerButton = false;
-                flatScore_UpServo = homeValues[1];
+                flatScore_UpServo = tiltValues[1];
 
             }
 
@@ -506,6 +504,7 @@ public class TeleOpDouble extends DriveTrainLayer {
      */
     @Override
     public void stop() {
+        //led.setPower(0);
 
     }
     /*

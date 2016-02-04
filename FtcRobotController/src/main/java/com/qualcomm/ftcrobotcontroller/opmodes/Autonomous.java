@@ -34,6 +34,8 @@ public class Autonomous extends DriveTrainLayer {
 
     ColorSensor lineColorSensor;
 
+    //sDcMotor led;
+
     GyroSensor gyro;
 
     int stage = -1;
@@ -92,6 +94,8 @@ public class Autonomous extends DriveTrainLayer {
 
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
 
+        //led = hardwareMap.dcMotor.get("led");
+
     }
 
     @Override
@@ -114,6 +118,8 @@ public class Autonomous extends DriveTrainLayer {
      */
     @Override
     public void loop() {
+
+        //led.setPower(100);
         if (stage == -1) {
             if (MatchStartTimer.time() >= delay) {
                 stage++;
