@@ -374,10 +374,10 @@ public class TeleOpDouble extends DriveTrainLayer {
          * CHANGEABLE: Angel arms scoring positions
          */
 
-            double leftAngelHome = 0;
-            double leftAngelScore = 0.75;
-            double rightAngelHome = 0.75;
-            double rightAngelScore = 0;
+        double leftAngelHome = 0.76;
+        double leftAngelScore = 0.2;
+        double rightAngelHome = 0.17;
+        double rightAngelScore = 0.72;
             double restingPosition = 0.19;
 
         boolean DPadLeftPressed = gamepad2.dpad_left;

@@ -71,6 +71,8 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         return returnValue;
     }
 
+    //VCNL4010 prox;
+
     /*
      * Code to run when the op mode is initialized goes here
      *
@@ -78,6 +80,8 @@ public class DriveToBeaconRed extends DriveTrainLayer {
      */
     @Override
     public void init() {
+
+        //prox = new VCNL4010(hardwareMap, "prox");
 
         super.init();
 
@@ -100,6 +104,9 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         manipTime.reset();
 
         startTime.reset();
+
+        //prox.initializeSensor();
+        //prox.setModeToPromitiy();
     }
 
     /*
@@ -137,12 +144,12 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 double target_angle_degrees = 309; // 307 + 10
                 // TODO Fix the gyro reaction motor issue thing
                 double error_degrees = target_angle_degrees - gyro.getHeading();
-                if (error_degrees > 30) {
-                    driveLeft(0.8);
-                    driveRight(-0.8);
+                if (error_degrees > 15) {
+                    driveLeft(0.275);
+                    driveRight(-0.275);
                 } else {
-                    driveLeft(0.57);
-                    driveRight(-0.57);
+                    driveLeft(0.2);
+                    driveRight(-0.2);
                 }
                 if (gyro.getHeading() <= target_angle_degrees + 2) {
                     if (gyro.getHeading() >= target_angle_degrees - 2) {
@@ -171,18 +178,20 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (aboveWhiteLine()) {
                 leftPower = 0;
                 rightPower = 0;
-                stage = 8;
+                stage++;
             } if (!aboveWhiteLine()) {
-                // Starting power -0.6
+                // Starting left power = 0.65
+                // Starting right power = 0.85
+                // Decrease by .1
                 if (defaultPowerSet == false) {
-                    leftPower = 0.7;
-                    rightPower = 0.7;
+                    rightPower = 0.35;
+                    leftPower = 0.35;
                     defaultPowerSet = true;
                 }
                 if (defaultPowerSet == true) {
                     if (manipTime.time() > 0.1) {
-                        leftPower -= 0.0055;
-                        rightPower -= 0.0055;
+                        leftPower -= 0.002;
+                        rightPower -= 0.002;
                         manipTime.reset();
                     }
                 }
@@ -238,19 +247,21 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
 
         }
+        /*
         if (stage == 10) {
-            if (waitTime.time() <= 0.3) {
-                driveLeft(-0.6);
-                driveRight(-0.8);
-            } else {
+            if (prox.readProximity() > 13) {
+                driveLeft(-0.25);
+                driveRight(-0.25);
+            } if (prox.readProximity() <= 13) {
                 driveLeft(0);
                 driveRight(0);
             }
-        }
+        }*/
 
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
+        //telemetry.addData("prox", String.valueOf(prox.readProximity()));
         DbgLog.msg(String.valueOf(gyro.getHeading()) + ", " + startTime.time());
 
 

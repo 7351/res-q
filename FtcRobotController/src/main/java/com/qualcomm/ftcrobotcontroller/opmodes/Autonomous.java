@@ -62,7 +62,7 @@ public class Autonomous extends DriveTrainLayer {
 
     public boolean aboveRedLine (){
         boolean returnValue = false;
-        if ((lineColorSensor.red() > lineColorSensor.green() + 2) && (lineColorSensor.red() > lineColorSensor.blue() + 2)) {
+        if ((lineColorSensor.red() > lineColorSensor.green() + 1) && (lineColorSensor.red() > lineColorSensor.blue() + 1)) {
             returnValue = true;
         }
         return returnValue;
@@ -70,7 +70,7 @@ public class Autonomous extends DriveTrainLayer {
 
     public boolean aboveBlueLine(){
         boolean returnValue = false;
-        if ((lineColorSensor.blue() > lineColorSensor.red() + 1) && (lineColorSensor.blue() > lineColorSensor.green() + 1)) {
+        if ((lineColorSensor.blue() > lineColorSensor.red()) && (lineColorSensor.blue() > lineColorSensor.green())) {
             returnValue = true;
         }
         return returnValue;
@@ -152,12 +152,12 @@ public class Autonomous extends DriveTrainLayer {
             if (redMode) {
                 if (stage == 3) {
                     if (!gyro.isCalibrating()) {
-                        double target_angle_degrees = 317; // 307 + 10
+                        double target_angle_degrees = 309; // 307 + 10
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
-                            driveLeft(0.275);
-                            driveRight(-0.275);
+                            driveLeft(0.25);
+                            driveRight(-0.25);
                         } else {
                             driveLeft(0.2);
                             driveRight(-0.2);
@@ -179,12 +179,12 @@ public class Autonomous extends DriveTrainLayer {
             if (!redMode) {
                 if (stage == 3) {
                     if (!gyro.isCalibrating()) {
-                        double target_angle_degrees = 45; // 307 + 10
+                        double target_angle_degrees = 51; // 307 + 10
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
-                            driveLeft(-0.275);
-                            driveRight(0.275);
+                            driveLeft(-0.25);
+                            driveRight(0.25);
                         } else {
                             driveLeft(-0.2);
                             driveRight(0.2);
@@ -250,7 +250,7 @@ public class Autonomous extends DriveTrainLayer {
                         stage++;
                     } if (!aboveBlueLine()) {
                         // Starting left power = 0.65
-                        // Starting right poewr = 0.8
+                        // Starting right power = 0.8
                         if (defaultPowerSet == false) {
                             leftPower = 0.35;
                             rightPower = 0.35;
