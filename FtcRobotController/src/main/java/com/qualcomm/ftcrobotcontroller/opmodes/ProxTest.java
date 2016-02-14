@@ -13,7 +13,7 @@ public class ProxTest extends OpMode {
     @Override
     public void init() {
         prox = new VCNL4010(hardwareMap, "prox");
-        prox.setLEDSensitivity(10);
+        prox.setLEDSensitivity(20);
         prox.setProxRate(0x5);
 
     }

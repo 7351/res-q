@@ -106,8 +106,8 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         climbersServo.setPosition(0.19);
 
-        leftAngelArm.setPosition(0);
-        rightAngelArm.setPosition(0.75);
+        leftAngelArm.setPosition(0.76);
+        rightAngelArm.setPosition(0.17);
 
     }
 

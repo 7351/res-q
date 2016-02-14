@@ -156,11 +156,11 @@ public class Autonomous extends DriveTrainLayer {
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
+                            driveLeft(0.3);
+                            driveRight(-0.3);
+                        } else {
                             driveLeft(0.25);
                             driveRight(-0.25);
-                        } else {
-                            driveLeft(0.2);
-                            driveRight(-0.2);
                         } if (gyro.getHeading() <= target_angle_degrees + 2) {
                             if (gyro.getHeading() >= target_angle_degrees - 2) {
                                 DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
@@ -183,11 +183,11 @@ public class Autonomous extends DriveTrainLayer {
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
+                            driveLeft(-0.3);
+                            driveRight(0.3);
+                        } else {
                             driveLeft(-0.25);
                             driveRight(0.25);
-                        } else {
-                            driveLeft(-0.2);
-                            driveRight(0.2);
                         } if (gyro.getHeading() <= target_angle_degrees + 1) {
                             if (gyro.getHeading() >= target_angle_degrees - TOLERANCE) {
                                 DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
@@ -224,14 +224,14 @@ public class Autonomous extends DriveTrainLayer {
                         // Starting right power = 0.85
                         // Decrease by .1
                         if (defaultPowerSet == false) {
-                            rightPower = 0.35;
-                            leftPower = 0.35;
+                            rightPower = 0.375;
+                            leftPower = 0.4;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
                             if (manipTime.time() > 0.1) {
-                                leftPower -= 0.002;
-                                rightPower -= 0.002;
+                                leftPower -= 0.0015;
+                                rightPower -= 0.0015;
                                 manipTime.reset();
                             }
                         }
@@ -252,14 +252,14 @@ public class Autonomous extends DriveTrainLayer {
                         // Starting left power = 0.65
                         // Starting right power = 0.8
                         if (defaultPowerSet == false) {
-                            leftPower = 0.35;
-                            rightPower = 0.35;
+                            rightPower = 0.375;
+                            leftPower = 0.4;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
                             if (manipTime.time() > 0.1) {
-                                leftPower -= 0.002;
-                                rightPower -= 0.002;
+                                leftPower -= 0.0015;
+                                rightPower -= 0.0015;
                                 manipTime.reset();
                             }
                         }

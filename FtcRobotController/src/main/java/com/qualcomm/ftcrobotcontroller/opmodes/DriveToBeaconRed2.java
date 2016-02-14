@@ -32,10 +32,10 @@ import com.qualcomm.robotcore.util.Range;
 
 /**
  * DriveToBeacon
- * <p>
+ * <p/>
  * Drive to the beacon red side
  */
-public class DriveToBeaconRed extends DriveTrainLayer {
+public class DriveToBeaconRed2 extends DriveTrainLayer {
 
     final static int TOLERANCE = 2;
     ColorSensor lineColorSensor;
@@ -67,7 +67,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         return returnValue;
     }
 
-    public boolean aboveWhiteLine (){
+    public boolean aboveWhiteLine() {
         boolean returnValue = false;
         if ((lineColorSensor.red() >= 3) && (lineColorSensor.green() >= 3) && (lineColorSensor.blue() >= 3)) {
             returnValue = true;
@@ -166,11 +166,11 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 // TODO Fix the gyro reaction motor issue thing
                 double error_degrees = target_angle_degrees - gyro.getHeading();
                 if (error_degrees > 15) {
-                    driveLeft(0.3);
-                    driveRight(-0.3);
+                    driveLeft(0.275);
+                    driveRight(-0.275);
                 } else {
-                    driveLeft(0.25);
-                    driveRight(-0.25);
+                    driveLeft(0.225);
+                    driveRight(-0.225);
                 }
                 if (gyro.getHeading() <= target_angle_degrees + 2) {
                     if (gyro.getHeading() >= target_angle_degrees - 2) {
@@ -196,17 +196,17 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         if (stage == 5) {
-            if (aboveRedLine()) {
+            if (aboveWhiteLine()) {
                 leftPower = 0;
                 rightPower = 0;
                 stage++;
             }
-            if (!aboveRedLine()) {
+            if (!aboveWhiteLine()) {
                 // Starting left power = 0.65
                 // Starting right power = 0.85
                 // Decrease by .1
                 if (defaultPowerSet == false) {
-                    rightPower = 0.4;
+                    rightPower = 0.375;
                     leftPower = 0.4;
                     defaultPowerSet = true;
                 }
@@ -233,7 +233,8 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 driveLeft(-0.3);
                 driveRight(-0.3);
                 waitTime.reset();
-            } if (aboveWhiteLine()) {
+            }
+            if (aboveWhiteLine()) {
                 driveLeft(0);
                 driveRight(0);
                 manipTime.reset();
@@ -250,11 +251,11 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 double target_angle_degrees2 = 90;
                 double error_degrees = target_angle_degrees2 - gyro.getHeading();
                 if (error_degrees > 15) {
-                    driveLeft(-0.4);
-                    driveRight(0.4);
+                    driveLeft(-0.375);
+                    driveRight(0.375);
                 } else {
-                    driveLeft(-0.35);
-                    driveRight(0.35);
+                    driveLeft(-0.3);
+                    driveRight(0.3);
                 }
                 if (isGyroInTolerance((int) target_angle_degrees2)) {
                     goalReached[1] = true;
@@ -269,11 +270,11 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
         }
         if (stage == 10) {
-            if (prox.getProximity() < 2242) { //2230
+            if (prox.getProximity() < 2235) { //2230
                 driveLeft(-0.175);
                 driveRight(-0.175);
             }
-            if (prox.getProximity() >= 2242) { //2230
+            if (prox.getProximity() >= 2235) { //2230
                 driveLeft(0);
                 driveRight(0);
                 stage++;
