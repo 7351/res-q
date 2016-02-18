@@ -27,7 +27,7 @@ public class ProxTest extends OpMode {
     @Override
     public void loop() {
 
-        telemetry.addData("prox", String.valueOf(prox.getProximity()));
+        telemetry.addData("prox", String.valueOf(prox.convertProxToDistance()));
 
     }
 

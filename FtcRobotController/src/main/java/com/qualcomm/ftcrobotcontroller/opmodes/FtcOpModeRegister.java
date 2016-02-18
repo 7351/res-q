@@ -58,7 +58,7 @@ public class FtcOpModeRegister implements OpModeRegister {
 
         // Removed Qualcomm's code, view on the github provided by them.
 
-	/*
+    /*
      * The TeleOpDouble op mode
 	 */
         manager.register("Empty", EmptyOp.class);
@@ -66,15 +66,15 @@ public class FtcOpModeRegister implements OpModeRegister {
         manager.register("TeleOpDemoRobot", TeleOpDemoRobot.class);
         //manager.register("GyroTest", GyroTest.class);
         manager.register("DriveToBeaconR", DriveToBeaconRed.class);
-        manager.register("DriveToBeaconR2", DriveToBeaconRed2.class);
         //manager.register("DriveToBeaconB", DriveToBeaconBlue.class);
         manager.register("Autonomous", Autonomous.class);
         // manager.register("DriveToBeacon", DriveToBeacon.class);
-        manager.register("ProxTest", ProxTest.class);
+
     /*
 	 * Some testing op modes
 	 */
 
+        manager.register("ProxTest", ProxTest.class);
 
     }
 }
