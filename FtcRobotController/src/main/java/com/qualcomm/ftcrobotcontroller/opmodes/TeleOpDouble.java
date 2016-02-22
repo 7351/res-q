@@ -104,7 +104,7 @@ public class TeleOpDouble extends DriveTrainLayer {
         LeftRightServo.setPosition(0.45);
         UpDownServo.setPosition(0.7);
 
-        climbersServo.setPosition(0.19);
+        climbersServo.setPosition(0.07);
 
         leftAngelArm.setPosition(0.76);
         rightAngelArm.setPosition(0.17);
@@ -378,7 +378,7 @@ public class TeleOpDouble extends DriveTrainLayer {
         double leftAngelScore = 0.2;
         double rightAngelHome = 0.17;
         double rightAngelScore = 0.72;
-            double restingPosition = 0.19;
+        double restingPosition = 0.07;
 
         boolean DPadLeftPressed = gamepad2.dpad_left;
         boolean DPadRightPressed = gamepad2.dpad_right;
