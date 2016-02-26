@@ -91,7 +91,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="false"
-            android:enabled="false"
             android:text="Beacon repair zone"
             android:textSize="@dimen/abc_text_size_medium_material"/>
     </RadioGroup>
@@ -103,21 +102,20 @@
         android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
         android:background="@color/primary_dark_material_dark"/>
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Percent of motor power? 0 - 100"
+        android:text="Prox value minimum"
         android:textSize="@dimen/abc_text_size_title_material"/>
 
     <EditText
-        android:id="@+id/motorPowerEditText"
+        android:id="@+id/proxValueEditText"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:gravity="center_horizontal"
-        android:inputType="number"
-        android:maxLength="3"
-        android:text="100"/>
-
+        android:inputType="numberDecimal|numberSigned"
+        android:text="3" />
 
     <View
         android:layout_width="fill_parent"

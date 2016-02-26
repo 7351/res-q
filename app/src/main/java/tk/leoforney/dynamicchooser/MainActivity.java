@@ -12,14 +12,50 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+/*
+Created by Dynamic Signals FTC Team 7351
+ */
 public class MainActivity extends AppCompatActivity {
 
+    // Import this into your opMode
+    /*
     public final static String FILENAMEPREF = "preferences";
+    public final static String[] KEY_LIST = {
+            "redMode", // true = Red alliance; false = Blue alliance
+            "delay", // Time in seconds before match starts // int                          // This part should always be the same
+            "targetGoal", // Where should the robot head to? // brz or fg
+    };
+
+
+    public SharedPreferences getPreferences() {
+
+        SharedPreferences pref = null;
+        try {
+            Context con = ApplicationContextProvider.getContext().createPackageContext("tk.leoforney.dynamicchooser", 0);
+            pref = con.getSharedPreferences(FILENAMEPREF, Context.MODE_PRIVATE);
+        } catch (PackageManager.NameNotFoundException e) {
+            DbgLog.error(e.toString());
+        }
+        return pref;
+    }
+
+    // These variables should be changed to whatever desired
+    // You can access your variables like this:
+    (data type) (variable name) = getPreferences.get [data type](KEY_LIST[(the indexed number of what your key is called)], (your default value if not found));
+
+    Example:
+        boolean redMode = getPreferences().getBoolean(KEY_LIST[0], true);
+        int delay = getPreferences().getInt(KEY_LIST[1], 0);
+        String targetGoal = getPreferences().getString(KEY_LIST[2], "fg");
+     */
+
+    public final static String FILENAMEPREF = "preferences";
+    // They keylist variable helps tell what variables are stored...
     public final static String[] KEY_LIST = {
             "redMode", // true = Red alliance; false = Blue alliance
             "delay", // Time in seconds before match starts // int
             "targetGoal", // Where should the robot head to? // brz or fg
-            "motorPower" // Percent of motor power for autonomous
+            "proxValMin" // How far away should the robot be? // int
     };
     private static final String TAG = MainActivity.class.getName();
     RadioButton redAlliance;
@@ -30,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     Button updateButton;
     RadioGroup allianceGroup;
     RadioGroup goalGroup;
-    EditText motorPowerEditText;
+    EditText proxValueEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         allianceGroup = (RadioGroup) findViewById(R.id.allianceGroup);
         goalGroup = (RadioGroup) findViewById(R.id.goalGroup);
 
-        motorPowerEditText = (EditText) findViewById(R.id.motorPowerEditText);
+        proxValueEditText = (EditText) findViewById(R.id.proxValueEditText);
 
     }
 
@@ -77,9 +113,9 @@ public class MainActivity extends AppCompatActivity {
             editor.putString(KEY_LIST[2], "brz");
         }
 
-        int motorPowerInt = Integer.parseInt(motorPowerEditText.getText().toString());
+        int proxValueInt = Integer.parseInt(proxValueEditText.getText().toString());
 
-        editor.putInt(KEY_LIST[3], motorPowerInt);
+        editor.putInt(KEY_LIST[3], proxValueInt);
 
         editor.apply();
 
@@ -96,3 +132,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
