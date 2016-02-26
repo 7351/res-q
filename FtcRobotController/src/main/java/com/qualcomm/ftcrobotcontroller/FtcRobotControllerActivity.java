@@ -79,11 +79,10 @@ public class FtcRobotControllerActivity extends Activity {
   private static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
   private static final boolean USE_DEVICE_EMULATION = false;
   private static final int NUM_GAMEPADS = 2;
+  protected static Context context;
   protected WifiManager.WifiLock wifiLock;
   protected SharedPreferences preferences;
-
   protected UpdateUI.Callback callback;
-  protected Context context;
   protected ImageButton buttonMenu;
   protected TextView textDeviceName;
   protected TextView textWifiDirectStatus;
@@ -110,6 +109,10 @@ public class FtcRobotControllerActivity extends Activity {
       controllerService = null;
     }
   };
+
+  public static Context getContext() {
+    return context;
+  }
 
   @Override
   protected void onNewIntent(Intent intent) {

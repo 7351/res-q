@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 import com.qualcomm.ftccommon.DbgLog;
-import com.qualcomm.ftcrobotcontroller.ApplicationContextProvider;
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
@@ -52,7 +52,7 @@ public class Autonomous extends DriveTrainLayer {
 
         SharedPreferences pref = null;
         try {
-            Context con = ApplicationContextProvider.getContext().createPackageContext("tk.leoforney.dynamicchooser", 0);
+            Context con = FtcRobotControllerActivity.getContext().createPackageContext("tk.leoforney.dynamicchooser", 0);
             pref = con.getSharedPreferences(FILENAMEPREF, Context.MODE_PRIVATE);
         } catch (PackageManager.NameNotFoundException e) {
             DbgLog.error(e.toString());
@@ -152,15 +152,15 @@ public class Autonomous extends DriveTrainLayer {
             if (redMode) {
                 if (stage == 3) {
                     if (!gyro.isCalibrating()) {
-                        double target_angle_degrees = 309; // 307 + 10
+                        double target_angle_degrees = 311; // 307 + 10
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
-                            driveLeft(0.3);
-                            driveRight(-0.3);
+                            driveLeft(0.28);
+                            driveRight(-0.28);
                         } else {
-                            driveLeft(0.25);
-                            driveRight(-0.25);
+                            driveLeft(0.235);
+                            driveRight(-0.235);
                         } if (gyro.getHeading() <= target_angle_degrees + 2) {
                             if (gyro.getHeading() >= target_angle_degrees - 2) {
                                 DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
@@ -183,11 +183,11 @@ public class Autonomous extends DriveTrainLayer {
                         // TODO Fix the gyro reaction motor issue thing
                         double error_degrees = target_angle_degrees - gyro.getHeading();
                         if ( error_degrees > 15) {
-                            driveLeft(-0.3);
-                            driveRight(0.3);
+                            driveLeft(-0.28);
+                            driveRight(0.28);
                         } else {
-                            driveLeft(-0.25);
-                            driveRight(0.25);
+                            driveLeft(-0.235);
+                            driveRight(0.235);
                         } if (gyro.getHeading() <= target_angle_degrees + 1) {
                             if (gyro.getHeading() >= target_angle_degrees - TOLERANCE) {
                                 DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
@@ -224,8 +224,8 @@ public class Autonomous extends DriveTrainLayer {
                         // Starting right power = 0.85
                         // Decrease by .1
                         if (defaultPowerSet == false) {
-                            rightPower = 0.375;
-                            leftPower = 0.4;
+                            rightPower = 0.43;
+                            leftPower = 0.36;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
@@ -252,8 +252,8 @@ public class Autonomous extends DriveTrainLayer {
                         // Starting left power = 0.65
                         // Starting right power = 0.8
                         if (defaultPowerSet == false) {
-                            rightPower = 0.375;
-                            leftPower = 0.4;
+                            rightPower = 0.43;
+                            leftPower = 0.375;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
@@ -277,7 +277,6 @@ public class Autonomous extends DriveTrainLayer {
                 intakeMotor.setPower(0);
             }
         }
-
 
 
         telemetry.addData("stage", String.valueOf(stage));

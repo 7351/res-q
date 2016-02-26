@@ -21,7 +21,12 @@
          */
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+
 import com.qualcomm.ftccommon.DbgLog;
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.library.devices.VCNL4010;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -37,6 +42,13 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class DriveToBeaconBlue extends DriveTrainLayer {
 
+    public final static String FILENAMEPREF = "preferences";
+    public final static String[] KEY_LIST = {
+            "redMode", // true = Red alliance; false = Blue alliance
+            "delay", // Time in seconds before match starts // int
+            "targetGoal", // Where should the robot head to? // brz or fg
+            "proxValMin" // How far away should the robot be? // int
+    };
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
     GyroSensor gyro;
@@ -61,7 +73,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
 
     public boolean isOutOfGyroGoal(int degree) {
         boolean returnValue = true;
-        if ((gyro.getHeading() <= degree + 4) && (gyro.getHeading() >= degree - 4)) {
+        if ((gyro.getHeading() <= degree + 6) && (gyro.getHeading() >= degree - 2)) {
             returnValue = false;
         }
         return returnValue;
@@ -89,6 +101,18 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             returnValue = true;
         }
         return returnValue;
+    }
+
+    public SharedPreferences getPreferences() {
+
+        SharedPreferences pref = null;
+        try {
+            Context con = FtcRobotControllerActivity.getContext().createPackageContext("tk.leoforney.dynamicchooser", 0);
+            pref = con.getSharedPreferences(FILENAMEPREF, Context.MODE_PRIVATE);
+        } catch (PackageManager.NameNotFoundException e) {
+            DbgLog.error(e.toString());
+        }
+        return pref;
     }
 
     /*
@@ -145,6 +169,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
          */
     @Override
     public void loop() {
+        int proxThreshold = getPreferences().getInt(KEY_LIST[3], 0);
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
                 manipTime.reset();
@@ -170,18 +195,18 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
         }
         if (stage == 3) {
             if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 49; // 307 + 10
+                double target_angle_degrees = 52; // 307 + 10
                 // TODO Fix the gyro reaction motor issue thing
                 double error_degrees = target_angle_degrees - gyro.getHeading();
                 if (error_degrees > 15) {
-                    driveLeft(-0.275);
-                    driveRight(0.275);
+                    driveLeft(-0.26);
+                    driveRight(0.26);
                 } else {
-                    driveLeft(-0.225);
-                    driveRight(0.225);
+                    driveLeft(-0.21);
+                    driveRight(0.21);
                 }
-                if (gyro.getHeading() <= target_angle_degrees + 0) {
-                    if (gyro.getHeading() >= target_angle_degrees - 2) {
+                if (gyro.getHeading() <= target_angle_degrees + 2) {
+                    if (gyro.getHeading() >= target_angle_degrees - 0) {
                         DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                         driveLeft(0);
                         driveRight(0);
@@ -204,7 +229,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             }
         }
         if (stage == 5) {
-            if (isOutOfGyroGoal(51)) {
+            if (isOutOfGyroGoal(52)) {
                 if (aboveBlueLine()) {
                     leftPower = 0;
                     rightPower = 0;
@@ -215,8 +240,8 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
                     // Starting right power = 0.85
                     // Decrease by .1
                     if (defaultPowerSet == false) {
-                        rightPower = 0.49;
-                        leftPower = 0.35;
+                        rightPower = 0.4475;
+                        leftPower = 0.39;
                         defaultPowerSet = true;
                     }
                     if (defaultPowerSet == true) {
@@ -229,7 +254,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
 
                 }
             }
-            if (!isOutOfGyroGoal(51)) {
+            if (!isOutOfGyroGoal(52)) {
                 if (aboveWhiteLine()) {
                     leftPower = 0;
                     rightPower = 0;
@@ -240,8 +265,8 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
                     // Starting right power = 0.85
                     // Decrease by .1
                     if (defaultPowerSet == false) {
-                        rightPower = 0.49;
-                        leftPower = 0.35;
+                        rightPower = 0.445;
+                        leftPower = 0.39;
                         defaultPowerSet = true;
                     }
                     if (defaultPowerSet == true) {
@@ -259,7 +284,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             driveRight(leftPower);
         }
         if (stage == 6) {
-            if (manipTime.time() >= 1) {
+            if (manipTime.time() >= 0.5) {
                 stage = 9;
             }
         }
@@ -277,7 +302,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             }
         }
         if (stage == 8) {
-            if (waitTime.time() >= 1) {
+            if (waitTime.time() >= 0.5) {
                 stage++;
             }
         }
@@ -305,7 +330,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             }
         }
         if (stage == 10) {
-            if (waitTime.time() >= 1) {
+            if (waitTime.time() >= 0.5) {
                 stage++;
                 manipTime.reset();
             }
@@ -323,7 +348,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             }
         }
         if (stage == 12) {
-            if (waitTime.time() >= 1) {
+            if (waitTime.time() >= 0.5) {
                 stage++;
                 manipTime.reset();
             }
@@ -334,11 +359,11 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
                 double error_degrees = target_angle_degrees3 - gyro.getHeading();
                 // Left is right and right is left!
                 if (error_degrees > 15) {
-                    driveLeft(0.375);
-                    driveRight(-0.275);
+                    driveLeft(0.325);
+                    driveRight(-0.265);
                 } else {
-                    driveLeft(0.35);
-                    driveRight(-0.25);
+                    driveLeft(0.325);
+                    driveRight(-0.235);
                 }
                 if (isGyroInTolerance((int) target_angle_degrees3)) {
                     goalReached[2] = true;
@@ -352,18 +377,18 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             }
         }
         if (stage == 14) {
-            if (waitTime.time() >= 1) {
+            if (waitTime.time() >= 0.5) {
                 stage++;
                 manipTime.reset();
             }
         }
         if (stage == 15) {
-            if (prox.convertProxToDistance() > 3) { //This might be confusing but close to the wall, it is a - int
+            if (prox.convertProxToDistance() > proxThreshold) { //This might be confusing but close to the wall, it is a - int
                 //The Distance 13 returned from the sensor, is exactly 13 centimeters.
-                driveLeft(-1 * (0.34 + 0.08)); // Right
-                driveRight(-0.34);
+                driveLeft(-1 * (0.315 + 0.1)); // Right
+                driveRight(-0.315);
             }
-            if (prox.convertProxToDistance() <= 3) {
+            if (prox.convertProxToDistance() <= proxThreshold) {
                 driveLeft(0);
                 driveRight(0);
                 stage++;
