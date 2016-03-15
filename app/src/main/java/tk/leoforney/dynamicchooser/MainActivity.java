@@ -54,15 +54,19 @@ public class MainActivity extends AppCompatActivity {
     public final static String[] KEY_LIST = {
             "redMode", // true = Red alliance; false = Blue alliance
             "delay", // Time in seconds before match starts // int
-            "targetGoal", // Where should the robot head to? // brz or fg
+            "targetGoal", // Where should the robot head to? // brz, fg, or mnt
+            "startingPos", // Where is the robot located during start
             "proxValMin" // How far away should the robot be? // int
     };
     private static final String TAG = MainActivity.class.getName();
     RadioButton redAlliance;
     RadioButton blueAlliance;
+    RadioButton closeToMountainButton;
+    RadioButton farFromMountainButton;
     EditText delayTimeEditText;
     RadioButton floorGoalRadioButton;
     RadioButton beaconRepairZoneRadioButton;
+    RadioButton mountainGoalRadioButton;
     Button updateButton;
     RadioGroup allianceGroup;
     RadioGroup goalGroup;
@@ -88,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
 
         proxValueEditText = (EditText) findViewById(R.id.proxValueEditText);
 
+        mountainGoalRadioButton = (RadioButton) findViewById(R.id.mountainGoalRadioButton);
+
+        closeToMountainButton = (RadioButton) findViewById(R.id.closeToMountainRadioButton);
+        farFromMountainButton = (RadioButton) findViewById(R.id.farFromMountainRadioButton);
+
     }
 
     public void onUpdateButtonPressed(View view) {
@@ -112,10 +121,24 @@ public class MainActivity extends AppCompatActivity {
         if (beaconRepairZoneRadioButton.isChecked()) {
             editor.putString(KEY_LIST[2], "brz");
         }
+        if (mountainGoalRadioButton.isChecked()) {
+            editor.putString(KEY_LIST[2], "mnt");
+        }
 
         int proxValueInt = Integer.parseInt(proxValueEditText.getText().toString());
 
-        editor.putInt(KEY_LIST[3], proxValueInt);
+        editor.putInt(KEY_LIST[4], proxValueInt);
+
+        int distanceCode = 0;
+
+        if (closeToMountainButton.isChecked()) {
+            distanceCode = 0;
+        }
+        if (farFromMountainButton.isChecked()) {
+            distanceCode = 1;
+        }
+
+        editor.putInt(KEY_LIST[3], distanceCode);
 
         editor.apply();
 

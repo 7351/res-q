@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -12,132 +17,181 @@
     tools:context="tk.leoforney.dynamicchooser.MainActivity">
 
 
-    <RadioGroup
-        android:id="@+id/allianceGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <RadioGroup
+            android:id="@+id/allianceGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Which alliance are you on?"
+                android:textSize="@dimen/abc_text_size_title_material" />
+
+            <RadioButton
+                android:id="@+id/red"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Red"
+                android:textSize="@dimen/abc_text_size_medium_material" />
+
+            <RadioButton
+                android:id="@+id/blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Blue"
+                android:textSize="@dimen/abc_text_size_medium_material" />
+
+        </RadioGroup>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
+            android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
+            android:background="@color/primary_dark_material_dark" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Which alliance are you on?"
+            android:text="How much delay do you want?"
             android:textSize="@dimen/abc_text_size_title_material"/>
 
-        <RadioButton
-            android:id="@+id/red"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Red"
-            android:textSize="@dimen/abc_text_size_medium_material"/>
+        <EditText
+            android:id="@+id/delayTimeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_horizontal"
+            android:inputType="number"
+            android:text="0" />
 
-        <RadioButton
-            android:id="@+id/blue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Blue"
-            android:textSize="@dimen/abc_text_size_medium_material"/>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
+            android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
+            android:background="@color/primary_dark_material_dark" />
 
-    </RadioGroup>
+        <RadioGroup
+            android:id="@+id/goalGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
-        android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
-        android:background="@color/primary_dark_material_dark"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Target goal?"
+                android:textSize="@dimen/abc_text_size_title_material" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="How much delay do you want?"
-        android:textSize="@dimen/abc_text_size_title_material"/>
+            <RadioButton
+                android:id="@+id/floorGoalRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Floor goal"
+                android:textSize="@dimen/abc_text_size_medium_material" />
 
-    <EditText
-        android:id="@+id/delayTimeEditText"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:gravity="center_horizontal"
-        android:inputType="number"
-        android:text="0"/>
+            <RadioButton
+                android:id="@+id/beaconRepairZoneRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:text="Beacon repair zone"
+                android:textSize="@dimen/abc_text_size_medium_material" />
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
-        android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
-        android:background="@color/primary_dark_material_dark"/>
+            <RadioButton
+                android:id="@+id/mountainGoalRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Mountain"
+                android:textSize="@dimen/abc_text_size_medium_material" />
+        </RadioGroup>
 
-    <RadioGroup
-        android:id="@+id/goalGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
+            android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
+            android:background="@color/primary_dark_material_dark" />
+
+
+        <RadioGroup
+            android:id="@+id/startGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Starting Position?"
+                android:textSize="@dimen/abc_text_size_title_material" />
+
+            <RadioButton
+                android:id="@+id/closeToMountainRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Close to mountain"
+                android:textSize="@dimen/abc_text_size_medium_material" />
+
+            <RadioButton
+                android:id="@+id/farFromMountainRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Far from mountain"
+                android:textSize="@dimen/abc_text_size_medium_material" />
+        </RadioGroup>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
+            android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
+            android:background="@color/primary_dark_material_dark" />
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Target goal?"
+            android:text="Prox value minimum"
             android:textSize="@dimen/abc_text_size_title_material"/>
 
-        <RadioButton
-            android:id="@+id/floorGoalRadioButton"
+        <EditText
+            android:id="@+id/proxValueEditText"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_horizontal"
+            android:inputType="numberDecimal|numberSigned"
+            android:text="3" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
+            android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
+            android:background="@color/primary_dark_material_dark" />
+
+        <Button
+            android:id="@+id/updateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="Floor goal"
-            android:textSize="@dimen/abc_text_size_medium_material"/>
+            android:onClick="onUpdateButtonPressed"
+            android:text="Push" />
 
-        <RadioButton
-            android:id="@+id/beaconRepairZoneRadioButton"
+        <Button
+            android:id="@+id/getButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="false"
-            android:text="Beacon repair zone"
-            android:textSize="@dimen/abc_text_size_medium_material"/>
-    </RadioGroup>
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
-        android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
-        android:background="@color/primary_dark_material_dark"/>
+            android:onClick="onGetButtonPressed"
+            android:text="Get"
+            android:visibility="invisible" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Prox value minimum"
-        android:textSize="@dimen/abc_text_size_title_material"/>
 
-    <EditText
-        android:id="@+id/proxValueEditText"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:gravity="center_horizontal"
-        android:inputType="numberDecimal|numberSigned"
-        android:text="3" />
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
-        android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
-        android:background="@color/primary_dark_material_dark"/>
-
-    <Button
-        android:id="@+id/updateButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onUpdateButtonPressed"
-        android:text="Push"/>
-
-    <Button
-        android:id="@+id/getButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onGetButtonPressed"
-        android:text="Get"
-        android:visibility="invisible"/>
 
 
 </LinearLayout>
+</ScrollView>
