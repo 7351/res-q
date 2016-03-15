@@ -30,10 +30,10 @@ import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.library.devices.VCNL4010;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * DriveToBeacon
@@ -89,7 +89,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
     public boolean aboveWhiteLine() {
         boolean returnValue = false;
-        if ((lineColorSensor.red() >= 3) && (lineColorSensor.green() >= 3) && (lineColorSensor.blue() >= 3)) {
+        if ((lineColorSensor.red() >= 2) && (lineColorSensor.green() >= 2) && (lineColorSensor.blue() >= 2)) {
             returnValue = true;
         }
         return returnValue;
@@ -113,6 +113,20 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             DbgLog.error(e.toString());
         }
         return pref;
+    }
+
+    public void regulateMotorPower() {
+        motorLeft1.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorLeft2.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorRight1.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+        motorRight2.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+    }
+
+    public void unRegulateMotorPower() {
+        motorLeft1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorLeft2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorRight1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
+        motorRight2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
     }
 
 
@@ -193,168 +207,81 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (waitTime.time() >= 1) {
                 stage++;
             }
+            if (waitTime.time() < 1) {
+                unRegulateMotorPower();
+            }
         }
         if (stage == 3) {
             if (!gyro.isCalibrating()) {
-                double target_angle_degrees = 309; // 307 + 10
+                double target_angle_degrees = 304; // 307 + 10
                 // TODO Fix the gyro reaction motor issue thing
                 double error_degrees = target_angle_degrees - gyro.getHeading();
                 if (error_degrees > 15) {
-                    driveLeft(0.25);
-                    driveRight(-0.25);
+                    driveLeft(0.21);
+                    driveRight(-0.21);
                 } else {
-                    driveLeft(0.2);
-                    driveRight(-0.2);
+                    driveLeft(0.19);
+                    driveRight(-0.19);
                 }
-                if (gyro.getHeading() <= target_angle_degrees + 0) {
+                if (gyro.getHeading() <= target_angle_degrees + 2) {
                     if (gyro.getHeading() >= target_angle_degrees - 2) {
-                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                         driveLeft(0);
                         driveRight(0);
                         stage++;
-                        DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                         waitTime.reset();
+                        regulateMotorPower();
                     }
 
                 }
+                }
+
             }
 
-        }
         if (stage == 4) {
             driveLeft(0);
             driveRight(0);
-            DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
+            regulateMotorPower();
             if (waitTime.time() >= 1) {
-                DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                 stage++;
             }
         }
         if (stage == 5) {
-            if (isOutOfGyroGoal(309)) {
-                if (aboveRedLine()) {
-                    leftPower = 0;
-                    rightPower = 0;
-                    stage = 666;
-                }
-                if (!aboveRedLine()) {
-                    // Starting left power = 0.65
-                    // Starting right power = 0.85
-                    // Decrease by .1
-                    if (defaultPowerSet == false) {
-                        rightPower = 0.4475;
-                        leftPower = 0.36;
-                        defaultPowerSet = true;
-                    }
-                    if (defaultPowerSet == true) {
-                        if (manipTime.time() > 0.1) {
-                            leftPower -= 0.0015;
-                            rightPower -= 0.0015;
-                            manipTime.reset();
-                        }
-                    }
-
+            if (aboveWhiteLine()) {
+                leftPower = 0;
+                rightPower = 0;
+                stage++;
+            }
+            if (!aboveWhiteLine()) {
+                // Starting left power = 0.65
+                // Starting right power = 0.8
+                if (defaultPowerSet == false) {
+                    rightPower = 1;
+                    leftPower = 1;
+                    defaultPowerSet = true;
+            }
+                if (defaultPowerSet == true) {
+                    if (manipTime.time() > 0.1) {
+                        leftPower -= 0.00225;
+                        rightPower -= 0.00225;
+                        manipTime.reset();
                 }
             }
-            if (!isOutOfGyroGoal(309)) {
-                if (aboveWhiteLine()) {
-                    leftPower = 0;
-                    rightPower = 0;
-                    stage++;
-                }
-                if (!aboveWhiteLine()) {
-                    // Starting left power = 0.65
-                    // Starting right power = 0.85
-                    // Decrease by .1
-                    if (defaultPowerSet == false) {
-                        rightPower = 0.445;
-                        leftPower = 0.36;
-                        defaultPowerSet = true;
-                    }
-                    if (defaultPowerSet == true) {
-                        if (manipTime.time() > 0.1) {
-                            leftPower -= 0.0015;
-                            rightPower -= 0.0015;
-                            manipTime.reset();
-                        }
-                    }
 
-                }
-            }
+        }
 
             driveLeft(rightPower);
             driveRight(leftPower);
         }
         if (stage == 6) {
-            if (manipTime.time() >= 0.5) {
-                stage = 9;
+            if (waitTime.time() >= 0.5) {
+                stage++;
+                manipTime.reset();
+            }
+            if (waitTime.time() <= 0.5) {
+                unRegulateMotorPower();
             }
         }
         if (stage == 7) {
-            if (!aboveWhiteLine()) {
-                driveLeft(-0.3);
-                driveRight(-0.3);
-                waitTime.reset();
-            }
-            if (aboveWhiteLine()) {
-                driveLeft(0);
-                driveRight(0);
-                manipTime.reset();
-                stage++;
-            }
-        }
-        if (stage == 8) {
-            if (waitTime.time() >= 0.5) {
-                stage++;
-            }
-        }
-        if (stage == 9) {
-            if (!gyro.isCalibrating()) {
-                double target_angle_degrees2 = 270;
-                double error_degrees = target_angle_degrees2 - gyro.getHeading();
-                // Left is right and right is left!
-                if (error_degrees > 15) {
-                    driveLeft(0.28);
-                    driveRight(-0.28);
-                } else {
-                    driveLeft(0.23);
-                    driveRight(-0.23);
-                }
-                if (isGyroInTolerance((int) target_angle_degrees2)) {
-                    goalReached[1] = true;
-                    stage++;
-                }
-                if (goalReached[1]) {
-                    driveLeft(0);
-                    driveRight(0);
-                    waitTime.reset();
-                }
-            }
-        }
-        if (stage == 10) {
-            if (waitTime.time() >= 0.5) {
-                stage++;
-                manipTime.reset();
-            }
-        }
-        if (stage == 11) {
-            if (manipTime.time() >= 0.75) {
-                driveLeft(0);
-                driveRight(0);
-                stage++;
-                waitTime.reset();
-            }
-            if (manipTime.time() < 0.75) {
-                driveLeft(-1 * (0.34 + 0.08)); // Right
-                driveRight(-0.34); // Left
-            }
-        }
-        if (stage == 12) {
-            if (waitTime.time() >= 0.5) {
-                stage++;
-                manipTime.reset();
-            }
-        }
-        if (stage == 13) {
             if (!gyro.isCalibrating()) {
                 double target_angle_degrees3 = 90;
                 double error_degrees = target_angle_degrees3 - gyro.getHeading();
@@ -375,38 +302,14 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                     driveRight(0);
                     waitTime.reset();
                 }
-            }
-        }
-        if (stage == 14) {
-            if (waitTime.time() >= 0.5) {
-                stage++;
-                manipTime.reset();
-            }
-        }
-        if (stage == 15) {
-            if (prox.convertProxToDistance() > proxThreshold) { //This might be confusing but close to the wall, it is a - int
-                //The Distance 13 returned from the sensor, is exactly 13 centimeters.
-                driveLeft(-1 * (0.34 + 0.1)); // Right
-                driveRight(-0.34);
-            }
-            if (prox.convertProxToDistance() <= proxThreshold) {
-                driveLeft(0);
-                driveRight(0);
-                stage++;
-                servotime.reset();
-            }
-        }
-        if (stage == 16) {
-            if (servotime.time() > servoDelayTime2) {
-                climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
-                servotime.reset();
-            }
+                }
         }
 
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
         telemetry.addData("prox", String.valueOf(prox.convertProxToDistance()));
+        DbgLog.msg("R: " + lineColorSensor.red() + ", G: " + lineColorSensor.green() + ", B: " + lineColorSensor.blue());
         //DbgLog.msg(String.valueOf(gyro.getHeading()) + ", " + startTime.time());
 
 

@@ -28,6 +28,8 @@ public class TeleOpDouble extends DriveTrainLayer {
     Servo climbersServo;
     Servo leftAngelArm;
     Servo rightAngelArm;
+    Servo LBumper;
+    Servo RBumper;
     DeviceInterfaceModule dim;
     boolean YButton = false;
     boolean AButton = false;
@@ -77,6 +79,9 @@ public class TeleOpDouble extends DriveTrainLayer {
         leftAngelArm = hardwareMap.servo.get("leftAngelArm");
         rightAngelArm = hardwareMap.servo.get("rightAngelArm");
 
+        RBumper = hardwareMap.servo.get("RBumper");
+        LBumper = hardwareMap.servo.get("LBumper");
+
         liftMotor = hardwareMap.dcMotor.get("liftMotor");
 
         //led = hardwareMap.dcMotor.get("led");
@@ -103,8 +108,6 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         LeftRightServo.setPosition(0.45);
         UpDownServo.setPosition(0.7);
-
-        climbersServo.setPosition(0.07);
 
         leftAngelArm.setPosition(0.76);
         rightAngelArm.setPosition(0.17);
@@ -140,7 +143,7 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         // Power to decrease motor
 
-        double ScalingPower = 0.375;
+        double ScalingPower = 0.85;
 
         if (leftYStick == 0) {
             liftMotor.setPower(0);
@@ -383,9 +386,6 @@ public class TeleOpDouble extends DriveTrainLayer {
         boolean DPadLeftPressed = gamepad2.dpad_left;
         boolean DPadRightPressed = gamepad2.dpad_right;
         boolean DPadUpPressed = gamepad2.dpad_up;
-        boolean DPadDownPressed = gamepad2.dpad_down;
-
-
 
         if (DPadLeftPressed) {
             leftAngelArm.setPosition(leftAngelScore);
@@ -452,6 +452,32 @@ public class TeleOpDouble extends DriveTrainLayer {
         }
         if (rightTrigger == 0 && !rightBumper) {
             intakeMotor.setPower(0);
+        }
+
+        /*
+         * Dpad Up - Put bumper servos up
+         * Release up servos to drop
+         */
+        double leftBumperRest = 0.69,
+                leftBumperMid = 0.445,
+                leftBumperTilt = 0.2,
+                rightBumperRest = 0.48,
+                rightBumperMid = 0.8,
+                rightBumperTilt = 1;
+
+        boolean dpadUp1 = gamepad1.dpad_up;
+        boolean dpadDown1 = gamepad1.dpad_down;
+        if (dpadUp1) {
+            LBumper.setPosition(leftBumperTilt);
+            RBumper.setPosition(rightBumperTilt);
+        }
+        if (!dpadUp1 && !dpadDown1) {
+            LBumper.setPosition(leftBumperRest);
+            RBumper.setPosition(rightBumperRest);
+        }
+        if (dpadDown1) {
+            LBumper.setPosition(leftBumperMid);
+            RBumper.setPosition(rightBumperMid);
         }
 
 
