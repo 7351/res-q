@@ -24,33 +24,44 @@ public class GyroDriveTest extends DriveTrainLayer {
 
     }
 
-    private int spoofedZero() {
-        return 0;
+    private int spoofedZero(int zeroDegree) {
+        int ActualDegree = gyro.getHeading();
+        int degree = ActualDegree - zeroDegree;
+        if (degree > 360) {
+            degree = degree - 360;
+        }
+        if (degree < 0) {
+            degree = degree + 360;
+        }
+        return degree;
     }
 
     @Override
     public void loop() {
+        int degree = spoofedZero(345);
         if (stage == 0) {
             if (this.time > 4) {
                 stage++;
             }
         }
         if (stage == 1) {
+
             if (!gyro.isCalibrating()) {
+                int gyroDegree = spoofedZero(309);
                 int targetDegrees = 0;
                 double leftStartPower = 1;
                 double rightStartPower = 1;
-                double dividerNumber = 20.0;
+                double dividerNumber = 15.0;
 
-                if (gyro.getHeading() > 0 && gyro.getHeading() <= 90) {
-                    int error_degrees = Math.abs(targetDegrees - gyro.getHeading());
+                if (gyroDegree > 0 && gyroDegree <= 90) {
+                    int error_degrees = Math.abs(targetDegrees - gyroDegree);
                     double subtractivePower = error_degrees / dividerNumber;
                     DbgLog.msg(String.valueOf(subtractivePower + ", " + error_degrees));
                     leftStartPower = Range.clip(1 - subtractivePower, -1, 1);
                 }
 
-                if (gyro.getHeading() >= 270 && gyro.getHeading() < 360) {
-                    int error_degrees = Math.abs(90 - (gyro.getHeading() - 270));
+                if (gyroDegree >= 270 && gyroDegree < 360) {
+                    int error_degrees = Math.abs(90 - (gyroDegree - 270));
                     double subtractivePower = error_degrees / dividerNumber;
                     DbgLog.msg(String.valueOf(subtractivePower + ", " + error_degrees));
                     rightStartPower = Range.clip(1 - subtractivePower, -1, 1);
@@ -59,6 +70,7 @@ public class GyroDriveTest extends DriveTrainLayer {
                 driveLeft(rightStartPower);
                 driveRight(leftStartPower);
                 telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
+                telemetry.addData("spoofed", String.valueOf(spoofedZero(345)));
             }
 
         }
