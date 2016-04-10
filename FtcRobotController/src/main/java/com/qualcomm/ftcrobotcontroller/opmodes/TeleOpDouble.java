@@ -22,9 +22,10 @@ public class TeleOpDouble extends DriveTrainLayer {
     //DcMotor led;
     DcMotor intakeMotor;
     DcMotor liftMotor;
+    DcMotor liftMotor2;
+    DcMotor winchMotor;
     Servo LeftRightServo;
     Servo UpDownServo;
-    DcMotor pistonMotor;
     Servo climbersServo;
     Servo leftAngelArm;
     Servo rightAngelArm;
@@ -67,11 +68,11 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
 
+        winchMotor = hardwareMap.dcMotor.get("winchMotor");
+
         LeftRightServo = hardwareMap.servo.get("LeftRightServo");
 
         UpDownServo = hardwareMap.servo.get("UpDownServo");
-
-        pistonMotor = hardwareMap.dcMotor.get("pistonMotor");
 
         climbersServo = hardwareMap.servo.get("climbersServo");
         climbersServo.setDirection(Servo.Direction.REVERSE);
@@ -83,6 +84,8 @@ public class TeleOpDouble extends DriveTrainLayer {
         LBumper = hardwareMap.servo.get("LBumper");
 
         liftMotor = hardwareMap.dcMotor.get("liftMotor");
+
+        liftMotor2 = hardwareMap.dcMotor.get("liftMotor2");
 
         //led = hardwareMap.dcMotor.get("led");
 
@@ -108,9 +111,6 @@ public class TeleOpDouble extends DriveTrainLayer {
 
         LeftRightServo.setPosition(0.45);
         UpDownServo.setPosition(0.7);
-
-        leftAngelArm.setPosition(0.76);
-        rightAngelArm.setPosition(0.17);
 
     }
 
@@ -377,11 +377,11 @@ public class TeleOpDouble extends DriveTrainLayer {
          * CHANGEABLE: Angel arms scoring positions
          */
 
-        double leftAngelHome = 0.76;
-        double leftAngelScore = 0.2;
-        double rightAngelHome = 0.17;
-        double rightAngelScore = 0.72;
-        double restingPosition = 0.07;
+        double leftAngelHome = 0;
+        double leftAngelScore = 0.85;
+        double rightAngelHome = 0.8;
+        double rightAngelScore = 0;
+        double restingPosition = 0;
 
         boolean DPadLeftPressed = gamepad2.dpad_left;
         boolean DPadRightPressed = gamepad2.dpad_right;
@@ -438,6 +438,36 @@ public class TeleOpDouble extends DriveTrainLayer {
 		 */
 
         /*
+         * Secondary Lift | B - Up, A - Down
+         */
+
+        boolean YButton1 = gamepad1.y;
+        boolean AButton1 = gamepad1.a;
+
+        if (YButton1) {
+            liftMotor2.setPower(-1);
+        } if (!YButton1 && !AButton1) {
+            liftMotor2.setPower(0);
+        } if (AButton1) {
+            liftMotor2.setPower(1);
+        }
+
+        /*
+         * Winch | Left joystick - Y - Up - Down
+         */
+
+        float LeftY1 = -gamepad1.left_stick_y;
+
+        if (LeftY1 < -0.5) {
+            winchMotor.setPower(-1);
+        } if (LeftY1 > 0.5) {
+            winchMotor.setPower(1);
+        } if (LeftY1 < 0.5 && LeftY1 > -0.5) {
+            winchMotor.setPower(0);
+        }
+
+
+        /*
          * Intake Sections | Left - In, Right - Out
          */
         double rightTrigger = gamepad1.left_trigger;
@@ -458,26 +488,19 @@ public class TeleOpDouble extends DriveTrainLayer {
          * Dpad Up - Put bumper servos up
          * Release up servos to drop
          */
-        double leftBumperRest = 0.69,
-                leftBumperMid = 0.445,
-                leftBumperTilt = 0.2,
-                rightBumperRest = 0.48,
-                rightBumperMid = 0.8,
-                rightBumperTilt = 1;
+        double leftBumperRest = 0.7,
+                leftBumperTilt = 0.35,
+                rightBumperRest = 0.2,
+                rightBumperTilt = 0.575;
 
         boolean dpadUp1 = gamepad1.dpad_up;
-        boolean dpadDown1 = gamepad1.dpad_down;
         if (dpadUp1) {
             LBumper.setPosition(leftBumperTilt);
             RBumper.setPosition(rightBumperTilt);
         }
-        if (!dpadUp1 && !dpadDown1) {
+        if (!dpadUp1) {
             LBumper.setPosition(leftBumperRest);
             RBumper.setPosition(rightBumperRest);
-        }
-        if (dpadDown1) {
-            LBumper.setPosition(leftBumperMid);
-            RBumper.setPosition(rightBumperMid);
         }
 
 

@@ -8,7 +8,6 @@ import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -80,20 +79,6 @@ public class Autonomous extends DriveTrainLayer {
             returnValue = true;
         }
         return returnValue;
-    }
-
-    public void regulateMotorPower() {
-        motorLeft1.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        motorLeft2.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        motorRight1.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        motorRight2.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-    }
-
-    public void unRegulateMotorPower() {
-        motorLeft1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        motorLeft2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        motorRight1.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
-        motorRight2.setMode(DcMotorController.RunMode.RUN_WITHOUT_ENCODERS);
     }
 
     public SharedPreferences getPreferences() {
@@ -313,7 +298,7 @@ public class Autonomous extends DriveTrainLayer {
                         // Decrease by .1
                         if (defaultPowerSet == false) {
                             rightPower = 1;
-                            leftPower = 0.96;
+                            leftPower = 1;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {
@@ -341,7 +326,7 @@ public class Autonomous extends DriveTrainLayer {
                         // Starting right power = 0.8
                         if (defaultPowerSet == false) {
                             rightPower = 1;
-                            leftPower = 0.94;
+                            leftPower = 1;
                             defaultPowerSet = true;
                         }
                         if (defaultPowerSet == true) {

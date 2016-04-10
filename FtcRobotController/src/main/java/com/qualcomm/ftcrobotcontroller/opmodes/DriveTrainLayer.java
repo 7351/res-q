@@ -69,14 +69,26 @@ public class DriveTrainLayer extends OpMode {
 
     }
 
+    @Deprecated
     public void driveLeft(double powerLeft) {
         motorLeft1.setPower(powerLeft);
         motorLeft2.setPower(powerLeft);
     }
 
+    @Deprecated
     public void driveRight(double powerRight) {
         motorRight1.setPower(powerRight);
         motorRight2.setPower(powerRight);
+    }
+
+    public void powerLeft(double power) {
+        motorRight1.setPower(power);
+        motorRight2.setPower(power);
+    }
+
+    public void powerRight(double power) {
+        motorLeft1.setPower(power);
+        motorLeft2.setPower(power);
     }
 
     /*
