@@ -46,5 +46,5 @@ public class ProxTest extends OpMode {
         prox.close();
 
     }
-    
+
 }
