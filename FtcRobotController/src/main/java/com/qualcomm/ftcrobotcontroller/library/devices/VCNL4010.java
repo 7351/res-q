@@ -23,40 +23,18 @@ public class VCNL4010 {
     }
 
     public int getHb() {
-        pr.beginWrite(VCNL4010_Addresses.COMMAND);
-        pr.write(VCNL4010_Addresses.MEASUREPROXIMITY);
-        pr.endWrite();
-        pr.requestFrom(VCNL4010_Addresses.PROXIMITYDATA, 1);
-        if (pr.responseCount() > 1) {
-            pr.getResponse();
-            if (pr.isRead()) {
-                hb = pr.read();
-
-            }
-        }
         return hb;
     }
 
     public int getLb() {
-        pr.beginWrite(VCNL4010_Addresses.COMMAND);
-        pr.write(VCNL4010_Addresses.MEASUREPROXIMITY);
-        pr.endWrite();
-        pr.requestFrom(VCNL4010_Addresses.PROXIMITYDATALOW, 1);
-        if (pr.responseCount() > 1) {
-            pr.getResponse();
-            if (pr.isRead()) {
-                lb = pr.read();
-
-            }
-        }
         return lb;
     }
-    /*
-    public int convertProxToDistance() {
+
+    public void refreshData() {
             pr.beginWrite(VCNL4010_Addresses.COMMAND);
             pr.write(VCNL4010_Addresses.MEASUREPROXIMITY);
             pr.endWrite();
-            pr.requestFrom(VCNL4010_Addresses.PROXIMITYDATA, 1);
+            pr.requestFrom(VCNL4010_Addresses.PROXIMITYDATA, 2);
             if (pr.responseCount() > 0) {
                 pr.getResponse();
                 if (pr.isRead()) {
@@ -65,13 +43,7 @@ public class VCNL4010 {
                 }
             }
         }
-        data = (hb << 8);
-        data |= lb;
 
-        //int prox_mm = VCNL4010_Addresses.dx / (data - VCNL4010_Addresses.dy) + 50;
-        return data;
-    }
-    */
 
     public void setProxRate(int proxRate) {
         pr.beginWrite(VCNL4010_Addresses.PROXRATE);

@@ -2,13 +2,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 
 import com.qualcomm.ftcrobotcontroller.library.devices.VCNL4010;
-import com.qualcomm.ftcrobotcontroller.library.devices.VCNL4010_Addresses;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-
-
-import com.qualcomm.ftcrobotcontroller.library.Wire;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /**
  * Created by Leo on 2/7/2016.
@@ -34,8 +28,9 @@ public class ProxTest extends OpMode {
     @Override
     public void loop() {
 
-         telemetry.addData("prox", String.valueOf(prox.getHb()));
-         telemetry.addData("prox", String.valueOf(prox.getLb()));
+        prox.refreshData();
+
+         telemetry.addData("prox", String.valueOf("hb: " + prox.getHb() + ", lb: " + prox.getLb()));
 
 
 
