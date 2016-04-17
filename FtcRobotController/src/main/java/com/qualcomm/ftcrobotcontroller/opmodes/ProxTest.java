@@ -21,7 +21,7 @@ public class ProxTest extends OpMode {
     DcMotor motorLeft2;
     Servo climbersServo;
 
-//Intializing devices from the hardwareMap
+//Intializing devices from the hardwareMap.
     @Override
     public void init() {
         prox = new VCNL4010(hardwareMap, "prox");
