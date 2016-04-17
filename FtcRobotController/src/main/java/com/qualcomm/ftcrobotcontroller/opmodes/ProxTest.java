@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.Range;
  * Created by Leo on 2/7/2016.
  */
 public class ProxTest extends OpMode {
-//declaring hardware prox, motors and servo
+    //declaring hardware prox, motors and servo
     VCNL4010 prox;
     DcMotor motorRight1;
     DcMotor motorRight2;
@@ -21,7 +21,7 @@ public class ProxTest extends OpMode {
     DcMotor motorLeft2;
     Servo climbersServo;
 
-//Intializing devices from the hardwareMap..
+    //Intializing devices from the hardwareMap..
     @Override
     public void init() {
         prox = new VCNL4010(hardwareMap, "prox");
@@ -39,12 +39,16 @@ public class ProxTest extends OpMode {
     public void start() {
 
     }//Declaring variables
-    int stage=1;
+
+    int stage = 1;
     double powerLeft;
     double powerRight;
     double servoDelta = 0.01;
     double restingPosition = 0;
     double servoPosition = restingPosition;
+    int lastByte = -1;
+    int flux = 10;
+    int counter = 0;
 
     //This method will loop until driver station stops it.
     public void loop() {
@@ -53,54 +57,76 @@ public class ProxTest extends OpMode {
 
         //Get Prox Data
         prox.refreshData();
-        highByte=prox.getHb();
-        lowByte=prox.getLb();
+        highByte = prox.getHb();
+        lowByte = prox.getLb();
 
 //Stage Case/IF loops
-if (stage==1) {
+        if (stage == 1) {
 // Drive forward
-    powerLeft=-.27;
-    powerRight=-.2;
-    motorLeft1.setPower(powerLeft);
-    motorLeft2.setPower(powerLeft);
-    motorRight1.setPower(powerRight);
-    motorRight2.setPower(powerRight);
-    //Decides if its safe to throw climbers
-    if (highByte >= 9) {//if the highByte is 9 you are close enough to the wall to throw
-        telemetry.addData("Text", "Throw Climbers");
-        stage=2;
-    } else {
-        if (highByte == 8 && lowByte >= 150) {
-        //if the high byte is 8 you may not be close enough but, only if the low is greater than 150 throw climbers
-        stage=1;
-            telemetry.addData("Text", "Throw Climbers >150");
-        } else {
-            telemetry.addData("Text", "DONT DO IT");
-            stage=1;
+            powerLeft = -.27;
+            powerRight = -.2;
+            motorLeft1.setPower(powerLeft);
+            motorLeft2.setPower(powerLeft);
+            motorRight1.setPower(powerRight);
+            motorRight2.setPower(powerRight);
         }
-    }
-}
+        //Decides if its safe to throw climbers
+        if (highByte >= 9) {
+            //if the highByte is 9 you are close enough to the wall to throw
+            telemetry.addData("Text", "Throw Climbers");
+            stage = 2;
+        } else {
+            if (highByte == 8 && lowByte >= 150) {
+                //if the high byte is 8 you may not be close enough but, only if the low is greater than 150 throw climbers
+                stage = 1;
+                if (lastByte >= (lowByte - flux)) {//Otter didnt move much sincs last loop
+                    counter++;
+                    lastByte = lowByte;
+                    if (counter >= 25) {//checking how lomg Otters been stuck
+                        stage = 3;
+                    } else {
+                        stage = 1;
+                    }
+                } else {//Otter is still moving
+                    counter = 0;
+                    stage = 1;
+                    lastByte = lowByte;
+                }
 
-        if (stage==2){
+
+            } else {
+                stage = 1;
+            }
+        }
+
+
+        if (stage == 2) {
             //Sets motor power to zero and throws climbers
-            powerLeft=0.0;
-            powerRight=0.0;
+            powerLeft = 0.0;
+            powerRight = 0.0;
             motorLeft1.setPower(powerLeft);
             motorLeft2.setPower(powerLeft);
             motorRight1.setPower(powerRight);
             motorRight2.setPower(powerRight);
             climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
         }
-
-
-
-
+        if (stage == 3) {
+            //otter is stuck short of the beacon ,cannot throw so stop motors
+            powerLeft = 0.0;
+            powerRight = 0.0;
+            motorLeft1.setPower(powerLeft);
+            motorLeft2.setPower(powerLeft);
+            motorRight1.setPower(powerRight);
+            motorRight2.setPower(powerRight);
+            telemetry.addData("Text","Stopping");
+        }
     }
-
+    
     @Override
     public void stop() {
         prox.close();
 
     }
-    
+
+
 }
