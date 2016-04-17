@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.Range;
  * Created by Leo on 2/7/2016.
  */
 public class ProxTest extends OpMode {
-//declaring hardware
+//declaring hardware prox, motors and servo
     VCNL4010 prox;
     DcMotor motorRight1;
     DcMotor motorRight2;
@@ -21,7 +21,7 @@ public class ProxTest extends OpMode {
     DcMotor motorLeft2;
     Servo climbersServo;
 
-//Intializing devices from the hardwareMap.
+//Intializing devices from the hardwareMap..
     @Override
     public void init() {
         prox = new VCNL4010(hardwareMap, "prox");
