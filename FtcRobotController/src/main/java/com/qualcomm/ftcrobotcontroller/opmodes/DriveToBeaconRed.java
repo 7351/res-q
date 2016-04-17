@@ -97,7 +97,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         int targetDegrees = 0;
         double leftStartPower = power;
         double rightStartPower = power;
-        double dividerNumber = 15.0;
+        double dividerNumber = 15;
 
         if (gyroDegree > 0 && gyroDegree <= 90) {
             int error_degrees = Math.abs(targetDegrees - gyroDegree);
@@ -196,6 +196,10 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         startTime.reset();
     }
 
+    int lastByte = -1;
+    int flux = 10;
+    int counter = 0;
+
     /*
          * This method will be called repeatedly in a loop
          *
@@ -237,11 +241,12 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 if (!gyro.isCalibrating()) {
                     double RateOfDepression = -0.015;
                     double power = (RateOfDepression * manipTime.time()) + 1;
-                    driveOnHeading(307, power);
+                    driveOnHeading(305, power);
                 }
             }
 
         }
+
         if (stage == 4) {
             if (waitTime.time() >= 0.5) {
                 stage++;
@@ -252,14 +257,15 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (!aboveWhiteLine()) {
                 driveLeft(-0.4);
                 driveRight(-0.4);
-            } if (aboveWhiteLine()) {
+            } /*if (aboveWhiteLine()) {
                 driveLeft(0);
                 driveRight(0);
                 stage++;
                 waitTime.reset();
-            }
+            }*/
 
         }
+        /*
         if (stage == 6) {
             if (waitTime.time() >= 0.5) {
                 stage++;
@@ -269,7 +275,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
                 if (!isGyroInTolerance2(90)) {
-                    rotateUsingSpoofed(270, 180, 162.5);
+                    rotateUsingSpoofed(270, 180, 162);
                 } if (isGyroInTolerance2(90)) {
                     powerLeft(0);
                     powerRight(0);
@@ -284,33 +290,70 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 manipTime.reset();
             }
         }
+        int highByte;
+        int lowByte;
+
+        //Get Prox Data
+        prox.refreshData();
+        highByte = prox.getHb();
+        lowByte = prox.getLb();
+
+        //Stage Case/IF loops
         if (stage == 9) {
-            if (manipTime.time() < 0.5) {
-                driveOnHeading(270, -1);
-            } if (manipTime.time() > 0.5) {
-                driveLeft(0);
-                driveRight(0);
-                stage++;
-            }
-        } if (stage == 10) {
-            if (servotime.time() > servoDelayTime2) {
-                climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
-                servotime.reset();
+// Drive forward
+            powerRight(-0.27);
+            powerLeft(-0.2);
+        }
+        if (stage > 8) {
+            //Decides if its safe to throw climbers
+            if (highByte >= 9) {
+                //if the highByte is 9 you are close enough to the wall to throw
+                telemetry.addData("Text", "Throw Climbers");
+                stage = 10;
+            } else {
+                if (highByte == 8 && lowByte >= 150) {
+                    //if the high byte is 8 you may not be close enough but, only if the low is greater than 150 throw climbers
+                    stage = 9;
+                    if (lastByte >= (lowByte - flux)) {//Otter didnt move much sincs last loop
+                        counter++;
+                        lastByte = lowByte;
+                        if (counter >= 100) {//checking how lomg Otters been stuck
+                            stage = 11;
+                        } else {
+                            stage = 9;
+                        }
+                    } else {//Otter is still moving
+                        counter = 0;
+                        stage = 9;
+                        lastByte = lowByte;
+                    }
+
+
+                } else {
+                    stage = 9;
+                }
             }
         }
+
+        if (stage == 10) {
+            //Sets motor power to zero and throws climbers
+            powerLeft(0);
+            powerRight(0);
+            climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
+        }
+        if (stage == 11) {
+            //otter is stuck short of the beacon ,cannot throw so stop motors
+            powerLeft(0);
+            powerRight(0);
+            telemetry.addData("Text","Stopping");
+        }
+        */
+
 
         telemetry.addData("stage", String.valueOf(stage));
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
-        //DbgLog.msg(String.valueOf(gyro.getHeading()) + ", " + startTime.time());
-
-
-        if (stage >= 1 && stage <= 5) {
-            intakeMotor.setPower(1);
-        } else {
-            intakeMotor.setPower(0);
-        }
-
+        telemetry.addData("white", String.valueOf(aboveWhiteLine()));
     }
 
     /*
