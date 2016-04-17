@@ -5,6 +5,7 @@ import com.qualcomm.ftcrobotcontroller.library.devices.VCNL4010;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.ftcrobotcontroller.opmodes.DriveTrainLayer;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -20,7 +21,7 @@ public class ProxTest extends OpMode {
     DcMotor motorLeft1;
     DcMotor motorLeft2;
     Servo climbersServo;
-
+    GyroSensor gyro;
     //Intializing devices from the hardwareMap..
     @Override
     public void init() {
@@ -32,6 +33,7 @@ public class ProxTest extends OpMode {
         motorRight1 = hardwareMap.dcMotor.get("motorright1");
         motorRight2 = hardwareMap.dcMotor.get("motorright2");
         climbersServo = hardwareMap.servo.get("climbersServo");
+        gyro = hardwareMap.gyroSensor.get("gyro");
         climbersServo.setDirection(Servo.Direction.REVERSE);
     }
 
@@ -40,7 +42,7 @@ public class ProxTest extends OpMode {
 
     }//Declaring variables
 
-    int stage = 1;
+
     double powerLeft;
     double powerRight;
     double servoDelta = 0.01;
@@ -49,6 +51,8 @@ public class ProxTest extends OpMode {
     int lastByte = -1;
     int flux = 10;
     int counter = 0;
+    int stage=0;
+
 
     //This method will loop until driver station stops it.
     public void loop() {
@@ -61,7 +65,13 @@ public class ProxTest extends OpMode {
         lowByte = prox.getLb();
 
 //Stage Case/IF loops
-        if (stage == 1) {
+        if (stage == 0){
+            motorLeft1.setPower(.35);
+           motorLeft2.setPower(.35);
+           motorRight1.setPower(-.35);
+           motorRight2.setPower(-.35);
+        }
+        /*if (stage == 1) {
 // Drive forward
             powerLeft = -.27;
             powerRight = -.2;
@@ -119,7 +129,7 @@ public class ProxTest extends OpMode {
             motorRight1.setPower(powerRight);
             motorRight2.setPower(powerRight);
             telemetry.addData("Text","Stopping");
-        }
+        } */
     }
     
     @Override
