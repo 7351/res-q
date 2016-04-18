@@ -52,25 +52,36 @@ public class ProxTest extends OpMode {
     int flux = 10;
     int counter = 0;
     int stage=0;
+    int offset=12;
 
 
     //This method will loop until driver station stops it.
     public void loop() {
         int highByte;
         int lowByte;
-
+        int currentGyro;
         //Get Prox Data
         prox.refreshData();
         highByte = prox.getHb();
         lowByte = prox.getLb();
-
+       //Store gyro
+        currentGyro = gyro.getHeading();
 //Stage Case/IF loops
         if (stage == 0){
-            motorLeft1.setPower(.35);
-           motorLeft2.setPower(.35);
-           motorRight1.setPower(-.35);
-           motorRight2.setPower(-.35);
+            motorLeft1.setPower(-.25);
+           motorLeft2.setPower(-.25);
+           motorRight1.setPower(.25);
+           motorRight2.setPower(.25);
+            if (currentGyro >= (180-offset)) {
+                motorLeft1.setPower(0);
+                motorLeft2.setPower(0);
+                motorRight1.setPower(0);
+                motorRight2.setPower(0);
+                telemetry.addData("Gyro" , currentGyro);
+            }
+            }
         }
+
         /*if (stage == 1) {
 // Drive forward
             powerLeft = -.27;
@@ -130,7 +141,7 @@ public class ProxTest extends OpMode {
             motorRight2.setPower(powerRight);
             telemetry.addData("Text","Stopping");
         } */
-    }
+
     
     @Override
     public void stop() {
@@ -138,5 +149,5 @@ public class ProxTest extends OpMode {
 
     }
 
-
 }
+

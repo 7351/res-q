@@ -68,7 +68,7 @@ public class FtcOpModeRegister implements OpModeRegister {
         manager.register("ClimbersRed", DriveToBeaconRed.class);
         manager.register("ClimbersBlue", DriveToBeaconBlue.class);
         manager.register("Autonomous", Autonomous.class);
-        // manager.register("DriveToBeacon", DriveToBeacon.class);
+         manager.register("DriveToBeaconRed", DriveToBeaconRed.class);
 
     /*
 	 * Some testing op modes
