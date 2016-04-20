@@ -33,7 +33,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * DriveToBeacon
  * <p/>
- * Drive to the beacon red side
+ * Drive to the beacon red side drop climbers,and defence
  */
 public class DriveToBeaconRed2 extends DriveTrainLayer {
 
@@ -51,88 +51,9 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
     Servo rightAngelArm;
     VCNL4010 prox;
     private double servoDelta = 0.01;
+    double servoPosition = restingPosition;
     private ElapsedTime servotime = new ElapsedTime();
     private double servoDelayTime2 = 0.0001;
-
-    public boolean isGyroInTolerance(int degree) {
-        boolean returnValue = false;
-        if ((gyro.getHeading() <= degree + TOLERANCE) && (gyro.getHeading() >= degree - TOLERANCE)) {
-            returnValue = true;
-        }
-        return returnValue;
-    }
-
-    public boolean isGyroInTolerance2(int degree) {
-        boolean returnValue = false;
-        if ((gyro.getHeading() <= degree + 3) && (gyro.getHeading() >= degree - 3)) {
-            returnValue = true;
-        }
-        return returnValue;
-    }
-
-    private int spoofedZero(int zeroDegree) {
-        int ActualDegree = gyro.getHeading();
-        int degree = ActualDegree - zeroDegree;
-        if (degree > 360) {
-            degree = degree - 360;
-        }
-        if (degree < 0) {
-            degree = degree + 360;
-        }
-        return degree;
-    }
-
-    private void rotateUsingSpoofed(int ZeroDegree, int TargetDegree, double DivisionNumber) {
-        int CurrentSpoofedDegree = spoofedZero(ZeroDegree); //An expected 39 gyro value from fake zero
-        if (!isGyroInTolerance(TargetDegree)) {
-            double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
-            double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
-            powerLeft(RawPower);
-            powerRight(-RawPower);
-        }
-    }
-
-
-    private void driveOnHeading(int desiredDegree, double power) {
-        int gyroDegree = spoofedZero(desiredDegree);
-        int targetDegrees = 0;
-        double leftStartPower = power;
-        double rightStartPower = power;
-        double dividerNumber = 15;
-
-        if (gyroDegree > 0 && gyroDegree <= 90) {
-            int error_degrees = Math.abs(targetDegrees - gyroDegree);
-            double subtractivePower = error_degrees / dividerNumber;
-            DbgLog.msg(String.valueOf(subtractivePower + ", " + error_degrees));
-            if (power > 0) {
-                leftStartPower = Range.clip(1 - subtractivePower, -1, 1);
-            }
-            if (power < 0) {
-                leftStartPower = Range.clip(1 + subtractivePower, -1, 1);
-            }
-
-        }
-
-        if (gyroDegree >= 270 && gyroDegree < 360) {
-            int error_degrees = Math.abs(90 - (gyroDegree - 270));
-            double subtractivePower = error_degrees / dividerNumber;
-            DbgLog.msg(String.valueOf(subtractivePower + ", " + error_degrees));
-            if (power > 0) {
-                rightStartPower = Range.clip(1 - subtractivePower, -1, 1);
-            }
-            if (power < 0) {
-                rightStartPower = Range.clip(1 + subtractivePower, -1, 1);
-            }
-
-        }
-
-        powerRight(rightStartPower);
-        powerLeft(leftStartPower);
-    }
-
-    private void driveOnHeading(int desiredDegree) {
-        driveOnHeading(desiredDegree, 1);
-    }
 
     public boolean aboveWhiteLine() {
         boolean returnValue = false;
@@ -150,7 +71,6 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
         return returnValue;
     }
 
-    double servoPosition = restingPosition;
 
 
     /*
@@ -198,7 +118,7 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
 
         startTime.reset();
     }
-
+//int out of the loop
     int currentGyro;
     int lastByte = -1;
     int flux = 10;
@@ -212,30 +132,36 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
          */
     @Override
     public void loop() {
+       int highByte;
+        int lowByte;
 
-        //calibrate
+        //Get Prox Data
+        prox.refreshData();
+        highByte = prox.getHb();
+        lowByte = prox.getLb();
+
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
                 manipTime.reset();
-                stage = 1;          }
+                stage ++;          }
         }
 // drive out straight from wall
-        if (stage == 101) {
-            motorRight1.setPower(.6);
-            motorRight2.setPower(.6);
-            motorLeft1.setPower(.6);
-            motorLeft2.setPower(.6);
+        if (stage == 1) {
+            motorRight1.setPower(-.4);
+            motorRight2.setPower(-.4);
+            motorLeft1.setPower(-.4);
+            motorLeft2.setPower(-.4);
             if (manipTime.time() >= 0.3) {
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
-                stage = 102;
+                stage ++;
                 waitTime.reset();
             }
         }
-        // Turn to heading
-        if (stage == 102) {
+        // spin to heading
+        if (stage == 2) {
             //Start turning clockwise
             motorLeft1.setPower(1);
             motorLeft2.setPower(1);
@@ -248,15 +174,13 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
                 motorLeft2.setPower(0);
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
-                telemetry.addData("Gyro", currentGyro);
-                telemetry.addData("Stage", stage);
                 waitTime.reset();
-                stage = 999;
+                stage ++;
             }
         }
 
         //drive forward
-        if (stage == 103) {
+        if (stage == 3) {
             motorLeft1.setPower(-.4);
             motorLeft2.setPower(-.4);
             motorRight1.setPower(-.4);
@@ -266,12 +190,12 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
                 motorRight2.setPower(0);
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
-                stage = 104;
+                stage ++;
                 waitTime.reset();
             }
         }
         // Turn to heading
-        if (stage == 104) {
+        if (stage == 4) {
             motorLeft1.setPower(.5);
             motorLeft2.setPower(.5);
             motorRight1.setPower(-.25);
@@ -282,84 +206,96 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
                 motorLeft2.setPower(0);
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
-                telemetry.addData("Gyro", currentGyro);
-                telemetry.addData("Stage", stage);
                 waitTime.reset();
-                stage = 105;
+                stage ++;
             }
         }
         // drive forward
-        if (stage == 105) {
-            motorLeft1.setPower(-.2);
-            motorLeft2.setPower(-.2);
-            motorRight1.setPower(-0.2);
-            motorRight2.setPower(-0.2);
-            if (aboveRedLine()) {
-                motorLeft1.setPower(0);
-                motorLeft2.setPower(0);
-                motorRight1.setPower(0);
-                motorRight2.setPower(0);
-                stage = 999;
-
-            }
-        }
-
-        if (stage == 106) {
-            motorLeft1.setPower(.4);
-            motorLeft2.setPower(.4);
-            motorRight1.setPower(.4);
-            motorRight2.setPower(.4);
+        if (stage ==5) {
+            motorLeft1.setPower(-.4);
+            motorLeft2.setPower(-.4);
+            motorRight1.setPower(-.4);
+            motorRight2.setPower(-.4);
             if (manipTime.time() >= 0.3) {
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
-                stage = 999;
+                stage ++;
                 waitTime.reset();
+
             }
         }
 
-        if (stage == 107) {
+        if (stage == 6) {
+            motorLeft1.setPower(.5);
+            motorLeft2.setPower(.5);
+            motorRight1.setPower(-.25);
+            motorRight2.setPower(-.25);
+            currentGyro = gyro.getHeading();
+            if (currentGyro <= (311 - offset)) {
+                motorLeft1.setPower(0);
+                motorLeft2.setPower(0);
+                motorRight1.setPower(0);
+                motorRight2.setPower(0);
+                waitTime.reset();
+                stage ++;
+            }
+        }
+        if (stage ==7) {
+            motorLeft1.setPower(-.4);
+            motorLeft2.setPower(-.4);
+            motorRight1.setPower(-.4);
+            motorRight2.setPower(-.4);
+            if (manipTime.time() >= 0.3) {
+                motorRight1.setPower(0);
+                motorRight2.setPower(0);
+                motorLeft1.setPower(0);
+                motorLeft2.setPower(0);
+                stage ++;
+                waitTime.reset();
+
+            }
+        }
+        if (stage == 8) {
+            motorLeft1.setPower(.5);
+            motorLeft2.setPower(.5);
+            motorRight1.setPower(-.25);
+            motorRight2.setPower(-.25);
+            currentGyro = gyro.getHeading();
+            if (currentGyro <= (311 - offset)) {
+                motorLeft1.setPower(0);
+                motorLeft2.setPower(0);
+                motorRight1.setPower(0);
+                motorRight2.setPower(0);
+                waitTime.reset();
+                stage ++;
+            }
+        }
+        if (stage == 9) {
             if (aboveWhiteLine()) {
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
-                stage = 108;
+                stage ++;
             }
             if (!aboveWhiteLine()) {
-                if (!gyro.isCalibrating()) {
-                    double RateOfDepression = -0.015;
-                    double power = (RateOfDepression * manipTime.time()) + 1;
-                    driveOnHeading(307, power);
+                motorLeft1.setPower(-0.2);
+                motorLeft2.setPower(-0.2);
+                motorRight1.setPower(-0.2);
+                motorRight2.setPower(-0.2);
                 }
             }
-        }
-
-        // drives backwards to red line
-        if (stage == 108) {
-            motorLeft1.setPower(.2);
-            motorLeft2.setPower(.2);
-            motorRight1.setPower(0.2);
-            motorRight2.setPower(0.2);
-            if (aboveRedLine()) {
-                motorLeft1.setPower(0);
-                motorLeft2.setPower(0);
-                motorRight1.setPower(0);
-                motorRight2.setPower(0);
-                stage = 999;
-
-            }
-        }
-
-        if (stage == 5) {
+        //spin to face beacon
+        if (stage == 10) {
             motorLeft1.setPower(-1);
             motorLeft2.setPower(-1);
             motorRight1.setPower(.5);
             motorRight2.setPower(.5);
             //storing current gyro reading
             currentGyro = gyro.getHeading();
-            if (currentGyro <= (90 - offset)) {
+            if (currentGyro <= (80 - offset)) {
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
                 motorRight1.setPower(0);
@@ -370,65 +306,10 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
             }
         }
 
-        int highByte;
-        int lowByte;
-
-        //Get Prox Data
-        prox.refreshData();
-        highByte = prox.getHb();
-        lowByte = prox.getLb();
-
-        //Stage Case/IF loops
-        if (stage == 6) {
-            telemetry.addData("Prox", highByte);
-// Drive forward
-            powerRight(-0.27);
-            powerLeft(-0.2);
-            //Decides if its safe to throw climbers
-            if (highByte >= 9) {
-                //if the highByte is 9 you are close enough to the wall to throw
-                telemetry.addData("Text", "Throw Climbers");
-                stage = 7;
-            } else {
-                if (highByte <= 8) {
-                    //if the high byte is 8 you may not be close enough but, only if the low is greater than 150 throw climbers
-                    if (lastByte >= (lowByte - flux)) {//Otter didnt move much sincs last loop
-                        counter++;
-                        lastByte = lowByte;
-                        if (counter >= 100) {//checking how lomg Otters been stuck
-                            stage = 6;
-                        } else {
-                            stage = 6;
-                        }
-                    } else {//Otter is still moving
-                        counter = 0;
-                        stage = 6;
-                        lastByte = lowByte;
-                    }
 
 
-                }
-
-
-            }
-        }
-
-        if (stage == 7) {
-            //Sets motor power to zero and throws climbers
-            telemetry.addData("stage", stage);
-            powerLeft(0);
-            powerRight(0);
-            climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
-        }
-        if (stage == 8) {
-            //otter is stuck short of the beacon ,cannot throw so stop motors
-            powerLeft(0);
-            powerRight(0);
-            telemetry.addData("Text", "Stopping");
-        }
-
-
-        telemetry.addData("stage", String.valueOf(stage));
+        telemetry.addData("Gyro", currentGyro);
+        telemetry.addData("Stage", stage);
         telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
         telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
         telemetry.addData("white", String.valueOf(aboveWhiteLine()));
@@ -437,7 +318,7 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
     /*
      * Code to run when the op mode is first disabled goes here
      *
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop().
      */
 
     }
