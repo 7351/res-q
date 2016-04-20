@@ -27,7 +27,6 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.robocol.Telemetry;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -36,7 +35,7 @@ import com.qualcomm.robotcore.util.Range;
  * <p/>
  * Drive to the beacon red side
  */
-public class DriveToBeaconRed extends DriveTrainLayer {
+public class DriveToBeaconRed2 extends DriveTrainLayer {
 
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;

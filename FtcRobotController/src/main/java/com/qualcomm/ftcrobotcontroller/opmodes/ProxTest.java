@@ -22,8 +22,7 @@ public class ProxTest extends OpMode {
     DcMotor motorLeft2;
     Servo climbersServo;
     GyroSensor gyro;
-    //Intializing devices from the hardwareMap..
-    @Override
+    DriveForward(.5);
     public void init() {
         prox = new VCNL4010(hardwareMap, "prox");
         prox.setLEDSensitivity(20);
@@ -42,7 +41,7 @@ public class ProxTest extends OpMode {
 
     }//Declaring variables
 
-
+   double power;
     double powerLeft;
     double powerRight;
     double servoDelta = 0.01;
@@ -53,7 +52,12 @@ public class ProxTest extends OpMode {
     int counter = 0;
     int stage=0;
     int offset=12;
-
+public void DriveForward(){
+    motorRight1.setPower(.5);
+    motorRight2.setPower(.5);
+    motorLeft1.setPower(.5);
+    motorLeft2.setPower(.5);
+}
 
     //This method will loop until driver station stops it.
     public void loop() {
@@ -67,11 +71,12 @@ public class ProxTest extends OpMode {
        //Store gyro
         currentGyro = gyro.getHeading();
 //Stage Case/IF loops
+
         if (stage == 0){
             motorLeft1.setPower(-.25);
-           motorLeft2.setPower(-.25);
-           motorRight1.setPower(.25);
-           motorRight2.setPower(.25);
+            motorLeft2.setPower(-.25);
+            motorRight1.setPower(.25);
+            motorRight2.setPower(.25);
             if (currentGyro >= (180-offset)) {
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
