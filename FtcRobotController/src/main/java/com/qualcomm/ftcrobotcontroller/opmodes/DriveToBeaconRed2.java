@@ -442,6 +442,7 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
                 stage++;
             }
         }
+        //Drive to block other team
         if (stage == 19) {
             if (aboveWhiteLine()) {
                 motorLeft1.setPower(0);
