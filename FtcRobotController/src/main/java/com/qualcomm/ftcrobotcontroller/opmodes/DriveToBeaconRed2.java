@@ -469,7 +469,7 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
     /*
      * Code to run when the op mode is first disabled goes here
      *
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop().
      */
 
     }
