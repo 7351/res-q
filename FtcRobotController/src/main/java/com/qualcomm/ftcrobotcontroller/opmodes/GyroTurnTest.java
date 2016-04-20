@@ -24,12 +24,17 @@ public class GyroTurnTest extends DriveTrainLayer {
         return degree;
     }
 
-    public boolean isGyroInTolerance(int degree) {
+    private boolean isGyroInTolerance(int degree) {
         boolean returnValue = false;
         if ((gyro.getHeading() <= degree + TOLERANCE) && (gyro.getHeading() >= degree - TOLERANCE)) {
             returnValue = true;
         }
         return returnValue;
+    }
+
+    private double getDivisionNumber(int DegreesOff) {
+        double divisionNumber = (0.106382979 * DegreesOff) + 113.5;
+        return divisionNumber;
     }
 
     @Override
@@ -62,10 +67,11 @@ public class GyroTurnTest extends DriveTrainLayer {
                     stage++;
                 } if (!isGyroInTolerance(90)) {
                     final int TargetDegree = 180;
-                    final double DivisionNumber = 115;
+
                     int CurrentSpoofedDegree = spoofedZero(270); //An expected 39 gyro value from fake zero
                     if (!isGyroInTolerance(TargetDegree)) {
-                        double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
+                        int DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
+                        double DivisionNumber = getDivisionNumber(DegreesOff);
                         double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
                         powerLeft(RawPower);
                         powerRight(-RawPower);

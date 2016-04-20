@@ -78,6 +78,7 @@ public class FtcOpModeRegister implements OpModeRegister {
         manager.register("ProxTest", ProxTest.class);
         manager.register("GyroDriveTest", GyroDriveTest.class);
         manager.register("GyroTurnTest", GyroTurnTest.class);
+        manager.register("ClassMaskingTest", ClassMaskingTest.class);
 
     }
 }

@@ -10,7 +10,11 @@ import com.qualcomm.robotcore.util.Range;
 public class GyroDriveTest extends DriveTrainLayer {
     GyroSensor gyro;
     private int stage = 0;
-    private int targetDegrees = 0;
+    private int targetDegrees;
+
+    public GyroDriveTest(int desiredDegree) {
+        this.targetDegrees = desiredDegree;
+    }
 
     @Override
     public void init() {
@@ -38,7 +42,8 @@ public class GyroDriveTest extends DriveTrainLayer {
     }
 
     private double getDivideNumber(int CurrentDegreesOff) {
-        return (-0.66666666666667*(CurrentDegreesOff^2)) + (13*CurrentDegreesOff) - 43.333333333333;
+        double divideNumber = -0.5 * CurrentDegreesOff + 20;
+        return divideNumber;
     }
 
     @Override
@@ -51,7 +56,6 @@ public class GyroDriveTest extends DriveTrainLayer {
         if (stage == 1) {
 
             if (!gyro.isCalibrating()) {
-                int targetDegrees = 0;
                 int gyroDegree = spoofedZero(targetDegrees);
                 double leftStartPower = 1;
                 double rightStartPower = 1;
