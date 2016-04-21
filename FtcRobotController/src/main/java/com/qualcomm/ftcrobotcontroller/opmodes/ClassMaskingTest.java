@@ -7,22 +7,22 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
  */
 public class ClassMaskingTest extends OpMode {
     int targetDegree = 0;
-    GyroDriveTest gdt = new GyroDriveTest(targetDegree);
+    //GyroDriveTest gdt = new GyroDriveTest(targetDegree);
 
     @Override
     public void init() {
-        gdt.init();
+        //gdt.init();
 
     }
 
     @Override
     public void start() {
-        gdt.start();
+        //gdt.start();
     }
 
     @Override
     public void loop() {
-        gdt.loop();
+        //gdt.loop();
 
     }
 }
