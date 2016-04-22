@@ -147,11 +147,11 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
         }
 // drive out straight from wall
         if (stage == 1) {
-            motorRight1.setPower(-.4);
-            motorRight2.setPower(-.4);
-            motorLeft1.setPower(-.4);
-            motorLeft2.setPower(-.4);
-            if (manipTime.time() >= 0.3) {
+            motorRight1.setPower(.6);
+            motorRight2.setPower(.6);
+            motorLeft1.setPower(.6);
+            motorLeft2.setPower(.6);
+            if (manipTime.time() >= 0.4) {
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
                 motorLeft1.setPower(0);
@@ -168,14 +168,16 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
             motorRight1.setPower(-.5);
             motorRight2.setPower(-.5);
             currentGyro = gyro.getHeading();
+            telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
             //Until 311 degrees
-            if (currentGyro <= (311 - offset)) {
+            if (currentGyro >= (311 - offset) ) {
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
                 waitTime.reset();
-                stage ++;
+                stage = 99;
+
             }
         }
 
@@ -190,7 +192,7 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
                 motorRight2.setPower(0);
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
-                stage ++;
+                stage++;
                 waitTime.reset();
             }
         }
@@ -221,7 +223,7 @@ public class DriveToBeaconRed2 extends DriveTrainLayer {
                 motorRight2.setPower(0);
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
-                stage ++;
+                stage=99 ;
                 waitTime.reset();
 
             }
