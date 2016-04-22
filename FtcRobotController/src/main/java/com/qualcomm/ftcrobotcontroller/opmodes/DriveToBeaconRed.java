@@ -219,13 +219,13 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         prox.refreshData();
         highByte = prox.getHb();
         lowByte = prox.getLb();
-
+        //calibrate
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
                 manipTime.reset();
                 stage++;
             }
-        }
+        }//drive out
         if (stage == 1) {
             if (!gyro.isCalibrating()) {
                 driveLeft(0.6);
@@ -237,13 +237,13 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                     waitTime.reset();
                 }
             }
-        }
+        } //wait
         if (stage == 2) {
             if (waitTime.time() >= 0.5) {
                 manipTime.reset();
                 stage++;
             }
-        }
+        }// turn and drive to white line
         if (stage == 3) {
             if (aboveWhiteLine()) {
                 driveLeft(0);
@@ -258,14 +258,14 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 }
             }
 
-        }
+        }//wait
 
         if (stage == 4) {
             if (waitTime.time() >= 0.5) {
                 stage++;
                 manipTime.reset();
             }
-        }
+        }//find white line
         if (stage == 5) {
             if (!aboveWhiteLine()) {
                 driveLeft(-0.4);
@@ -298,16 +298,16 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 }
 
             }
-        }
+        }// wait
         if (stage == 8) {
             if (waitTime.time() >= 0.5) {
-                stage=11;   //Skipping stage 9 and 10 to match up with DriverToRedBeacon2
+                stage++;
                 manipTime.reset();
             }
         }
 
         //drive "forward" out of box
-        if (stage == 11) {
+        if (stage == 9) {
             motorLeft1.setPower(-.4);
             motorLeft2.setPower(-.4);
             motorRight1.setPower(-.4);
@@ -322,7 +322,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         //drive backwards
-        if (stage == 12) {
+        if (stage == 10) {
             if (aboveWhiteLine()) {
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
@@ -338,7 +338,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         // spin clockwise to straighten out
-        if (stage == 13) {
+        if (stage == 11) {
             motorLeft1.setPower(.3);
             motorLeft2.setPower(.3);
             motorRight1.setPower(-.6);
@@ -358,7 +358,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
 
         //Stage Case/IF loops
-        if (stage == 14) {
+        if (stage == 12) {
             telemetry.addData("Prox", highByte);
 // Drive forward
             motorRight1.setPower(-.2);
@@ -369,7 +369,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (highByte >= 9) {
                 //if the highByte is 9 you are close enough to the wall to throw
                 telemetry.addData("Text", "Throw Climbers");
-                stage=15; //Goto to stage 15 to throw climbers
+                stage=13; //Goto to stage 15 to throw climbers
             } else {
                 if (highByte <= 8) {
                     //if the high byte is 8 you may not be close enough but, only if the low is greater than 150 throw climbers
@@ -377,13 +377,13 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                         counter++;
                         lastByte = lowByte;
                         if (counter >= 100) {//checking how lomg Otters been stuck
-                            stage = 16;//abort skip the stage to throw climbers
+                            stage = 1;//abort skip the stage to throw climbers
                         } else {
-                            stage = 14;
+                            stage = 13;
                         }
                     } else {//Otter is still moving
                         counter = 0;
-                        stage = 14;//recheck
+                        stage = 12;//recheck
                         lastByte = lowByte;
                     }
 
@@ -394,7 +394,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
 
-        if (stage == 15) {
+        if (stage == 13) {
             //Sets motor power to zero and throws climbers
             motorLeft1.setPower(0);
             motorLeft2.setPower(0);
@@ -403,7 +403,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
             stage++;
         }
-        if (stage == 16) {
+        if (stage == 14) {
             //otter is stuck short of the beacon ,cannot throw so stop motors
             motorLeft1.setPower(0);
             motorLeft2.setPower(0);
@@ -412,7 +412,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             telemetry.addData("Text", "Stopping");
         }
         //Backup out of the beacon repair zone to prepare to play defense
-        if (stage == 17) {
+        if (stage == 15) {
             motorRight1.setPower(.4);
             motorRight2.setPower(.4);
             motorLeft1.setPower(.4);
@@ -427,7 +427,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         //Turn towards the blue beacon repair zone
-        if (stage == 18) {
+        if (stage == 16) {
             motorLeft1.setPower(-.6);
             motorLeft2.setPower(-.6 );
             motorRight1.setPower(.3);
@@ -445,7 +445,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         //Drive to block other team
-        if (stage == 19) {
+        if (stage == 17) {
             if (aboveWhiteLine()) {
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
