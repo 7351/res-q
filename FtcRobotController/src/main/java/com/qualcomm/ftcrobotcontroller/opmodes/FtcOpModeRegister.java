@@ -68,17 +68,14 @@ public class FtcOpModeRegister implements OpModeRegister {
         manager.register("ClimbersRed", DriveToBeaconRed.class);
         manager.register("ClimbersBlue", DriveToBeaconBlue.class);
         manager.register("Autonomous", Autonomous.class);
-         manager.register("DriveToBeaconRed", DriveToBeaconRed.class);
-        manager.register("DriveToBeaconRed2", DriveToBeaconRed2.class);
 
     /*
 	 * Some testing op modes
 	 */
 
-        manager.register("ProxTest", ProxTest.class);
-        manager.register("GyroDriveTest", GyroDriveTest.class);
-        manager.register("GyroTurnTest", GyroTurnTest.class);
-        manager.register("ClassMaskingTest", ClassMaskingTest.class);
+        //manager.register("ProxTest", ProxTest.class);
+        //manager.register("GyroDriveTest", GyroDriveTest.class);
+        //manager.register("GyroTurnTest", GyroTurnTest.class);
 
     }
 }
