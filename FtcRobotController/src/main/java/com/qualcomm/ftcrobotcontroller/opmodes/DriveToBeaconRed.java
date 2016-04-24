@@ -414,14 +414,14 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
         //Throws climbers
         if (stage == 16) {
-            if (waitTime.time() < 1) {
+            if (waitTime.time() > 0.3 && waitTime.time() < 4.5) {
                 if (servotime.time() > servoDelayTime2) {
                     climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
                     servotime.reset();
                 }
-                if (climbersServo.getPosition()==11 ){
-                    stage++;
-                }
+            } if (waitTime.time() > 1.5) {
+                climbersServo.setPosition(0);
+                stage++;
             }
 
         }
