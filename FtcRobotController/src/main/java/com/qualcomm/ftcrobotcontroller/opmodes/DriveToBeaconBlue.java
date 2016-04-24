@@ -92,7 +92,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
             double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
             if (DegreesOff < 10) {
-                RawPower += 0.1;
+                RawPower += 0.2;
             }
             powerLeft(-RawPower);
             powerRight(RawPower);
@@ -123,7 +123,6 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             } if (power < 0) {
                 leftStartPower = Range.clip(1 + subtractivePower, -1, 1);
             }
-
         }
 
         if (gyroDegree >= 270 && gyroDegree < 360) {
@@ -135,7 +134,6 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
             } if (power < 0) {
                 rightStartPower = Range.clip(1 + subtractivePower, -1, 1);
             }
-
         }
 
         powerRight(rightStartPower);
