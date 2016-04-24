@@ -212,6 +212,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
          * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#run()
          */
     @Override
+    //LoopStart Phase1
     public void loop() {
         int highByte;
         int lowByte;
@@ -244,6 +245,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (stage == 2) {
             if (waitTime.time() >= 0.5) {
                 manipTime.reset();
+                waitTime.reset();
                 stage++;
             }
         }
@@ -259,21 +261,38 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                     double RateOfDepression = -0.015;
                     double power = (RateOfDepression * manipTime.time()) + 1;
                     driveOnHeading(324, power);
-                    whiteCounter++;
+                    telemetry.addData("Hit the wall?", waitTime.time());
+                    DbgLog.msg("Hit the wall?", waitTime.time());
                     //failsafe for missing white
-                    DbgLog.msg("Hit wall whiteCount is:", whiteCounter);
-                    telemetry.addData("Hit wall whiteCount is:", whiteCounter);
-                    if (whiteCounter==50000) {
-                        DbgLog.msg("Hit wall whiteCount is:", whiteCounter);
-                        telemetry.addData("Hit wall whiteCount is:", whiteCounter);
-                        stage=999;
+                    DbgLog.msg("Hit wall check.  Wait time is:", waitTime.time());
+                    //Check to set if Otter has been searching for the white line too long
+                    if (waitTime.time()>=5){
+                        telemetry.addData("Hit the wall?", waitTime.time());
+                        DbgLog.msg("Hit the wall?", waitTime.time());
+                        stage=103; //Stage to try to recovery
                     }
                 }
             }
         }
 
+        if (stage == 103) {
+            if (aboveWhiteLine()) {
+                driveLeft(0);
+                driveRight(0);
+                stage=6;
+            }
+            if (!aboveWhiteLine()) {
+                if (!gyro.isCalibrating()) {
+                    driveOnHeading(320, -0.5);
+                    //failsafe for missing white
+                    DbgLog.msg("Hit wall check.  Wait time is:", waitTime.time());
+                    //Check to set if Otter has been searching for the white line too long
 
-        //Pause for .5 seconds to stop and stablize
+                }
+            }
+        }
+
+        //Pause for .5 seconds to stop and stabilize
         if (stage == 4) {
             if (waitTime.time() >= 0.5) {
                 stage++;
@@ -285,7 +304,9 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (!aboveWhiteLine()) {
                 driveLeft(-0.4);
                 driveRight(-0.4);
-            }
+
+                }
+
             if (aboveWhiteLine()) {
                 driveLeft(0);
                 driveRight(0);
@@ -301,7 +322,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 manipTime.reset();
             }
         }
-
+        //Phase2
         //Turning Otter around to 90 degrees to prep for climbers
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
@@ -313,19 +334,16 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                     powerRight(0);
                     stage++;
                 }
-
             }
         }
         if (stage == 8) {
             if (waitTime.time() >= 0.5) {
-                stage = 14;
+                stage++;
                 manipTime.reset();
             }
         }
-
-
         //Prox sensor stages
-        if (stage == 14) {
+        if (stage == 9) {
            // Drive forward
             driveOnHeading(270, -0.25);
             //Decides if its safe to throw climbers
@@ -373,9 +391,8 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 climbersServo.setPosition(0);
                 stage++;
             }
-
         }
-
+        //Phase3
         //Backup out of the beacon repair zone to prepare to got mountain
         if (stage == 17) {
             if (waitTime.time() < 3.0) {
@@ -388,7 +405,6 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 waitTime.reset();
                 manipTime.reset();
                 stage++;
-
             }
         }
         //Turn #1 towards the red ramp on the blue side (Defense and points
@@ -404,7 +420,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
                 telemetry.addData("Gyro", gyro.rawZ());
-                DbgLog.msg("Gyro", gyro.rawZ() );
+                DbgLog.msg("Gyro", gyro.rawZ());
                 stage++;
             }
         }
@@ -426,7 +442,46 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 stage++;
             }
         }
-        ///Debug stage to stop
+        //Code for driving to blue beacon and blocking for defense
+        if (stage == 51) {
+            double driveOutTime = 0.5;
+            if (manipTime.time() > driveOutTime) {
+                powerLeft(0);
+                powerRight(0);
+                waitTime.reset();
+                stage++;
+            } if (manipTime.time() < driveOutTime) {
+                    driveOnHeading(90);
+            }
+        }
+
+        if (stage == 52) {
+            if (waitTime.time() > 0.25) {
+                manipTime.reset();
+                stage++;
+            }
+        }
+        if (stage == 53) {
+                if (isGyroInTolerance2(0)) {
+                    powerLeft(0);
+                    powerRight(0);
+                    waitTime.reset();
+                    stage++;
+                } if (!isGyroInTolerance2(0)) {
+                    rotateUsingSpoofed(180, 270, 162, "counterclockwise");
+                }
+
+            }
+
+         if (stage == 54) {
+            if (waitTime.time() > 0.25) {
+                manipTime.reset();
+                stage++;
+            }
+        }
+
+
+               ///Debug stage to stop
         if (stage == 999) {
             //otter is stuck short of the beacon ,cannot throw so stop motors
             powerLeft(0);
