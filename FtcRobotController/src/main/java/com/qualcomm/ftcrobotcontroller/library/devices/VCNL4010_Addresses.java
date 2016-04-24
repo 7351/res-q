@@ -11,8 +11,9 @@ public final class VCNL4010_Addresses {
     public final static int IRLED = 0x83;
     public final static int AMBIENTPARAMETER = 0x84;
     public final static int AMBIENTDATA = 0x85;
+    public final static int AMBIENTDATA2 = 0x86;
     public final static int PROXIMITYDATA = 0x87;
-    public final static int PROXIMITYDATALOW = 0x87;
+    public final static int PROXIMITYDATALOW = 0x88;
     public final static int INTCONTROL = 0x89;
     public final static int PROXINITYADJUST = 0x8A;
     public final static int INTSTAT = 0x8E;

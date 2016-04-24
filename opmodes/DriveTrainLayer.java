@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, 2015 Qualcomm Technologies Inc
+/* Copyright (c) 2014 Qualcomm Technologies Inc
 
 All rights reserved.
 
@@ -31,51 +31,74 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
-import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 /**
- * Register Op Modes
+ * DriveTrainLayer program
+ * <p>
+ * All programs share the drive train in common, why not unify it?
  */
-public class FtcOpModeRegister implements OpModeRegister {
+public class DriveTrainLayer extends OpMode {
 
-    /**
-     * The Op Mode Manager will call this method when it wants a list of all
-     * available op modes. Add your op mode to the list to enable it.
+    // Left drive train motors
+    DcMotor motorLeft1;
+    DcMotor motorLeft2;
+
+    // Right drive train motors
+    DcMotor motorRight1;
+    DcMotor motorRight2;
+
+
+    /*
+     * Code to run when the op mode is initialized goes here
      *
-     * @param manager op mode manager
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#init()
      */
+    @Override
+    public void init() {
 
-    public void register(OpModeManager manager) {
+        // Get motors from configuration file
+        // Reverse Right motors
 
-    /*
-     * register your op modes here.
-     * The first parameter is the name of the op mode
-     * The second parameter is the op mode class property
-     *
-     * If two or more op modes are registered with the same name, the app will display an error.
-     */
+        motorLeft1 = hardwareMap.dcMotor.get("motorleft1");
+        motorLeft2 = hardwareMap.dcMotor.get("motorleft2");
+        motorRight1 = hardwareMap.dcMotor.get("motorright1");
+        motorRight2 = hardwareMap.dcMotor.get("motorright2");
 
-        // Removed Qualcomm's code, view on the github provided by them.
-
-    /*
-     * The TeleOpDouble op mode
-	 */
-        manager.register("Empty", EmptyOp.class);
-        manager.register("TeleOpDouble", TeleOpDouble.class);
-        manager.register("TeleOpDemoRobot", TeleOpDemoRobot.class);
-        //manager.register("GyroTest", GyroTest.class);
-        manager.register("ClimbersRed", DriveToBeaconRed.class);
-        manager.register("ClimbersBlue", DriveToBeaconBlue.class);
-        manager.register("Autonomous", Autonomous.class);
-
-    /*
-	 * Some testing op modes
-	 */
-
-        //manager.register("ProxTest", ProxTest.class);
-        //manager.register("GyroDriveTest", GyroDriveTest.class);
-        //manager.register("GyroTurnTest", GyroTurnTest.class);
 
     }
+
+    @Deprecated
+    public void driveLeft(double powerLeft) {
+        motorLeft1.setPower(powerLeft);
+        motorLeft2.setPower(powerLeft);
+    }
+
+    @Deprecated
+    public void driveRight(double powerRight) {
+        motorRight1.setPower(powerRight);
+        motorRight2.setPower(powerRight);
+    }
+
+    public void powerLeft(double power) {
+        motorRight1.setPower(power);
+        motorRight2.setPower(power);
+    }
+
+    public void powerRight(double power) {
+        motorLeft1.setPower(power);
+        motorLeft2.setPower(power);
+    }
+
+    /*
+    These methods are unused...
+     */
+    @Override
+    public void loop() {}
+    @Override
+    public void stop() {}
+
+
+
 }

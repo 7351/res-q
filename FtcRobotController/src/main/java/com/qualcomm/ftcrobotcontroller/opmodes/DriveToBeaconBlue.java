@@ -150,6 +150,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
     double servoPosition = restingPosition;
 
 
+
     /*
      * Code to run when the op mode is initialized goes here
      *
@@ -179,6 +180,10 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
         rightAngelArm = hardwareMap.servo.get("rightAngelArm");
 
     }
+
+    int lastByte = -1;
+    int flux = 10;
+    int counter = 0;
 
     @Override
     public void start() {
@@ -284,6 +289,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
                 manipTime.reset();
             }
         }
+        /*
         if (stage == 9) {
             if (manipTime.time() < 0.5) {
                 driveOnHeading(90, -1);
@@ -293,10 +299,67 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
                 stage++;
             }
         } if (stage == 10) {
+
+        }*/
+
+        int highByte;
+        int lowByte;
+
+        //Get Prox Data
+        prox.refreshData();
+        highByte = prox.getHb();
+        lowByte = prox.getLb();
+
+        if (stage == 9) {
+            driveOnHeading(90, -0.4);
+            //Decides if its safe to throw climbers
+            if (highByte >= 9) {
+                //if the highByte is 9 you are close enough to the wall to throw
+                telemetry.addData("Text", "Throw Climbers");
+                stage++;
+                servotime.reset();
+            } else {
+                if (highByte == 8 && lowByte >= 150) {
+                    //if the high byte is 8 you may not be close enough but, only if the low is greater than 150 throw climbers
+                    driveOnHeading(90, -0.4);
+                    if (lastByte >= (lowByte - flux)) {//Otter didnt move much sincs last loop
+                        counter++;
+                        lastByte = lowByte;
+                        if (counter >= 100) {//checking how lomg Otters been stuck
+                            stage = 11;
+                        } else {
+                            driveOnHeading(90, -0.4);
+                        }
+                    } else {//Otter is still moving
+                        counter = 0;
+                        driveOnHeading(90, -0.4);
+                        lastByte = lowByte;
+                    }
+
+
+                } else {
+                    driveOnHeading(90, -0.4);
+                }
+            }
+        }
+
+
+
+        if (stage == 10) {
+            //Sets motor power to zero and throws climbers
+            powerLeft(0);
+            powerRight(0);
             if (servotime.time() > servoDelayTime2) {
                 climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
                 servotime.reset();
             }
+            //climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
+        }
+        if (stage == 11) {
+            //otter is stuck short of the beacon ,cannot throw so stop motors
+            powerLeft(0);
+            powerRight(0);
+            telemetry.addData("Text","Stopping");
         }
 
         telemetry.addData("stage", String.valueOf(stage));

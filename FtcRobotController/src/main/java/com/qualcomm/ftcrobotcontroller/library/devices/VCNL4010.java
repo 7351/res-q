@@ -13,7 +13,7 @@ public class VCNL4010 {
     int lb;
     int distance;
     int prox;
-
+    
     public VCNL4010(HardwareMap hardwareMap, String devName) {
         pr = new Wire(hardwareMap, devName, 2 * VCNL4010_Addresses.I2CADDR_DEFAULT);
     }
@@ -22,26 +22,28 @@ public class VCNL4010 {
         pr = new Wire(hardwareMap, devName, address);
     }
 
-    public int convertProxToDistance() {
-        pr.beginWrite(VCNL4010_Addresses.COMMAND);
-        pr.write(VCNL4010_Addresses.MEASUREPROXIMITY);
-        pr.endWrite();
+    public int getHb() {
+        return hb;
+    }
 
-        pr.requestFrom(VCNL4010_Addresses.PROXIMITYDATA, 2);
-        if (pr.responseCount() > 0) {
-            pr.getResponse();
-            if (pr.isRead()) {
-                hb = pr.read();
-                lb = pr.read();
+    public int getLb() {
+        return lb;
+    }
+
+    public void refreshData() {
+            pr.beginWrite(VCNL4010_Addresses.COMMAND);
+            pr.write(VCNL4010_Addresses.MEASUREPROXIMITY);
+            pr.endWrite();
+            pr.requestFrom(VCNL4010_Addresses.PROXIMITYDATA, 2);
+            if (pr.responseCount() > 0) {
+                pr.getResponse();
+                if (pr.isRead()) {
+                    hb = pr.read();
+                    lb = pr.read();
+                }
             }
         }
 
-        data = (hb << 8);
-        data |= lb;
-
-        int prox_mm = VCNL4010_Addresses.dx / (data - VCNL4010_Addresses.dy) + 50;
-        return prox_mm;
-    }
 
     public void setProxRate(int proxRate) {
         pr.beginWrite(VCNL4010_Addresses.PROXRATE);
@@ -57,5 +59,8 @@ public class VCNL4010 {
 
     public void close() {
         pr.close();
+    }
+
+    public void beginWrite(int command) {
     }
 }
