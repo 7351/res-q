@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 /*
@@ -54,23 +53,22 @@ public class MainActivity extends AppCompatActivity {
     public final static String[] KEY_LIST = {
             "redMode", // true = Red alliance; false = Blue alliance
             "delay", // Time in seconds before match starts // int
-            "targetGoal", // Where should the robot head to? // brz, fg, or mnt
-            "startingPos", // Where is the robot located during start
-            "proxValMin" // How far away should the robot be? // int
+            "targetGoal", // Where should the robot head to? // brz, fg
+            "startingPos", // Where is the robot located during start // 0 - close 1 - far
+            "defenseTarget" // where should we defende at, or no defense // String no - no defense | beacon - defend at beacon | mnt - defend at mountain
     };
     private static final String TAG = MainActivity.class.getName();
     RadioButton redAlliance;
     RadioButton blueAlliance;
     RadioButton closeToMountainButton;
     RadioButton farFromMountainButton;
+    RadioButton noDefense;
+    RadioButton beaconDefense;
+    RadioButton mountainDefense;
     EditText delayTimeEditText;
     RadioButton floorGoalRadioButton;
     RadioButton beaconRepairZoneRadioButton;
-    RadioButton mountainGoalRadioButton;
     Button updateButton;
-    RadioGroup allianceGroup;
-    RadioGroup goalGroup;
-    EditText proxValueEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,17 +85,16 @@ public class MainActivity extends AppCompatActivity {
 
         updateButton = (Button) findViewById(R.id.updateButton);
 
-        allianceGroup = (RadioGroup) findViewById(R.id.allianceGroup);
-        goalGroup = (RadioGroup) findViewById(R.id.goalGroup);
-
-        proxValueEditText = (EditText) findViewById(R.id.proxValueEditText);
-
-        mountainGoalRadioButton = (RadioButton) findViewById(R.id.mountainGoalRadioButton);
-
         closeToMountainButton = (RadioButton) findViewById(R.id.closeToMountainRadioButton);
         farFromMountainButton = (RadioButton) findViewById(R.id.farFromMountainRadioButton);
 
+        noDefense = (RadioButton) findViewById(R.id.noDefense);
+        mountainDefense = (RadioButton) findViewById(R.id.mountainDefense);
+        beaconDefense = (RadioButton) findViewById(R.id.beaconDefense);
+
     }
+
+
 
     public void onUpdateButtonPressed(View view) {
         SharedPreferences pref = getApplicationContext().getSharedPreferences(FILENAMEPREF, Context.MODE_WORLD_READABLE);
@@ -121,13 +118,6 @@ public class MainActivity extends AppCompatActivity {
         if (beaconRepairZoneRadioButton.isChecked()) {
             editor.putString(KEY_LIST[2], "brz");
         }
-        if (mountainGoalRadioButton.isChecked()) {
-            editor.putString(KEY_LIST[2], "mnt");
-        }
-
-        int proxValueInt = Integer.parseInt(proxValueEditText.getText().toString());
-
-        editor.putInt(KEY_LIST[4], proxValueInt);
 
         int distanceCode = 0;
 
@@ -139,6 +129,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         editor.putInt(KEY_LIST[3], distanceCode);
+
+        String defenseTarget = "no";
+
+        if (noDefense.isChecked()) {
+            defenseTarget = "no";
+        } if (mountainDefense.isChecked()) {
+            defenseTarget = "mnt";
+        } if (beaconDefense.isChecked()) {
+            defenseTarget = "beacon";
+        }
+
+        editor.putString(KEY_LIST[4], defenseTarget);
 
         editor.apply();
 

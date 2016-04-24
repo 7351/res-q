@@ -33,7 +33,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Red"
-                android:textSize="@dimen/abc_text_size_medium_material" />
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:checked="true" />
 
             <RadioButton
                 android:id="@+id/blue"
@@ -95,17 +96,10 @@
                 android:id="@+id/beaconRepairZoneRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="false"
                 android:text="Beacon repair zone"
-                android:textSize="@dimen/abc_text_size_medium_material" />
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:checked="false" />
 
-            <RadioButton
-                android:id="@+id/mountainGoalRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="Mountain"
-                android:textSize="@dimen/abc_text_size_medium_material" />
         </RadioGroup>
 
         <View
@@ -151,20 +145,41 @@
             android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
             android:background="@color/primary_dark_material_dark" />
 
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Prox value minimum"
-            android:textSize="@dimen/abc_text_size_title_material"/>
-
-        <EditText
-            android:id="@+id/proxValueEditText"
+        <RadioGroup
+            android:id="@+id/defenseGroup"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:gravity="center_horizontal"
-            android:inputType="numberDecimal|numberSigned"
-            android:text="3" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Defense?"
+                android:textSize="@dimen/abc_text_size_title_material" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="No defense"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:id="@+id/noDefense" />
+
+            <RadioButton
+                android:id="@+id/beaconDefense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Opponents beacon defense"
+                android:textSize="@dimen/abc_text_size_medium_material" />
+
+            <RadioButton
+                android:id="@+id/mountainDefense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Mountain defense"
+                android:textSize="@dimen/abc_text_size_medium_material" />
+        </RadioGroup>
 
         <View
             android:layout_width="fill_parent"
@@ -172,6 +187,7 @@
             android:layout_marginBottom="@dimen/abc_button_padding_vertical_material"
             android:layout_marginTop="@dimen/abc_button_padding_vertical_material"
             android:background="@color/primary_dark_material_dark" />
+
 
         <Button
             android:id="@+id/updateButton"
