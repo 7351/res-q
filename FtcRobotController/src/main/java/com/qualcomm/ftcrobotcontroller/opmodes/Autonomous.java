@@ -243,10 +243,8 @@ public class Autonomous extends DriveTrainLayer {
                                 DbgLog.msg("Reached degree of: " + String.valueOf(gyro.getHeading()) + ", Time of: " + startTime.time());
                                 waitTime.reset();
                             }
-
                         }
                     }
-
                 }
             }
             if (!redMode) {

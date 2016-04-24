@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
 import com.qualcomm.ftccommon.DbgLog;
-import com.qualcomm.ftcrobotcontroller.ApplicationContextProvider;
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -22,7 +22,7 @@ public abstract class DASLayer extends DriveTrainLayer {
 
         SharedPreferences pref = null;
         try {
-            Context con = ApplicationContextProvider.getContext().createPackageContext("tk.leoforney.dynamicchooser", 0);
+            Context con = FtcRobotControllerActivity.getContext().createPackageContext("tk.leoforney.dynamicchooser", 0);
             pref = con.getSharedPreferences(FILENAMEPREF, Context.MODE_PRIVATE);
         } catch (PackageManager.NameNotFoundException e) {
             DbgLog.error(e.toString());
