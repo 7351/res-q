@@ -19,7 +19,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
     GyroSensor gyro;
-    int stage = 0;
+    int stage = 15;
     ElapsedTime manipTime = new ElapsedTime();
     ElapsedTime waitTime = new ElapsedTime();
     ElapsedTime startTime = new ElapsedTime();
@@ -70,7 +70,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
             double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
             if (DegreesOff < 10) {
-                RawPower += 0.1;
+                RawPower += 0.2;
             }
             powerLeft(-RawPower);
             powerRight(RawPower);
@@ -199,6 +199,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
     int flux = 10;
     int counter = 0;
     int offset = 15;
+    int whiteCounter=1;
 
     /*
          * This method will be called repeatedly in a loop
@@ -211,9 +212,9 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         int lowByte;
 
         //Get Prox Data
-      //  prox.refreshData();
-      //  highByte = prox.getHb();
-      //  lowByte = prox.getLb();
+        prox.refreshData();
+        highByte = prox.getHb();
+        lowByte = prox.getLb();
 
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
@@ -249,11 +250,21 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 if (!gyro.isCalibrating()) {
                     double RateOfDepression = -0.015;
                     double power = (RateOfDepression * manipTime.time()) + 1;
-                    driveOnHeading(325, power);
+                    driveOnHeading(324, power);
+                    whiteCounter++;
+                    //failsafe for missing white
+                    DbgLog.msg("Hit wall whiteCount is:", whiteCounter);
+                    telemetry.addData("Hit wall whiteCount is:", whiteCounter);
+                    if (whiteCounter==50000) {
+                        DbgLog.msg("Hit wall whiteCount is:", whiteCounter);
+                        telemetry.addData("Hit wall whiteCount is:", whiteCounter);
+                        stage=999;
+                    }
+                    }
                 }
             }
 
-        }
+
 
         if (stage == 4) {
             if (waitTime.time() >= 0.5) {
@@ -265,7 +276,8 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (!aboveWhiteLine()) {
                 driveLeft(-0.4);
                 driveRight(-0.4);
-            } if (aboveWhiteLine()) {
+            }
+            if (aboveWhiteLine()) {
                 driveLeft(0);
                 driveRight(0);
                 stage++;
@@ -286,7 +298,8 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (!gyro.isCalibrating()) {
                 if (!isGyroInTolerance2(90)) {
                     rotateUsingSpoofed(270, 180, 162);
-                } if (isGyroInTolerance2(90)) {
+                }
+                if (isGyroInTolerance2(90)) {
                     powerLeft(0);
                     powerRight(0);
                     stage++;
@@ -296,7 +309,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
         if (stage == 8) {
             if (waitTime.time() >= 0.5) {
-                stage=14;   //Skipping stage 9 and 10 to match up with DriverToRedBeacon2
+                stage = 14;   //Skipping stage 9 and 10 to match up with DriverToRedBeacon2
                 manipTime.reset();
             }
         }
@@ -312,7 +325,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 motorRight2.setPower(0);
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
-                stage ++;
+                stage++;
                 waitTime.reset();
             }
         }
@@ -323,7 +336,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 motorLeft2.setPower(0);
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
-                stage ++;
+                stage++;
             }
             if (!aboveWhiteLine()) {
                 motorLeft1.setPower(0.2);
@@ -366,7 +379,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (highByte >= 9 || (highByte == 8 && lowByte >= 200)) {
                 //if the highByte is 9 you are close enough to the wall to throw
                 telemetry.addData("Text", "Throw Climbers");
-                stage=15; //Goto to stage 15 to throw climbers
+                stage = 15; //Goto to stage 15 to throw climbers
             } else {
                 if (highByte <= 8) {
                     //if the high byte is 8 you may not be close enough but, only if the low is greater than 150 throw climbers
@@ -374,7 +387,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                         counter++;
                         lastByte = lowByte;
                         if (counter >= 100) {//checking how lomg Otters been stuck
-                            stage = 999;//abort skip the stage to throw climbers
+                            stage = 18;//abort skip the stage to throw climbers
                         } else {
                             stage = 14;
                         }
@@ -394,105 +407,138 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (stage == 15) {
             //Sets motor power to zero and throws climbers
             powerRight(0);
-            powerLeft(0);
-            DbgLog.msg("Attempted to throw climbers :)");
-            stage++;
             manipTime.reset();
+            waitTime.reset();
+            stage++;
         }
+
+        //Throws climbers
         if (stage == 16) {
-            if (manipTime.time() < 0.2) {
-                driveOnHeading(270, -0.25);
-            } if (manipTime.time() > 0.2) {
-                powerLeft(0);
-                powerRight(0);
-                waitTime.reset();
-                stage++;
-            }
-        }
-        if (stage == 17) {
-            if (waitTime.time() > 0.3) {
+            if (waitTime.time() < 1) {
                 if (servotime.time() > servoDelayTime2) {
                     climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
                     servotime.reset();
-                    stage++;
                 }
+           if (climbersServo.getPosition()==11 ){
+               stage++;
+           }
             }
 
         }
-        if (stage == 999) {
-            //otter is stuck short of the beacon ,cannot throw so stop motors
-            powerLeft(0);
-            powerRight(0);
-            telemetry.addData("Status", "Stopping");
-        }
-        //Backup out of the beacon repair zone to prepare to play defense
+           //Puts swosh in resting position
+            if (stage == 17) {
+                climbersServo.setPosition(0);
+                stage = 917;
+                    }
+
+        //Backup out of the beacon repair zone to prepare to got mountain
         if (stage == 18) {
-            if (manipTime.time() < 0.3) {
-                powerLeft(0.4);
-                powerRight(0.4);
+            if (waitTime.time() < 3.0) {
+                powerLeft(0.7);
+                powerRight(0.7);
             }
-            if (manipTime.time() >= 0.3) {
+            if (waitTime.time() >= 3.0) {
                 powerLeft(0);
                 powerRight(0);
                 stage++;
                 waitTime.reset();
+                manipTime.reset();
+
             }
         }
-        //Turn towards the blue beacon repair zone
+        //Turn #1 towards the blue beacon repair zone
         if (stage == 19) {
-            currentGyro = gyro.getHeading();
-            motorLeft1.setPower(-.25);
-            motorLeft2.setPower(-.25);
-            motorRight1.setPower(.25);
-            motorRight2.setPower(.25);
-            if (currentGyro >= (30)) {
-                motorLeft1.setPower(0);
-                motorLeft2.setPower(0);
-                motorRight1.setPower(0);
-                motorRight2.setPower(0);
-                telemetry.addData("Gyro" , currentGyro);
+            if (!gyro.isCalibrating()) {
+                double RateOfDepression = -0.015;
+                double power = (RateOfDepression * manipTime.time()) + 1;
+                driveOnHeading(72, power);
             }
-        }
+                    if (waitTime.time() >= 2) {
+                        motorLeft1.setPower(0);
+                        motorLeft2.setPower(0);
+                        motorRight1.setPower(0);
+                        motorRight2.setPower(0);
+                        telemetry.addData("Gyro", gyro.rawZ());
+                        DbgLog.msg("Gyro", gyro.rawZ() );
 
-        //Drive to block other team
+                        stage=919;
+                    }
+        }
+        //
         if (stage == 20) {
-            if (aboveWhiteLine()) {
+            if (!gyro.isCalibrating()) {
+                double RateOfDepression = -0.015;
+                double power = (RateOfDepression * manipTime.time()) + 1;
+                driveOnHeading(78, power);
+            }
+            if (waitTime.time() >= 5.5) {
                 motorLeft1.setPower(0);
                 motorLeft2.setPower(0);
                 motorRight1.setPower(0);
                 motorRight2.setPower(0);
-                stage++;
+                telemetry.addData("Gyro", gyro.rawZ());
+                DbgLog.msg("Gyro", gyro.rawZ());
+                telemetry.addData("Gyro", gyro.rawZ());
+                stage=920;
             }
-            if (!aboveWhiteLine()) {
-                motorLeft1.setPower(0.7);
-                motorLeft2.setPower(0.7);
-                motorRight1.setPower(0.7);
-                motorRight2.setPower(0.7);
+
+
+
+        }
+            if (stage==20) {
+                if (waitTime.time() >= 0.2) {
+                    manipTime.reset();
+                    stage++;
+                }
             }
+           if (stage==21) {
+               driveOnHeading(90);
+               motorLeft1.setPower(-.25);
+               motorLeft2.setPower(-.25);
+               motorRight1.setPower(.25);
+               motorRight2.setPower(.25);
+               if (waitTime.time() >= 2.5) {
+                   motorLeft1.setPower(0);
+                   motorLeft2.setPower(0);
+                   motorRight1.setPower(0);
+                   motorRight2.setPower(0);
+                   telemetry.addData("Gyro", currentGyro);
+               }
+
+           }
+
+            ///Debug stage to stop
+            if (stage == 999) {
+                //otter is stuck short of the beacon ,cannot throw so stop motors
+                powerLeft(0);
+                powerRight(0);
+                telemetry.addData("Status", "Stopping");
+            }
+
+
+            if (stage >= 1 && stage <= 5) {
+                intakeMotor.setPower(1);
+            }
+            if (stage > 5) {
+                intakeMotor.setPower(0);
+            }
+
+            double leftBumperRest = 0.7,
+                    leftBumperTilt = 0.35,
+                    rightBumperRest = 0.2,
+                    rightBumperTilt = 0.575;
+
+            LBumper.setPosition(leftBumperRest);
+            RBumper.setPosition(rightBumperRest);
+
+            telemetry.addData("Gyro", gyro.rawZ());
+            telemetry.addData("stage", String.valueOf(stage));
+            telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
+            telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
+            //telemetry.addData("white", String.valueOf(aboveWhiteLine()));
+            telemetry.addData("Prox", String.valueOf("hb: " + prox.getHb() + ", lb: " + prox.getLb()));
+
         }
-
-        if (stage >= 1 && stage <= 5) {
-            intakeMotor.setPower(1);
-        } if (stage > 5) {
-            intakeMotor.setPower(0);
-        }
-
-        double leftBumperRest = 0.7,
-                leftBumperTilt = 0.35,
-                rightBumperRest = 0.2,
-                rightBumperTilt = 0.575;
-
-        LBumper.setPosition(leftBumperRest);
-        RBumper.setPosition(rightBumperRest);
-
-
-
-        telemetry.addData("stage", String.valueOf(stage));
-        telemetry.addData("motor", String.valueOf(motorRight1.getPower()));
-        telemetry.addData("gyro", String.valueOf(gyro.getHeading()));
-        //telemetry.addData("white", String.valueOf(aboveWhiteLine()));
-     //   telemetry.addData("Prox", String.valueOf("hb: " + prox.getHb() + ", lb: " + prox.getLb()));
-    }
 
     /*
      * Code to run when the op mode is first disabled goes here
