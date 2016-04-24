@@ -110,7 +110,7 @@ public class TeleOpDouble extends DriveTrainLayer {
          */
 
         LeftRightServo.setPosition(0.45);
-        UpDownServo.setPosition(0.97);
+        UpDownServo.setPosition(.7);
 
     }
 
