@@ -19,7 +19,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
     GyroSensor gyro;
-    int stage = 15;
+    int stage = 0;
     ElapsedTime manipTime = new ElapsedTime();
     ElapsedTime waitTime = new ElapsedTime();
     ElapsedTime startTime = new ElapsedTime();
@@ -64,7 +64,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
         return degree;
     }
-    private void rotateUsingSpoofed(int ZeroDegree, int TargetDegree, double DivisionNumber) {
+    private void rotateUsingSpoofed(int ZeroDegree, int TargetDegree, double DivisionNumber, String RotationMode) {
         int CurrentSpoofedDegree = spoofedZero(ZeroDegree); //An expected 39 gyro value from fake zero
         if (!isGyroInTolerance(TargetDegree)) {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
@@ -72,8 +72,16 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             if (DegreesOff < 10) {
                 RawPower += 0.2;
             }
-            powerLeft(-RawPower);
-            powerRight(RawPower);
+            if (RotationMode.equals("clockwise")) {
+                powerLeft(RawPower);
+                powerRight(-RawPower);
+            } if (RotationMode.equals("counterclockwise")) {
+                powerLeft(-RawPower);
+                powerRight(RawPower);
+            } else {
+                DbgLog.error("Program will not go on, rotation mode isn't specified");
+            }
+
         }
 
 
@@ -160,7 +168,6 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
         gyro = hardwareMap.gyroSensor.get("gyro");
         lineColorSensor.enableLed(false);
-        gyro.calibrate();
 
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
 
@@ -194,11 +201,9 @@ public class DriveToBeaconRed extends DriveTrainLayer {
     }
 
     //int out of the loop
-    int currentGyro;
     int lastByte = -1;
     int flux = 10;
     int counter = 0;
-    int offset = 15;
     int whiteCounter=1;
 
     /*
@@ -301,7 +306,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
                 if (!isGyroInTolerance2(90)) {
-                    rotateUsingSpoofed(270, 180, 162);
+                    rotateUsingSpoofed(270, 180, 162, "clockwise");
                 }
                 if (isGyroInTolerance2(90)) {
                     powerLeft(0);
@@ -387,7 +392,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         //Turn #1 towards the red ramp on the blue side (Defense and points
-        if (stage == 19) {
+        if (stage == 18) {
             if (!gyro.isCalibrating()) {
                 double RateOfDepression = -0.015;
                 double power = (RateOfDepression * manipTime.time()) + 1;
@@ -404,7 +409,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         //Final heading and drive up ramp
-        if (stage == 20) {
+        if (stage == 19) {
             if (!gyro.isCalibrating()) {
                 double RateOfDepression = -0.015;
                 double power = (RateOfDepression * manipTime.time()) + 1;

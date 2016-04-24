@@ -3,9 +3,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 
 /**
  * Beacon_Climbers_Bridge autonomous
@@ -18,21 +16,41 @@ public class BeaconFlapper extends OpMode {
 
     ColorSensor colorSensor;
 
-    Servo colorServo;
+    DeviceInterfaceModule cdim;
+    // we assume that the LED pin of the RGB Sensor is connected to
+    // digital port 5 (zero indexed).
+    static final int LED_CHANNEL = 5;
 
-    private final boolean redMode = true;
+    //Servo colorServo;
+
+    private final boolean redMode = false;
 
     // Function return a decimal from the inputed angle
     double getDecimalFromAngle (double angle) { return angle / 180; }
 
+    boolean isRed() {
+        boolean returnValue = false;
+        if (colorSensor.red() > colorSensor.blue() + 75) {
+            returnValue = true;
+        }
+        return returnValue;
+    }
+
+    boolean isBlue() {
+        boolean returnValue = false;
+        if (colorSensor.blue() > colorSensor.red() + 100) {
+            returnValue = true;
+        }
+        return returnValue;
+    }
 
     // Determines what color the robot is seeing in string form
     String colorROB () {
         String returnValue;
-        if (colorSensor.red() > colorSensor.blue()) {
-            returnValue = "Red";
-        } if (colorSensor.blue() > colorSensor.red()) {
-            returnValue = "Blue";
+        if (isRed()) {
+            return "Red";
+        } if (isBlue()) {
+            return "Blue";
         } else {
             returnValue = "Unknown";
         }
@@ -53,16 +71,21 @@ public class BeaconFlapper extends OpMode {
 
         colorSensor = hardwareMap.colorSensor.get("colorSensor");
 
-        colorServo = hardwareMap.servo.get("colorServo");
-        colorSensor.enableLed(false);
+        cdim = hardwareMap.deviceInterfaceModule.get("Device Interface Module");
+
+        //colorServo = hardwareMap.servo.get("colorServo");
+        //colorSensor.setI2cAddress(0x4c);
 
         // Set servo positions
-        colorServo.setPosition(getDecimalFromAngle(45));
+        //colorServo.setPosition(getDecimalFromAngle(45));
+
+        cdim.setDigitalChannelState(LED_CHANNEL, false);
 
     }
 
     @Override
     public void start() {
+
 
     }
 
@@ -78,35 +101,36 @@ public class BeaconFlapper extends OpMode {
 
         // Angle statements
         if (redMode) {
-            if (colorROB() == "Red") {
+            if (colorROB().equals("Red")) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(75));
-            } if (colorROB() == "Blue") {
+                //colorServo.setPosition(getDecimalFromAngle(75));
+            } if (colorROB().equals("Blue")) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(0));
+                //colorServo.setPosition(getDecimalFromAngle(0));
             }
         } if (!redMode) {
-            if (colorROB() == "Red") {
+            if (colorROB().equals("Red")) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(0));
+                //.setPosition(getDecimalFromAngle(0));
             }
-            if (colorROB() == "Blue") {
+            if (colorROB().equals("Blue")) {
                 DbgLog.msg(colorROB());
-                colorServo.setPosition(getDecimalFromAngle(75));
+                //colorServo.setPosition(getDecimalFromAngle(75));
             }
         }
 
         // Default position if no color is detected
-        if (colorROB() == "Unknown") {
-            colorServo.setPosition(getDecimalFromAngle(45));
+        if (colorROB().equals("Unknown")) {
+            //colorServo.setPosition(getDecimalFromAngle(45));
         }
 
 
 
         // Telementry return data
         telemetry.addData("color", colorROB());
+        //DbgLog.msg("R: " + colorSensor.red() + " , G: " + colorSensor.green() + " , B: " + colorSensor.blue());
 
-        telemetry.addData("servoPos", String.valueOf(colorServo.getPosition()*180));
+        //telemetry.addData("servoPos", String.valueOf(colorServo.getPosition()*180));
 
 
     }
