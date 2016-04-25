@@ -53,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
     public final static String[] KEY_LIST = {
             "redMode", // true = Red alliance; false = Blue alliance
             "delay", // Time in seconds before match starts // int
-            "targetGoal", // Where should the robot head to? // brz, fg
+            "targetGoal", // Where should the robot head to? // brz, mnt
             "startingPos", // Where is the robot located during start // 0 - close 1 - far
-            "defenseTarget" // where should we defende at, or no defense // String no - no defense | beacon - defend at beacon | mnt - defend at mountain
+            "defenseTarget" // where should we defend at, or no defense // String no - no defense | beacon - defend at beacon | mnt - defend at mountain
     };
     private static final String TAG = MainActivity.class.getName();
     RadioButton redAlliance;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     RadioButton beaconDefense;
     RadioButton mountainDefense;
     EditText delayTimeEditText;
-    RadioButton floorGoalRadioButton;
+    RadioButton mountainGoalRadioButton;
     RadioButton beaconRepairZoneRadioButton;
     Button updateButton;
 
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         delayTimeEditText = (EditText) findViewById(R.id.delayTimeEditText);
 
-        floorGoalRadioButton = (RadioButton) findViewById(R.id.floorGoalRadioButton);
+        mountainGoalRadioButton = (RadioButton) findViewById(R.id.mountainGoalRadioButton);
         beaconRepairZoneRadioButton = (RadioButton) findViewById(R.id.beaconRepairZoneRadioButton);
 
         updateButton = (Button) findViewById(R.id.updateButton);
@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         noDefense = (RadioButton) findViewById(R.id.noDefense);
         mountainDefense = (RadioButton) findViewById(R.id.mountainDefense);
         beaconDefense = (RadioButton) findViewById(R.id.beaconDefense);
+
+        findViewById(R.id.linearLayout).requestFocus();
 
     }
 
@@ -112,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         editor.putInt(KEY_LIST[1], delayInt);
 
-        if (floorGoalRadioButton.isChecked()) {
+        if (mountainGoalRadioButton.isChecked()) {
             editor.putString(KEY_LIST[2], "fg");
         }
         if (beaconRepairZoneRadioButton.isChecked()) {

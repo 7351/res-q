@@ -7,13 +7,16 @@
 
     <LinearLayout
 
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-    android:layout_height="match_parent"
+        android:layout_height="match_parent"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="tk.leoforney.dynamicchooser.MainActivity">
 
 
@@ -32,9 +35,9 @@
                 android:id="@+id/red"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="Red"
-                android:textSize="@dimen/abc_text_size_medium_material"
-                android:checked="true" />
+                android:textSize="@dimen/abc_text_size_medium_material" />
 
             <RadioButton
                 android:id="@+id/blue"
@@ -64,7 +67,8 @@
             android:layout_height="45dp"
             android:gravity="center_horizontal"
             android:inputType="number"
-            android:text="0" />
+            android:text="0"
+            android:windowSoftInputMode="stateHidden" />
 
         <View
             android:layout_width="fill_parent"
@@ -85,20 +89,20 @@
                 android:textSize="@dimen/abc_text_size_title_material" />
 
             <RadioButton
-                android:id="@+id/floorGoalRadioButton"
+                android:id="@+id/mountainGoalRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="Floor goal"
+                android:text="Opponents mountain"
                 android:textSize="@dimen/abc_text_size_medium_material" />
 
             <RadioButton
                 android:id="@+id/beaconRepairZoneRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="false"
                 android:text="Beacon repair zone"
-                android:textSize="@dimen/abc_text_size_medium_material"
-                android:checked="false" />
+                android:textSize="@dimen/abc_text_size_medium_material" />
 
         </RadioGroup>
 
@@ -157,12 +161,12 @@
                 android:textSize="@dimen/abc_text_size_title_material" />
 
             <RadioButton
+                android:id="@+id/noDefense"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="No defense"
-                android:textSize="@dimen/abc_text_size_medium_material"
-                android:id="@+id/noDefense" />
+                android:textSize="@dimen/abc_text_size_medium_material" />
 
             <RadioButton
                 android:id="@+id/beaconDefense"
