@@ -69,7 +69,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (!isGyroInTolerance(TargetDegree)) {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
             double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
-            if (DegreesOff < 10) {
+            if (DegreesOff < 20) {
                 RawPower += 0.2;
             }
             if (RotationMode.equals("clockwise")) {
@@ -149,7 +149,13 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
         return returnValue;
     }
-
+    public boolean aboveBlueLine(){
+        boolean returnValue = false;
+        if ((lineColorSensor.blue() > lineColorSensor.red()) && (lineColorSensor.blue() > lineColorSensor.green())) {
+            returnValue = true;
+        }
+        return returnValue;
+    }
 
 
 
@@ -182,6 +188,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
         LBumper = hardwareMap.servo.get("LBumper");
         RBumper = hardwareMap.servo.get("RBumper");
+        gyro.calibrate();
     }
 
     @Override
@@ -216,6 +223,9 @@ public class DriveToBeaconRed extends DriveTrainLayer {
     public void loop() {
         int highByte;
         int lowByte;
+        int currentGyro;
+
+        currentGyro = gyro.getHeading();
 
         //Get Prox Data
         prox.refreshData();
@@ -266,11 +276,6 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                     //failsafe for missing white
                     DbgLog.msg("Hit wall check.  Wait time is:", waitTime.time());
                     //Check to set if Otter has been searching for the white line too long
-                    if (waitTime.time()>=5){
-                        telemetry.addData("Hit the wall?", waitTime.time());
-                        DbgLog.msg("Hit the wall?", waitTime.time());
-                        stage=103; //Stage to try to recovery
-                    }
                 }
             }
         }
@@ -345,7 +350,11 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         //Prox sensor stages
         if (stage == 9) {
            // Drive forward
-            driveOnHeading(270, -0.25);
+           driveOnHeading(270, -0.3);
+           // motorLeft1.setPower(-.3);
+          //  motorLeft2.setPower(-.3);
+          //  motorRight1.setPower(-.3);
+          //  motorRight2.setPower(-.3);
             //Decides if its safe to throw climbers
             //if the high byte is 8 you may not be close enough but, only if the low is greater than 200 throw climbers
             if (highByte >= 9 || (highByte == 8 && lowByte >= 200)) {
@@ -359,14 +368,14 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                     if (lastByte >= (lowByte - flux)) {//Otter didnt move much sincs last loop
                         counter++;
                         lastByte = lowByte;
-                        if (counter >= 100) {//checking how lomg Otters been stuck
+                        if (counter >= 1000) {//checking how lomg Otters been stuck
                             stage = 17;//abort skip the stage to throw climbers
                         } else {
-                            stage = 14;
+                            stage = 9;
                         }
                     } else {//Otter is still moving
                         counter = 0;
-                        stage = 14;//recheck
+                        stage = 9;//recheck
                         lastByte = lowByte;
                     }
                 }
@@ -389,7 +398,8 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 }
             } if (waitTime.time() > 1.5) {
                 climbersServo.setPosition(0);
-                stage++;
+                manipTime.reset();
+                stage=51;
             }
         }
         //Phase3
@@ -443,35 +453,66 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             }
         }
         //Code for driving to blue beacon and blocking for defense
+        //drive out
         if (stage == 51) {
-            double driveOutTime = 0.5;
-            if (manipTime.time() > driveOutTime) {
-                powerLeft(0);
+            if (manipTime.time() <= 1){
+                powerLeft(.7);
+                powerRight(.7);
+            }
+            if (manipTime.time() >= 1){
                 powerRight(0);
-                waitTime.reset();
+                powerLeft(0);
                 stage++;
-            } if (manipTime.time() < driveOutTime) {
-                    driveOnHeading(90);
             }
         }
 
-        if (stage == 52) {
-            if (waitTime.time() > 0.25) {
+        if (stage==52){
+            DbgLog.msg("blue", lineColorSensor.blue());
+            DbgLog.msg("red", lineColorSensor.red());
+            telemetry.addData("red", lineColorSensor.red());
+            telemetry.addData("blue", lineColorSensor.blue());
+            telemetry.addData("white", lineColorSensor.red());
+            telemetry.addData("stage", stage);
+
+            if (lineColorSensor.blue() <= 0){
+                driveOnHeading(2,.4);
+                stage=52;
+            }
+            if(lineColorSensor.blue() >= 1 ){
+                powerLeft(0);
+                powerRight(0);
+                manipTime.reset();
+                stage++;
+            }
+}
+        if (stage == 53) {
+            if (waitTime.time() > 0.3) {
                 manipTime.reset();
                 stage++;
             }
         }
-        if (stage == 53) {
-                if (isGyroInTolerance2(0)) {
-                    powerLeft(0);
-                    powerRight(0);
-                    waitTime.reset();
-                    stage++;
-                } if (!isGyroInTolerance2(0)) {
-                    rotateUsingSpoofed(180, 270, 162, "counterclockwise");
-                }
 
+        if (stage==54){
+            powerLeft(-1);
+            powerRight(1);
+            if(currentGyro >= 65){
+                powerRight(0);
+                powerLeft(0);
+                stage++;
             }
+        }
+        if (stage == 55) {
+            if(!aboveWhiteLine()){
+                powerLeft(.7);
+                powerRight(.7);
+            }
+            if (aboveWhiteLine()){
+                powerLeft(0);
+                powerRight(0);
+                stage=999;
+            }
+        }
+
 
          if (stage == 54) {
             if (waitTime.time() > 0.25) {
@@ -490,7 +531,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
 
         //Intake motor on and off
-        if (stage >= 1 && stage <= 5) {
+        if ( stage >= 1 && stage <= 5 || stage>=50 && stage>=55   ) {
             intakeMotor.setPower(1);
         }
         if (stage > 5) {
