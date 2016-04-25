@@ -69,9 +69,11 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (!isGyroInTolerance(TargetDegree)) {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
             double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
+            /*
             if (DegreesOff < 20) {
                 RawPower += 0.2;
             }
+            */
             if (RotationMode.equals("clockwise")) {
                 powerLeft(RawPower);
                 powerRight(-RawPower);
@@ -235,7 +237,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
                 manipTime.reset();
-                stage++;
+                stage=61;
             }
         }
         //Drive out from wall
@@ -399,7 +401,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             } if (waitTime.time() > 1.5) {
                 climbersServo.setPosition(0);
                 manipTime.reset();
-                stage=51;
+                stage=41;
             }
         }
         //Phase3
@@ -452,6 +454,44 @@ public class DriveToBeaconRed extends DriveTrainLayer {
                 stage++;
             }
         }
+        //drive out of the box
+        if (stage == 41) {
+            if (manipTime.time() <= 1){
+                driveOnHeading(90,1);
+            }
+            if (manipTime.time() >= 1){
+                powerRight(0);
+                powerLeft(0);
+                stage++;
+            }
+        }
+        //Find the blue line in the middle of the field
+        if (stage==42){
+            if (lineColorSensor.blue() <= 0){
+                driveOnHeading(90,1);
+            }
+            if(lineColorSensor.blue() >= 1 ){
+                powerLeft(0);
+                powerRight(0);
+                manipTime.reset();
+                waitTime.reset();
+                stage++;
+            }
+        }
+        if (stage == 43) {
+            if (waitTime.time() <4.3) {
+                driveOnHeading(70,.4);
+            }
+            if (waitTime.time() > 4.4) {
+                powerLeft(0);
+                powerRight(0);
+                stage=943;
+            }
+        }
+
+
+
+
         //Code for driving to blue beacon and blocking for defense
         //drive out
         if (stage == 51) {
@@ -475,13 +515,14 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             telemetry.addData("stage", stage);
 
             if (lineColorSensor.blue() <= 0){
-                driveOnHeading(2,.4);
+                driveOnHeading(2,1);
                 stage=52;
             }
             if(lineColorSensor.blue() >= 1 ){
                 powerLeft(0);
                 powerRight(0);
                 manipTime.reset();
+                waitTime.reset();
                 stage++;
             }
 }
@@ -493,36 +534,118 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
 
         if (stage==54){
-            powerLeft(-1);
-            powerRight(1);
-            if(currentGyro >= 65){
-                powerRight(0);
-                powerLeft(0);
+            //powerLeft(-1);
+            //powerRight(1);
+            //driveOnHeading(65,.7);
+            //if(currentGyro >= 65){
+               // powerRight(0);
+                //powerLeft(0);
                 stage++;
-            }
+           // }
         }
         if (stage == 55) {
             if(!aboveWhiteLine()){
-                powerLeft(.7);
-                powerRight(.7);
+                driveOnHeading(69,1);
             }
             if (aboveWhiteLine()){
                 powerLeft(0);
                 powerRight(0);
-                stage=999;
+                stage=955;
             }
         }
-
-
-         if (stage == 54) {
-            if (waitTime.time() > 0.25) {
+        //Drive to floor goal
+        if (stage == 61) {
+            if (waitTime.time() > 3) {
                 manipTime.reset();
                 stage++;
             }
         }
+        //Drive on heading 180 to blue line
+        if (stage==62){
+            if (!aboveBlueLine()){
+                driveOnHeading(0);
+            }
+            if(aboveBlueLine()){
+                powerLeft(0);
+                powerRight(0);
+                manipTime.reset();
+                waitTime.reset();
+                stage++;
+            }
+        }
+
+        if (stage==63){
+            if (waitTime.time() < 4) {
+                driveOnHeading(62, .4);
+            }
+            if (waitTime.time() > 4) {
+                powerLeft(0);
+                powerRight(0);
+                stage=943;
+            }
+        }
 
 
-               ///Debug stage to stop
+        if (stage == 64) {
+            if(!aboveRedLine()){
+                driveOnHeading(245,1);
+            }
+            if (aboveRedLine()){
+                powerLeft(0);
+                powerRight(0);
+                stage=963;
+            }
+
+        }
+
+        //Drive to floor goal
+        if (stage == 71) {
+            if (waitTime.time() > 3) {
+                manipTime.reset();
+                stage++;
+            }
+        }
+        //Drive on heading 180 to blue line
+        if (stage==72){
+            if (!aboveBlueLine()){
+                driveOnHeading(0);
+            }
+            if(aboveBlueLine()){
+                powerLeft(0);
+                powerRight(0);
+                manipTime.reset();
+                waitTime.reset();
+                stage++;
+            }
+        }
+
+        if (stage==73){
+            if (waitTime.time() < 4) {
+                driveOnHeading(0, .4);
+            }
+            if (waitTime.time() > 4) {
+                powerLeft(0);
+                powerRight(0);
+                stage=943;
+            }
+        }
+
+
+        if (stage == 74) {
+            if(!aboveRedLine()){
+                driveOnHeading(245,1);
+            }
+            if (aboveRedLine()){
+                powerLeft(0);
+                powerRight(0);
+                stage=963;
+            }
+
+        }
+
+
+
+         ///Debug stage to stop
         if (stage == 999) {
             //otter is stuck short of the beacon ,cannot throw so stop motors
             powerLeft(0);
@@ -531,10 +654,10 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
 
         //Intake motor on and off
-        if ( stage >= 1 && stage <= 5 || stage>=50 && stage>=55   ) {
+        if ( stage >= 1 && stage <= 5 || stage>=69 && stage>=  73 ) {
             intakeMotor.setPower(1);
         }
-        if (stage > 5) {
+        if (stage > 5 && stage< 50 && stage <40) {
             intakeMotor.setPower(0);
         }
         //Lower bumpers
