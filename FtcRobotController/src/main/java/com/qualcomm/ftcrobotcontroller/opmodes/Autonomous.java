@@ -285,11 +285,11 @@ public class Autonomous extends DriveTrainLayer {
                 int targetAngle = 0;
                 // This is a temporary number ^^
 
-                int stage_61LongRed = 50;
+                int stage_61LongRed = 0;
                 // TODO get long degree RED
                 int stage_61ShortRed = 62;
 
-                int stage_61LongBlue = 310;
+                int stage_61LongBlue = 0;
                 // TODO get long & short degree BLUE
                 int stage_61ShortBlue = 308;
 
@@ -341,6 +341,8 @@ public class Autonomous extends DriveTrainLayer {
 
             // Blue alliance
             if (!redMode) {
+
+                // TODO find blue angles
 
                 // If we are closer to the mountain
                 if (startingPos == 0) {
