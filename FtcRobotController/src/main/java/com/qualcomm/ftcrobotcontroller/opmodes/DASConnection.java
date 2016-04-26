@@ -12,16 +12,16 @@ import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
  */
 public abstract class DASConnection{
 
-    public DASConnection() {}
-
     public final static String FILENAMEPREF = "preferences";
     public final String[] KEY_LIST = {
             "redMode", // true = Red alliance; false = Blue alliance
             "delay", // Time in seconds before match starts // int
-            "targetGoal", // Where should the robot head to? // brz, fg
+            "targetGoal", // Where should the robot head to? // brz, mnt
             "startingPos", // Where is the robot located during start // 0 - close 1 - far
-            "defenseTarget" // where should we defende at, or no defense // String no - no defense | beacon - defend at beacon | mnt - defend at mountain
+            "defenseTarget" // where should we defend at, or no defense // String no - no defense | beacon - defend at beacon | mnt - defend at mountain
     };
+    public DASConnection() {}
+
     private SharedPreferences getPreferences() {
 
         SharedPreferences pref = null;
