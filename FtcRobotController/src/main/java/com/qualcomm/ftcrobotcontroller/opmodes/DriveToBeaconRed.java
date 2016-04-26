@@ -69,11 +69,11 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (!isGyroInTolerance(TargetDegree)) {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
             double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
-            /*
+
             if (DegreesOff < 20) {
                 RawPower += 0.2;
             }
-            */
+
             if (RotationMode.equals("clockwise")) {
                 powerLeft(RawPower);
                 powerRight(-RawPower);
@@ -237,7 +237,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
                 manipTime.reset();
-                stage=61;
+                stage++;
             }
         }
         //Drive out from wall
@@ -401,7 +401,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
             } if (waitTime.time() > 1.5) {
                 climbersServo.setPosition(0);
                 manipTime.reset();
-                stage=41;
+                stage=51;
             }
         }
         //Phase3
@@ -655,11 +655,11 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
         //Intake motor on and off
         if ( stage >= 1 && stage <= 5 || stage>=69 && stage>=  73 ) {
-            intakeMotor.setPower(1);
-        }
-        if (stage > 5 && stage< 50 && stage <40) {
             intakeMotor.setPower(0);
         }
+       // if (stage > 5 && stage< 50 && stage <40) {
+            intakeMotor.setPower(0);
+        //}
         //Lower bumpers
         double leftBumperRest = 0.7,
                 leftBumperTilt = 0.35,
