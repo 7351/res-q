@@ -582,17 +582,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
 
 
-        if (stage == 64) {
-            if(!aboveRedLine()){
-                driveOnHeading(245,1);
-            }
-            if (aboveRedLine()){
-                powerLeft(0);
-                powerRight(0);
-                stage=963;
-            }
 
-        }
 
         //Drive to floor goal
         if (stage == 71) {
