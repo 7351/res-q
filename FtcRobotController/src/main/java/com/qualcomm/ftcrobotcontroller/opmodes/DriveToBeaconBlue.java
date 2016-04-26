@@ -371,7 +371,7 @@ public class DriveToBeaconBlue extends DriveTrainLayer {
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
                 if (!isGyroInTolerance2(90)) {
-                    rotateUsingSpoofed(270, 180, 162, "clockwise");
+                    rotateUsingSpoofed(90, 180, 162, "clockwise");
                 }
                 if (isGyroInTolerance2(90)) {
                     powerLeft(0);

@@ -62,9 +62,25 @@ public class FtcOpModeRegister implements OpModeRegister {
      * The TeleOpDouble op mode
 	 */
         manager.register("Empty", EmptyOp.class);
-        manager.register("TeleOpDouble", TeleOpDouble.class);
-        manager.register("TeleOpDemoRobot", TeleOpDemoRobot.class);
-        //manager.register("GyroTest", GyroTest.class);
+
+       //manager.register("00. TeleOp", TeleOpDouble.class);
+       manager.register("01. RD-Far-ClimberDef",RDFarClimberDef.class );
+       manager.register("02. RD-Close-ClimberDef",RDCloseClimberDef.class );
+       manager.register("03. BL-Far-ClimberDef",BLFarClimberDef.class );
+       manager.register("04. BL-Close-ClimbersDef",BLCloseClimberDef.class);
+       //manager.register("05. RD-Far-MountainOnly " ,RDFarMountainOnly.class);
+       //manager.register("06. RD-Close-MountainOnly",RDFCloseMountainOnly.class);
+       //manager.register("07. BL-Far-MountainOnly",BLFarMountainOnly.class);
+       //manager.register("08. BL-Close-MountainOnly",BLCloseMountainOnly.class);
+       //manager.register("09. RD-Far-Climber-Mountain",RDFarClimberMountain.class);
+       //manager.register("10. RD-Close-Climber-Mountain",RDCloseClimberMountain.class);
+       //manager.register("11. BL-Far-Climber-Mountain",BLFarClimberMountain.class);
+       manager.register("12. BL-Close-Climber-Mountain",BLCloseClimberMountain.class);
+       //manager.register("13. RD-Far-ClimberOnly",RDFarClimberOnly);
+       //manager.register("14. RD-Close-ClimberOnly",RDCloseClimberOnly);
+        //manager.register("15. BL-Far-ClimberOnly",RDFarClimberOnly);
+        //manager.register("16. BL-Close-ClimbersOnly",BlCloseClimberOnly);
+
         manager.register("ClimbersRed", DriveToBeaconRed.class);
         manager.register("ClimbersBlue", DriveToBeaconBlue.class);
         manager.register("Autonomous", Autonomous.class);
