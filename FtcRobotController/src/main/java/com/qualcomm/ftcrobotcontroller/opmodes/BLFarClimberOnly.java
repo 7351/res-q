@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
  * <p/>
  * Drive to the beacon red side
  */
-public class BLCloseClimberMountain extends DriveTrainLayer {
+public class BLFarClimberOnly extends DriveTrainLayer {
 
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
@@ -235,7 +235,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
             if (!gyro.isCalibrating()) {
                 driveLeft(0.6);
                 driveRight(0.6);
-                if (manipTime.time() >= 0.7) {
+                if (manipTime.time() >= 0.4) {
                     driveLeft(0);
                     driveRight(0);
                     stage++;
@@ -262,7 +262,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                 if (!gyro.isCalibrating()) {
                     double RateOfDepression = -0.015;
                     double power = (RateOfDepression * manipTime.time()) + 1;
-                    driveOnHeading(32, power);
+                    driveOnHeading(49, .8);
                     intakeMotor.setPower(1);
                 }
             }
@@ -299,10 +299,10 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
         //Turning Otter around to 90 degrees to prep for climbers
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
-                if ( currentGyro < 240){
-                    powerLeft(.65);
-                    powerRight(-.65);
-                } if (currentGyro > 241  ) {
+                if ( currentGyro < 237){
+                    powerLeft(.7);
+                    powerRight(-.7);
+                } if (currentGyro > 239  ) {
                     powerLeft(0);
                     powerRight(0);
                     stage++;
@@ -333,8 +333,8 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                     if (lastByte >= (lowByte - flux)) {//Otter didnt move much sincs last loop
                         counter++;
                         lastByte = lowByte;
-                        if (counter >= 400) {//checking how long Otters been stuck
-                            stage =12;//abort skip the stages to throw climbers
+                        if (counter >= 100) {//checking how long Otters been stuck
+                            stage =999;//abort skip the stages to throw climbers
                         } else {
                             stage = 9;
                         }
@@ -369,42 +369,6 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                 stage++;
             }
         }
-        //Drive out of the box
-            if (stage==12){
-                if (waitTime.time() < 1){
-                    driveOnHeading(270,1);
-                }
-                if (waitTime.time()>1){
-                    waitTime.reset();
-                    stage++;
-                }
-            }
-
-        //Find the blue line in the middle of the field
-        if (stage == 13) {
-            if (!aboveBlueLine()){
-                driveOnHeading(270,1);
-            }
-            if (aboveBlueLine()){
-                powerRight(0);
-                powerLeft(0);
-                waitTime.reset();
-                stage++;
-            }
-        }
-
-        //drive lightly on mountain
-        if (stage == 14) {
-            if (waitTime.time() <4.3) {
-                driveOnHeading(285,0.4);
-            }
-            if (waitTime.time() > 4.4) {
-                powerLeft(0);
-                powerRight(0);
-                stage=914;
-            }
-        }
-
 
          ///End stage or Debug stage to stop
         if (stage == 999) {

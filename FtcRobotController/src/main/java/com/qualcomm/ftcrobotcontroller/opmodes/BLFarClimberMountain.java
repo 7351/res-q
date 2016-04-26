@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
  * <p/>
  * Drive to the beacon red side
  */
-public class BLCloseClimberMountain extends DriveTrainLayer {
+public class BLFarClimberMountain extends DriveTrainLayer {
 
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
@@ -235,7 +235,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
             if (!gyro.isCalibrating()) {
                 driveLeft(0.6);
                 driveRight(0.6);
-                if (manipTime.time() >= 0.7) {
+                if (manipTime.time() >= 0.4) {
                     driveLeft(0);
                     driveRight(0);
                     stage++;
@@ -262,7 +262,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                 if (!gyro.isCalibrating()) {
                     double RateOfDepression = -0.015;
                     double power = (RateOfDepression * manipTime.time()) + 1;
-                    driveOnHeading(32, power);
+                    driveOnHeading(49, power);
                     intakeMotor.setPower(1);
                 }
             }
@@ -300,8 +300,8 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
                 if ( currentGyro < 240){
-                    powerLeft(.65);
-                    powerRight(-.65);
+                    powerLeft(.7);
+                    powerRight(-.7);
                 } if (currentGyro > 241  ) {
                     powerLeft(0);
                     powerRight(0);

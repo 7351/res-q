@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
  * <p/>
  * Drive to the beacon red side
  */
-public class BLCloseClimberMountain extends DriveTrainLayer {
+public class BLCloseMountainOnly extends DriveTrainLayer {
 
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
@@ -225,187 +225,42 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
         //Calabrtation stage
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
-                manipTime.reset();
+                waitTime.reset();
                 stage++;
             }
         }
-        //Drive out from wall
+        //8 sec delay
         if (stage == 1) {
-            intakeMotor.setPower(1);
-            if (!gyro.isCalibrating()) {
-                driveLeft(0.6);
-                driveRight(0.6);
-                if (manipTime.time() >= 0.7) {
-                    driveLeft(0);
-                    driveRight(0);
-                    stage++;
-                    waitTime.reset();
-                }
-            }
-        }
-        //Pause for .5 seconds
-        if (stage == 2) {
-            if (waitTime.time() >= 0.5) {
+            if (waitTime.time() > 8) {
                 manipTime.reset();
-                waitTime.reset();
                 stage++;
             }
         }
-        //Drive on heading until you find the white line
-        if (stage == 3) {
-            if (aboveWhiteLine()) {
-                driveLeft(0);
-                driveRight(0);
-                stage++;
-            }
-            if (!aboveWhiteLine()) {
-                if (!gyro.isCalibrating()) {
-                    double RateOfDepression = -0.015;
-                    double power = (RateOfDepression * manipTime.time()) + 1;
-                    driveOnHeading(32, power);
-                    intakeMotor.setPower(1);
-                }
-            }
-        }
-
-        //Pause for .5 seconds to stop and stabilize
-        if (stage == 4) {
-            if (waitTime.time() >= 0.5) {
-                stage++;
-                manipTime.reset();
-            }
-        }
-        //Backup to the white line if otter went past (Fail safe Rarely used)
-        if (stage == 5) {
-            if (!aboveWhiteLine()) {
-                driveLeft(-0.4);
-                driveRight(-0.4);
-                }
-            if (aboveWhiteLine()) {
-                driveLeft(0);
-                driveRight(0);
-                stage++;
-                waitTime.reset();
-            }
-        }
-        //Pause for .5 seconds to stop and stablize
-        if (stage == 6) {
-            if (waitTime.time() >= 0.5) {
-                stage++;
-                manipTime.reset();
-            }
-        }
-        //Phase2
-        //Turning Otter around to 90 degrees to prep for climbers
-        if (stage == 7) {
-            if (!gyro.isCalibrating()) {
-                if ( currentGyro < 240){
-                    powerLeft(.65);
-                    powerRight(-.65);
-                } if (currentGyro > 241  ) {
-                    powerLeft(0);
-                    powerRight(0);
-                    stage++;
-                }
-
-            }
-        }
-        if (stage == 8) {
-            if (waitTime.time() >= 0.5) {
-                stage++;
-                manipTime.reset();
-            }
-        }
-        //Prox sensor Phase
-        //Drive forward
-        if (stage == 9) {
-            driveOnHeading(90, -0.3);
-            //Decides if its safe to throw climbers
-            //if the high byte is 8 you may not be close enough but, only if the low is greater than 200 throw climbers
-            if (highByte >= 10 || (highByte == 9 && lowByte >= 120)) {
-                //if the highByte is 9 you are close enough to the wall to throw
-                telemetry.addData("Text", "Throw Climbers");
-                stage++; //Goto to stage 15 to throw climbers
-            } else {
-                //Loop to count how many time otter doesn't move
-                if (highByte <= 9) {
-
-                    if (lastByte >= (lowByte - flux)) {//Otter didnt move much sincs last loop
-                        counter++;
-                        lastByte = lowByte;
-                        if (counter >= 400) {//checking how long Otters been stuck
-                            stage =12;//abort skip the stages to throw climbers
-                        } else {
-                            stage = 9;
-                        }
-                    } else {//Otter is still moving
-                        counter = 0;
-                        stage = 9;//recheck
-                        lastByte = lowByte;
-                    }
-                }
-            }
-        }
-        //Sets motor power to zero and throws climbers
-        if (stage == 10) {
-            powerRight(0);
-            powerLeft(0);
-            manipTime.reset();
-            waitTime.reset();
-            servotime.reset();
-            intakeMotor.setPower(0);
-            stage++;
-        }
-
-        //Throws climbers and moves servo back
-        if (stage == 11) {
-            if (waitTime.time() < 1.4) {
-                if (servotime.time() > servoDelayTime2) {
-                    climbersServo.setPosition(Range.clip(servoPosition += servoDelta, restingPosition, 1));
-                }
-            } if (waitTime.time() > 1.5) {
-                climbersServo.setPosition(0);
-                waitTime.reset();
-                stage++;
-            }
-        }
-        //Drive out of the box
-            if (stage==12){
-                if (waitTime.time() < 1){
-                    driveOnHeading(270,1);
-                }
-                if (waitTime.time()>1){
-                    waitTime.reset();
-                    stage++;
-                }
-            }
-
-        //Find the blue line in the middle of the field
-        if (stage == 13) {
+        //Drive on heading 180 to blue line
+        if (stage==2){
             if (!aboveBlueLine()){
-                driveOnHeading(270,1);
+                intakeMotor.setPower(1);
+                driveOnHeading(0);
             }
-            if (aboveBlueLine()){
-                powerRight(0);
+            if(aboveBlueLine()){
                 powerLeft(0);
+                powerRight(0);
+                manipTime.reset();
                 waitTime.reset();
                 stage++;
             }
         }
 
-        //drive lightly on mountain
-        if (stage == 14) {
-            if (waitTime.time() <4.3) {
-                driveOnHeading(285,0.4);
+        if (stage==3){
+            if (waitTime.time() < 4) {
+                driveOnHeading(293, .4);
             }
-            if (waitTime.time() > 4.4) {
+            if (waitTime.time() > 4) {
                 powerLeft(0);
                 powerRight(0);
-                stage=914;
+                stage=999;
             }
         }
-
-
          ///End stage or Debug stage to stop
         if (stage == 999) {
             intakeMotor.setPower(0);

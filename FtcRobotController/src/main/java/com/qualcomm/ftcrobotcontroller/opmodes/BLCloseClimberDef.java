@@ -300,8 +300,8 @@ public class BLCloseClimberDef extends DriveTrainLayer {
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
                 if ( currentGyro < 240){
-                    powerLeft(.7);
-                    powerRight(-.7);
+                    powerLeft(.65);
+                    powerRight(-.65);
                 } if (currentGyro > 241  ) {
                     powerLeft(0);
                     powerRight(0);

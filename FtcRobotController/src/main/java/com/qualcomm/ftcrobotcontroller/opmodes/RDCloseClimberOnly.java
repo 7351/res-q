@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
  * <p/>
  * Drive to the beacon red side
  */
-public class BLCloseClimberMountain extends DriveTrainLayer {
+public class RDCloseClimberOnly extends DriveTrainLayer {
 
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
@@ -73,8 +73,8 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
         if (!isGyroInTolerance(TargetDegree)) {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
             double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
-            if (DegreesOff < 10) {
-                RawPower += 0.15;
+            if (DegreesOff < 20) {
+                RawPower += 0.2;
             }
             powerLeft(-RawPower);
             powerRight(RawPower);
@@ -262,7 +262,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                 if (!gyro.isCalibrating()) {
                     double RateOfDepression = -0.015;
                     double power = (RateOfDepression * manipTime.time()) + 1;
-                    driveOnHeading(32, power);
+                    driveOnHeading(324, power);
                     intakeMotor.setPower(1);
                 }
             }
@@ -299,10 +299,9 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
         //Turning Otter around to 90 degrees to prep for climbers
         if (stage == 7) {
             if (!gyro.isCalibrating()) {
-                if ( currentGyro < 240){
-                    powerLeft(.65);
-                    powerRight(-.65);
-                } if (currentGyro > 241  ) {
+                if (!isGyroInTolerance2(90)) {
+                    rotateUsingSpoofed(270, 180, 162);
+                } if (isGyroInTolerance2(90)) {
                     powerLeft(0);
                     powerRight(0);
                     stage++;
@@ -319,7 +318,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
         //Prox sensor Phase
         //Drive forward
         if (stage == 9) {
-            driveOnHeading(90, -0.3);
+            driveOnHeading(270, -0.3);
             //Decides if its safe to throw climbers
             //if the high byte is 8 you may not be close enough but, only if the low is greater than 200 throw climbers
             if (highByte >= 10 || (highByte == 9 && lowByte >= 120)) {
@@ -334,7 +333,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                         counter++;
                         lastByte = lowByte;
                         if (counter >= 400) {//checking how long Otters been stuck
-                            stage =12;//abort skip the stages to throw climbers
+                            stage =999;//abort skip the stages to throw climbers
                         } else {
                             stage = 9;
                         }
@@ -365,43 +364,8 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                 }
             } if (waitTime.time() > 1.5) {
                 climbersServo.setPosition(0);
-                waitTime.reset();
+                manipTime.reset();
                 stage++;
-            }
-        }
-        //Drive out of the box
-            if (stage==12){
-                if (waitTime.time() < 1){
-                    driveOnHeading(270,1);
-                }
-                if (waitTime.time()>1){
-                    waitTime.reset();
-                    stage++;
-                }
-            }
-
-        //Find the blue line in the middle of the field
-        if (stage == 13) {
-            if (!aboveBlueLine()){
-                driveOnHeading(270,1);
-            }
-            if (aboveBlueLine()){
-                powerRight(0);
-                powerLeft(0);
-                waitTime.reset();
-                stage++;
-            }
-        }
-
-        //drive lightly on mountain
-        if (stage == 14) {
-            if (waitTime.time() <4.3) {
-                driveOnHeading(285,0.4);
-            }
-            if (waitTime.time() > 4.4) {
-                powerLeft(0);
-                powerRight(0);
-                stage=914;
             }
         }
 
@@ -421,8 +385,6 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
 
             LBumper.setPosition(leftBumperRest);
             RBumper.setPosition(rightBumperRest);
-
-            telemetry.addData("gyro", gyro.getHeading());
     }
 
     /*

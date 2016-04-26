@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
  * <p/>
  * Drive to the beacon red side
  */
-public class BLCloseClimberMountain extends DriveTrainLayer {
+public class BLCloseClimberOnly extends DriveTrainLayer {
 
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
@@ -222,7 +222,6 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
         highByte = prox.getHb();
         lowByte = prox.getLb();
 
-        //Calabrtation stage
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
                 manipTime.reset();
@@ -280,7 +279,7 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
             if (!aboveWhiteLine()) {
                 driveLeft(-0.4);
                 driveRight(-0.4);
-                }
+            }
             if (aboveWhiteLine()) {
                 driveLeft(0);
                 driveRight(0);
@@ -365,46 +364,10 @@ public class BLCloseClimberMountain extends DriveTrainLayer {
                 }
             } if (waitTime.time() > 1.5) {
                 climbersServo.setPosition(0);
-                waitTime.reset();
+                manipTime.reset();
                 stage++;
             }
         }
-        //Drive out of the box
-            if (stage==12){
-                if (waitTime.time() < 1){
-                    driveOnHeading(270,1);
-                }
-                if (waitTime.time()>1){
-                    waitTime.reset();
-                    stage++;
-                }
-            }
-
-        //Find the blue line in the middle of the field
-        if (stage == 13) {
-            if (!aboveBlueLine()){
-                driveOnHeading(270,1);
-            }
-            if (aboveBlueLine()){
-                powerRight(0);
-                powerLeft(0);
-                waitTime.reset();
-                stage++;
-            }
-        }
-
-        //drive lightly on mountain
-        if (stage == 14) {
-            if (waitTime.time() <4.3) {
-                driveOnHeading(285,0.4);
-            }
-            if (waitTime.time() > 4.4) {
-                powerLeft(0);
-                powerRight(0);
-                stage=914;
-            }
-        }
-
 
          ///End stage or Debug stage to stop
         if (stage == 999) {
