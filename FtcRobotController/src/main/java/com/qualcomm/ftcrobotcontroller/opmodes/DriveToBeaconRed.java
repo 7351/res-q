@@ -31,11 +31,15 @@ public class DriveToBeaconRed extends DriveTrainLayer {
     Servo LBumper;
     Servo RBumper;
     VCNL4010 prox;
+    double servoPosition = restingPosition;
+    //int out of the loop
+    int lastByte = -1;
+    int flux = 10;
+    int counter = 0;
+    int whiteCounter=1;
     private double servoDelta = 0.01;
     private ElapsedTime servotime = new ElapsedTime();
     private double servoDelayTime2 = 0.0001;
-    double servoPosition = restingPosition;
-
 
     public boolean isGyroInTolerance(int degree) {
         boolean returnValue = false;
@@ -64,16 +68,15 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
         return degree;
     }
+
     private void rotateUsingSpoofed(int ZeroDegree, int TargetDegree, double DivisionNumber, String RotationMode) {
         int CurrentSpoofedDegree = spoofedZero(ZeroDegree); //An expected 39 gyro value from fake zero
         if (!isGyroInTolerance(TargetDegree)) {
             double DegreesOff = Math.abs(TargetDegree - CurrentSpoofedDegree);
             double RawPower = Range.clip(DegreesOff / DivisionNumber, 0, 1);
-            /*
             if (DegreesOff < 20) {
                 RawPower += 0.2;
             }
-            */
             if (RotationMode.equals("clockwise")) {
                 powerLeft(RawPower);
                 powerRight(-RawPower);
@@ -151,6 +154,7 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
         return returnValue;
     }
+
     public boolean aboveBlueLine(){
         boolean returnValue = false;
         if ((lineColorSensor.blue() > lineColorSensor.red()) && (lineColorSensor.blue() > lineColorSensor.green())) {
@@ -158,8 +162,6 @@ public class DriveToBeaconRed extends DriveTrainLayer {
         }
         return returnValue;
     }
-
-
 
     /*
      * Code to run when the op mode is initialized goes here
@@ -208,12 +210,6 @@ public class DriveToBeaconRed extends DriveTrainLayer {
 
         startTime.reset();
     }
-
-    //int out of the loop
-    int lastByte = -1;
-    int flux = 10;
-    int counter = 0;
-    int whiteCounter=1;
 
     /*
          * This method will be called repeatedly in a loop
