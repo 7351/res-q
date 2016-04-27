@@ -201,11 +201,11 @@ public class BLFarClimberOnlyDelay extends DriveTrainLayer {
 
         lineColorSensor.enableLed(true);
         manipTime.reset();
-
+        waitTime.reset();
         startTime.reset();
     }
 
-    final static int DELAY = 4;
+    final static int DELAY = 10;
 
     /*
          * This method will be called repeatedly in a loop
@@ -226,7 +226,7 @@ public class BLFarClimberOnlyDelay extends DriveTrainLayer {
 
 
         if (stage == -1) {
-            if (this.time > DELAY) {
+            if (waitTime.time() >= DELAY) {
                 stage++;
             }
         }
