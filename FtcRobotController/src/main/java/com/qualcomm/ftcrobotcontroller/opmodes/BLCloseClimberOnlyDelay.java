@@ -17,6 +17,8 @@ import com.qualcomm.robotcore.util.Range;
 public class BLCloseClimberOnlyDelay extends DriveTrainLayer {
 
     final static int TOLERANCE = 1;
+    DASConnection dasc = new DASConnection() {};
+    int delay = dasc.getInt(dasc.KEY_LIST[1]);
     ColorSensor lineColorSensor;
     GyroSensor gyro;
     int stage = -1;
@@ -205,7 +207,6 @@ public class BLCloseClimberOnlyDelay extends DriveTrainLayer {
         startTime.reset();
     }
 
-    final static int DELAY = 10;
 
     /*
          * This method will be called repeatedly in a loop
@@ -225,7 +226,7 @@ public class BLCloseClimberOnlyDelay extends DriveTrainLayer {
         lowByte = prox.getLb();
 
         if (stage == -1) {
-            if (waitTime.time() >= DELAY) {
+            if (waitTime.time() >= delay) {
                 stage++;
             }
         }
