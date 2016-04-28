@@ -19,7 +19,9 @@ public class RDFarClimberMountain extends DriveTrainLayer {
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
     GyroSensor gyro;
-    int stage = 0;
+    DASConnection dasc = new DASConnection() {};
+    int delay = dasc.getInt(dasc.KEY_LIST[1]);
+    int stage = -1;
     ElapsedTime manipTime = new ElapsedTime();
     ElapsedTime waitTime = new ElapsedTime();
     ElapsedTime startTime = new ElapsedTime();
@@ -221,6 +223,15 @@ public class RDFarClimberMountain extends DriveTrainLayer {
         prox.refreshData();
         highByte = prox.getHb();
         lowByte = prox.getLb();
+
+        telemetry.addData("stage", String.valueOf(stage));
+        telemetry.addData("calibration", String.valueOf(gyro.isCalibrating()));
+
+        if (stage == -1) {
+            if (this.time >= delay) {
+                stage++;
+            }
+        }
 
         //Calabrtation stage
         if (stage == 0) {

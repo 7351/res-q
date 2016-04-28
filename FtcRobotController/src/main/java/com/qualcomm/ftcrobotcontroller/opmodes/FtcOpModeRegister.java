@@ -80,14 +80,10 @@ public class FtcOpModeRegister implements OpModeRegister {
       manager.register("14. RD-Close-ClimberOnly",RDCloseClimberOnly.class);
         manager.register("15. BL-Far-ClimberOnly",BLFarClimberOnly.class);
         manager.register("16. BL-Close-ClimberOnly",BLCloseClimberOnly.class);
-        manager.register("17. BL-Close-Delay-ClimberOnly", BLCloseClimberOnlyDelay.class);
-        manager.register("18. BL-Far-Delay-ClimberOnly", BLFarClimberOnlyDelay.class);
-        manager.register("19. RD-Close-Delay-ClimberOnly", RDCloseClimberOnlyDelay.class);
-        manager.register("20. RD-Far-Delay-ClimberOnly", RDFarClimberOnlyDelay.class);
 
-        manager.register("ClimbersRed", DriveToBeaconRed.class);
-        manager.register("ClimbersBlue", DriveToBeaconBlue.class);
-        manager.register("Autonomous", Autonomous.class);
+        //manager.register("ClimbersRed", DriveToBeaconRed.class);
+        //manager.register("ClimbersBlue", DriveToBeaconBlue.class);
+        //manager.register("Autonomous", Autonomous.class);
 
     /*
 	 * Some testing op modes

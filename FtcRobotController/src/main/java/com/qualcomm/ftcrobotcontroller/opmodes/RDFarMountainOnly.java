@@ -19,7 +19,9 @@ public class RDFarMountainOnly extends DriveTrainLayer {
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
     GyroSensor gyro;
-    int stage = 0;
+    DASConnection dasc = new DASConnection() {};
+    int delay = dasc.getInt(dasc.KEY_LIST[1]);
+    int stage = -1;
     ElapsedTime manipTime = new ElapsedTime();
     ElapsedTime waitTime = new ElapsedTime();
     ElapsedTime startTime = new ElapsedTime();
@@ -222,6 +224,13 @@ public class RDFarMountainOnly extends DriveTrainLayer {
         highByte = prox.getHb();
         lowByte = prox.getLb();
 
+
+        if (stage == -1) {
+            if (this.time >= delay) {
+                stage++;
+            }
+        }
+
         //Calabrtation stage
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
@@ -231,10 +240,7 @@ public class RDFarMountainOnly extends DriveTrainLayer {
         }
         //Drive to floor goal
         if (stage == 1) {
-            if (waitTime.time() > 10) {
-                manipTime.reset();
-                stage++;
-            }
+            stage++;
         }
         //Drive on heading 0 to blue line
         if (stage==2){

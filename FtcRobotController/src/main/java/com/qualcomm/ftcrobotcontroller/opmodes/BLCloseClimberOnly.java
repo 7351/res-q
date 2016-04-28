@@ -19,7 +19,9 @@ public class BLCloseClimberOnly extends DriveTrainLayer {
     final static int TOLERANCE = 1;
     ColorSensor lineColorSensor;
     GyroSensor gyro;
-    int stage = 0;
+    DASConnection dasc = new DASConnection() {};
+    int delay = dasc.getInt(dasc.KEY_LIST[1]);
+    int stage = -1;
     ElapsedTime manipTime = new ElapsedTime();
     ElapsedTime waitTime = new ElapsedTime();
     ElapsedTime startTime = new ElapsedTime();
@@ -221,6 +223,12 @@ public class BLCloseClimberOnly extends DriveTrainLayer {
         prox.refreshData();
         highByte = prox.getHb();
         lowByte = prox.getLb();
+
+        if (stage == -1) {
+            if (this.time >= delay) {
+                stage++;
+            }
+        }
 
         if (stage == 0) {
             if (!gyro.isCalibrating()) {
